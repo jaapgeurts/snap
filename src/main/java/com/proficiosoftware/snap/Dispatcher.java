@@ -3,6 +3,7 @@ package com.proficiosoftware.snap;
 import java.io.IOException;
 import java.io.PrintWriter;
 
+import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.http.HttpServlet;
@@ -36,7 +37,7 @@ public class Dispatcher extends HttpServlet
   // }
 
   @Override
-  public void init() throws ServletException
+  public void init(ServletConfig config) throws ServletException
   {
     // Setup the router
     mRouter = Router.instance();
@@ -56,7 +57,7 @@ public class Dispatcher extends HttpServlet
       throw new ServletException(e);
     }
 
-    mWebApplication.init();
+    mWebApplication.init(config);
   }
 
   @Override

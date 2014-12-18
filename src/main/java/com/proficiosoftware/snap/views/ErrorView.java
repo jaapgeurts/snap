@@ -1,14 +1,11 @@
 package com.proficiosoftware.snap.views;
 
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.StringWriter;
-import java.io.UnsupportedEncodingException;
 
-import org.rythmengine.Rythm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.proficiosoftware.snap.WebApplication;
 
 public class ErrorView extends TemplateView
 {
@@ -30,41 +27,14 @@ public class ErrorView extends TemplateView
   }
 
   @Override
-  public CharSequence render()
+  public CharSequence render() throws RenderException
   {
     InputStream in = getClass().getClassLoader().getResourceAsStream(
-        ERROR_PAGE_NAME);
-    if (in == null)
-    {
-      log.warn("Error reading snap error template");
-      throw new RuntimeException("Can't read template: " + ERROR_PAGE_NAME);
-    }
-    InputStreamReader isr;
-    StringWriter sw = new StringWriter();
-    try
-    {
-      isr = new InputStreamReader(in, "UTF-8");
+        mTemplateName);
 
-      char[] buffer = new char[2048];
-      int len;
-      len = isr.read(buffer);
-      while (len != -1)
-      {
-        sw.write(buffer);
-        len = isr.read(buffer);
-      }
-    }
-    catch (UnsupportedEncodingException e)
-    {
-      log.warn("JVM doesn't support UTF-8 encoding", e);
-      throw new RuntimeException("Can't read template: " + ERROR_PAGE_NAME, e);
-    }
-    catch (IOException e)
-    {
-      log.warn("Error reading snap error template", e);
-      throw new RuntimeException("Can't read template: " + ERROR_PAGE_NAME, e);
-    }
-    return Rythm.render(sw.toString(), mContext);
+    String template = StreamToString(in);
+    return WebApplication.Instance().getRenderEngine()
+        .render(template, mContext);
   }
 
 }

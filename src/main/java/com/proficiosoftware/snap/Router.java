@@ -38,8 +38,6 @@ public class Router
     mRouteList = new ArrayList<Route>();
     mRouteMap = new HashMap<String, Route>();
 
-    // TODO: find routes file location from properties
-    // BufferedReader in = new BufferedReader(new FileReader(routesFile));
     BufferedReader in = new BufferedReader(new InputStreamReader(getClass()
         .getClassLoader().getResourceAsStream((Settings.routesFile))));
     int i = 1;
