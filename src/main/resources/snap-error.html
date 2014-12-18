@@ -1,0 +1,20 @@
+@import com.proficiosoftware.snap.Router
+@args Router router, Throwable exception, String message
+<html>
+<head>
+<title>Snap error</title>
+</head>
+<body>
+<h1>An error has occurred</h1>
+<p>@message</p>
+@if(exception != null) {
+<pre>@exception.getMessage()</pre>
+<pre>@{
+StringWriter w = new StringWriter();
+exception.printStackTrace(new PrintWriter(w));
+p(w.toString())
+}@
+</pre>
+}
+</body>
+</html>
