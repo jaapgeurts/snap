@@ -8,8 +8,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-import javax.servlet.http.HttpServletResponse;
-
 import org.jcodings.specific.UTF8Encoding;
 import org.joni.Matcher;
 import org.joni.NameEntry;
@@ -33,18 +31,19 @@ public class Route
   {
   }
 
-  // TODO: add context root
-  public Route(String alias, String path)
+  public Route(String contextPath, String alias, String path)
   {
+    mContextPath = contextPath;
     mPath = path;
     mAlias = alias;
     byte[] re = path.getBytes();
     mRegex = new Regex(re, 0, re.length, Option.NONE, UTF8Encoding.INSTANCE);
   }
 
-  public Route(String method, String path, String alias, String objectMethodPath)
+  public Route(String contextPath, String method, String path, String alias,
+      String objectMethodPath)
   {
-    this(alias, path);
+    this(contextPath, alias, path);
     // TODO: check * route
     mHttpMethod = method;
     String[] parts = objectMethodPath.split("::");
@@ -83,37 +82,52 @@ public class Route
               + httpRequest.getRequest().getPathInfo());
       }
 
-      HttpServletResponse response = httpResponse.getResponse();
-
-      // TODO: handle exceptions here.
       try
       {
-        response.setContentType("text/html");
-        response.setStatus(HttpServletResponse.SC_OK);
         view = (View)actionMethod.invoke(getController(), httpRequest,
             httpResponse);
-        return view;
-
+        if (view != null)
+        {
+          return view;
+        }
+        else
+        {
+          String message = "Instance of view expected. Found: null";
+          log.error(message);
+          view = new ErrorView(message);
+          return view;
+        }
       }
-      catch (IllegalAccessException | IllegalArgumentException
-          | InvocationTargetException e)
+      catch (InvocationTargetException e)
       {
         Throwable t = e;
         if (t instanceof InvocationTargetException)
           t = t.getCause();
         // TODO: wording
-        log.error("Error invoking controller action", t);
-        view = new ErrorView("Error invoking controller action", t);
+        String message = "Error happened during controller action.";
+        log.error(message, t);
+        view = new ErrorView(message, t);
+        return view;
+
+      }
+      catch (IllegalAccessException e)
+      {
+        String message = "Snap has no invokation access to the controller.";
+        log.error(message, e);
+        view = new ErrorView(message, e);
+        return view;
+      }
+      catch (IllegalArgumentException e)
+      {
+        String message = "The method signature of the controller action is not correct.";
+        log.error(message, e);
+        view = new ErrorView(message, e);
         return view;
       }
       catch (ClassCastException cce)
       {
-        String message;
-        if (view == null)
-          message = "Instance of view expected. Found: null";
-        else
-          message = "Instance of view expected. Found: "
-              + view.getClass().getCanonicalName();
+        String message = "Instance of view expected. Found: "
+            + view.getClass().getCanonicalName();
         log.error(message, cce);
         view = new ErrorView(message, cce);
         return view;
@@ -121,8 +135,8 @@ public class Route
     }
     else
     {
-      String message = "No controller found for route: " + getAlias()
-          + ". Specified: " + mController + "::" + mMethodName;
+      String message = "Controller or Method not found for route: "
+          + getAlias() + ". Specified: " + mController + "::" + mMethodName;
       view = new ErrorView(message);
       log.warn(message);
       return view;
@@ -164,7 +178,10 @@ public class Route
         builder.append(mPath.substring(start, regExLength));
       }
     }
-    return builder.toString();
+    if (mContextPath == null || "".equals(mContextPath))
+      return builder.toString();
+    else
+      return mContextPath + builder.toString();
   }
 
   public Map<String, String[]> getParameters(String path)
@@ -256,6 +273,7 @@ public class Route
   }
 
   protected String mPath;
+  protected String mContextPath;
   private String mAlias;
   private String mController;
   private String mHttpMethod;

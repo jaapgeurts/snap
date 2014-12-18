@@ -6,7 +6,6 @@ import java.util.Map;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
 
-import org.rythmengine.Rythm;
 import org.rythmengine.RythmEngine;
 
 public class WebApplication

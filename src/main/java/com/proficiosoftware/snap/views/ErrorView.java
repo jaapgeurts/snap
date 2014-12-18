@@ -1,11 +1,16 @@
 package com.proficiosoftware.snap.views;
 
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintWriter;
+
+import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.proficiosoftware.snap.WebApplication;
+import com.proficiosoftware.snap.http.HttpResponse;
 
 public class ErrorView extends TemplateView
 {
@@ -27,14 +32,23 @@ public class ErrorView extends TemplateView
   }
 
   @Override
-  public CharSequence render() throws RenderException
+  public void render(HttpResponse response) throws RenderException, IOException
   {
     InputStream in = getClass().getClassLoader().getResourceAsStream(
         mTemplateName);
 
     String template = StreamToString(in);
-    return WebApplication.Instance().getRenderEngine()
-        .render(template, mContext);
+    
+    PrintWriter pw = response.getResponse().getWriter();
+    
+    pw.print(WebApplication.Instance().getRenderEngine()
+        .render(template, mContext));
+
+    HttpServletResponse r = response.getResponse();
+    
+    r.setStatus(HttpServletResponse.SC_OK);
+    r.setContentType("text/html");
+
   }
 
 }

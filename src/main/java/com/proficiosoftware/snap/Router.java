@@ -19,25 +19,20 @@ public class Router
   public static Router instance()
   {
     if (mRouter == null)
-    {
-      try
-      {
-        mRouter = new Router();
-      }
-      catch (FileNotFoundException e)
-      {
-        log.error("Can't open router config file.", e);
-        return null;
-      }
-    }
+      mRouter = new Router();
     return mRouter;
   }
 
-  private Router() throws FileNotFoundException
+  private Router()
   {
     mRouteList = new ArrayList<Route>();
     mRouteMap = new HashMap<String, Route>();
 
+  }
+
+  public void init(String contextPath) throws FileNotFoundException
+  {
+    mContextPath = contextPath;
     BufferedReader in = new BufferedReader(new InputStreamReader(getClass()
         .getClassLoader().getResourceAsStream((Settings.routesFile))));
     int i = 1;
@@ -54,13 +49,9 @@ public class Router
         String alias = parts[2];
         Route route = null;
         if ("STATIC".equals(parts[0]))
-        {
-          route = new StaticRoute(parts[1], parts[2], parts[3]);
-        }
+          route = new StaticRoute(mContextPath, parts[1], parts[2], parts[3]);
         else
-        {
-          route = new Route(parts[0], parts[1], alias, parts[3]);
-        }
+          route = new Route(mContextPath, parts[0], parts[1], alias, parts[3]);
         mRouteList.add(route);
         mRouteMap.put(alias, route);
         i++;
@@ -98,8 +89,14 @@ public class Router
     return mRouteMap.get(routeAlias);
   }
 
+  public void setContextPath(String contextPath)
+  {
+    mContextPath = contextPath;
+  }
+
   private ArrayList<Route> mRouteList;
   private HashMap<String, Route> mRouteMap;
+  private String mContextPath;
 
   private static Router mRouter = null;
 

@@ -22,9 +22,10 @@ public class StaticRoute extends Route
 {
   final Logger log = LoggerFactory.getLogger(StaticRoute.class);
 
-  public StaticRoute(String path, String alias, String directory)
+  public StaticRoute(String contextPath, String path, String alias,
+      String directory)
   {
-    super(alias, path);
+    super(contextPath, alias, path);
     // TODO: merge the matching into the super class
     mDirectory = directory;
   }
@@ -69,7 +70,8 @@ public class StaticRoute extends Route
     }
     catch (IOException e)
     {
-      httpResponse.getResponse().setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+      httpResponse.getResponse().setStatus(
+          HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
       log.error("Error serving file", e);
     }
     return null;
@@ -84,7 +86,10 @@ public class StaticRoute extends Route
     if (mPath.charAt(end - 1) == '$')
       end--;
     String path = mPath.substring(begin, end);
-    return path + "/" + params[0].toString();
+    if (mContextPath == null || "".equals(mContextPath))
+      return path + "/" + params[0].toString();
+    else
+      return mContextPath + path + "/" + params[0].toString();
   }
 
   public String getDirectory()

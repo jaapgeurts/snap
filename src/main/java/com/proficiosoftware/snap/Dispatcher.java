@@ -1,5 +1,6 @@
 package com.proficiosoftware.snap;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
 
@@ -41,8 +42,15 @@ public class Dispatcher extends HttpServlet
   {
     // Setup the router
     mRouter = Router.instance();
-    if (mRouter == null)
-      throw new ServletException("Cannot open route file");
+
+    try
+    {
+      mRouter.init(config.getServletContext().getContextPath());
+    }
+    catch (FileNotFoundException e)
+    {
+      throw new ServletException("Cannot open route file", e);
+    }
 
     // force loading of settings so that the static initializer is called
     try
@@ -80,10 +88,12 @@ public class Dispatcher extends HttpServlet
 
     // match the path here and find a route
     String path = request.getPathInfo();
-    // Path is null when the servlet runs in a subdir and the root of that
-    // dir is called. So we set it to '/'
     if (path == null || "".equals(path))
-      path = "/";
+    {
+      String message = "the url-pattern section for this servlet in web.xml should be '/*'";
+      log.error(message);
+      throw new ServletException(message);
+    }
     Route route = mRouter.findRouteForPath(method, path);
 
     log.debug(String.format("%s - %s", method, path));
@@ -109,15 +119,13 @@ public class Dispatcher extends HttpServlet
       {
         try
         {
-          PrintWriter pw = response.getWriter();
-          pw.print(view.render());
+          view.render(httpResponse);
         }
         catch (Exception e)
         {
           String message = "Error during rendering";
           view = new ErrorView(message, e);
-          PrintWriter pw = response.getWriter();
-          pw.print(view.render());
+          view.render(httpResponse);
           log.warn(message);
         }
       }
@@ -136,6 +144,9 @@ public class Dispatcher extends HttpServlet
       // If we really can't handle it then bail
       // TODO: Load error view
 
+      response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+      response.setContentType("text/html");
+
       PrintWriter pw = response.getWriter();
       pw.print("<html><body><p><pre>");
       pw.print(t.getMessage());
@@ -145,7 +156,6 @@ public class Dispatcher extends HttpServlet
 
       log.error(t.getMessage(), t);
     }
-
   }
 
   @Override

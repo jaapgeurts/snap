@@ -4,22 +4,25 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.proficiosoftware.snap.Router;
 import com.proficiosoftware.snap.WebApplication;
+import com.proficiosoftware.snap.http.HttpResponse;
 
-public class TemplateView extends View
+public class TemplateView implements View
 {
   final Logger log = LoggerFactory.getLogger(TemplateView.class);
-  
+
   public TemplateView(String templateName)
   {
     mTemplateName = templateName;
@@ -33,19 +36,24 @@ public class TemplateView extends View
   }
 
   @Override
-  public CharSequence render() throws RenderException
+  public void render(HttpResponse response) throws RenderException, IOException
   {
 
     String template = mTemplateName;
 
-    //ServletContext context = WebApplication.Instance().getContext();
+    // ServletContext context = WebApplication.Instance().getContext();
 
-//    log.debug("Path: "+context.getRealPath("."));
-//    InputStream is = context.getResourceAsStream("/"+mTemplateName);
-//    template = StreamToString(is);
+    // log.debug("Path: "+context.getRealPath("."));
+    // InputStream is = context.getResourceAsStream("/"+mTemplateName);
+    // template = StreamToString(is);
 
-    return WebApplication.Instance().getRenderEngine()
-        .render(template, mContext);
+    HttpServletResponse r = response.getResponse();
+    PrintWriter pw = r.getWriter();
+    pw.print(WebApplication.Instance().getRenderEngine()
+        .render(template, mContext));
+    r.setStatus(HttpServletResponse.SC_OK);
+    r.setContentType("text/html");
+
   }
 
   protected String StreamToString(InputStream in) throws RenderException
@@ -66,7 +74,7 @@ public class TemplateView extends View
       len = br.read(buffer);
       while (len != -1)
       {
-        builder.append(buffer,0,len);
+        builder.append(buffer, 0, len);
         len = br.read(buffer);
       }
       return builder.toString();
