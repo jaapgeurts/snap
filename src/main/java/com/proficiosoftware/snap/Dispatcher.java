@@ -133,7 +133,7 @@ public class Dispatcher extends HttpServlet
     catch (UnauthorizedAccessException uae)
     {
       // redirect to redirect URL
-      log.debug("User not logged in", uae);
+      log.debug("User not logged in, redirecting: {}",uae.getMessage());
       String url = Settings.redirectUrl;
       // TODO: should I encode the path??
       response.sendRedirect(url + "?next=" + path);

@@ -86,17 +86,7 @@ public class Route
       {
         view = (View)actionMethod.invoke(getController(), httpRequest,
             httpResponse);
-        if (view != null)
-        {
-          return view;
-        }
-        else
-        {
-          String message = "Instance of view expected. Found: null";
-          log.error(message);
-          view = new ErrorView(message);
-          return view;
-        }
+        return view;
       }
       catch (InvocationTargetException e)
       {
