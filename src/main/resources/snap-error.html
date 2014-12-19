@@ -1,11 +1,11 @@
 @import com.proficiosoftware.snap.Router
-@args Router router, Throwable exception, String message
+@args Router router, Throwable exception, String message, Integer statuscode
 <html>
 <head>
 <title>Snap error</title>
 </head>
 <body>
-<h1>An error has occurred</h1>
+<h1>@statuscode - An error has occurred</h1>
 <p>@message</p>
 @if(exception != null) {
 <pre>@exception.getMessage()</pre>

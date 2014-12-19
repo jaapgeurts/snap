@@ -107,7 +107,7 @@ public class Dispatcher extends HttpServlet
       if (route == null)
       {
         String message = "No routes matched path: " + path;
-        view = new ErrorView(message);
+        view = new ErrorView(message, HttpServletResponse.SC_NOT_FOUND);
         log.warn(message);
       }
       else

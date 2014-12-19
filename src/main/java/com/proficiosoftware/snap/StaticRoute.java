@@ -87,9 +87,9 @@ public class StaticRoute extends Route
       end--;
     String path = mPath.substring(begin, end);
     if (mContextPath == null || "".equals(mContextPath))
-      return path + "/" + params[0].toString();
+      return path + params[0].toString();
     else
-      return mContextPath + path + "/" + params[0].toString();
+      return mContextPath + path + params[0].toString();
   }
 
   public String getDirectory()
