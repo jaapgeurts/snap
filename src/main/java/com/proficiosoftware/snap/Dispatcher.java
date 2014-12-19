@@ -6,7 +6,6 @@ import java.io.PrintWriter;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
-import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -19,7 +18,6 @@ import com.proficiosoftware.snap.http.HttpResponse;
 import com.proficiosoftware.snap.views.ErrorView;
 import com.proficiosoftware.snap.views.View;
 
-@MultipartConfig
 public class Dispatcher extends HttpServlet
 {
 
@@ -133,7 +131,7 @@ public class Dispatcher extends HttpServlet
     catch (UnauthorizedAccessException uae)
     {
       // redirect to redirect URL
-      log.debug("User not logged in, redirecting: {}",uae.getMessage());
+      log.debug("User not logged in, redirecting: {}", uae.getMessage());
       String url = Settings.redirectUrl;
       // TODO: should I encode the path??
       response.sendRedirect(url + "?next=" + path);

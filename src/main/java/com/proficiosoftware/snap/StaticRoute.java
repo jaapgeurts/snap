@@ -39,8 +39,14 @@ public class StaticRoute extends Route
     Matcher m = p.matcher(httpRequest.getRequest().getPathInfo());
     String file = m.replaceAll("");
     String extension = getExtension(file);
-    File f = new File(mDirectory + "/" + file);
-    log.debug("Serving file: " + f.getAbsolutePath());
+    String finalFile = mDirectory + "/" + file;
+    File f = new File(finalFile);
+
+    if (!f.isAbsolute())
+      f = new File(httpRequest.getRequest().getServletContext()
+          .getRealPath(finalFile));
+
+    log.debug("Serving file: " + f.getPath());
 
     BufferedInputStream in;
     BufferedOutputStream out;
@@ -61,6 +67,7 @@ public class StaticRoute extends Route
         out.write(buffer, 0, len);
         len = in.read(buffer);
       }
+      out.flush();
       in.close();
     }
     catch (FileNotFoundException fnfe)
@@ -109,6 +116,10 @@ public class StaticRoute extends Route
   private String getMimeType(String extension)
   {
     // TODO: think about this. Possibly use a MAP loaded at init.
+    if ("css".equalsIgnoreCase(extension))
+      return "text/css";
+    if ("js".equalsIgnoreCase(extension))
+      return "application/javascript";
     if ("jpg".equalsIgnoreCase(extension))
       return "image/jpg";
     if ("png".equalsIgnoreCase(extension))
@@ -121,6 +132,7 @@ public class StaticRoute extends Route
       return "application/json";
     if ("xml".equalsIgnoreCase(extension))
       return "application/xml";
+
     // If unknown
     return "application/unknown";
   }
