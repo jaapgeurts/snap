@@ -9,6 +9,7 @@ import com.proficiosoftware.snap.Route;
 
 public class HttpRequest
 {
+  private static final String SNAP_AUTHORIZED_USER = "Snap.AuthorizedUser";
   public static final String HTTP_GET = "GET";
   public static final String HTTP_POST = "POST";
 
@@ -22,7 +23,7 @@ public class HttpRequest
     mMethod = method;
 
     mAuthorizedUser = getRequest().getSession().getAttribute(
-        "Snap.AuthorizedUser");
+        SNAP_AUTHORIZED_USER);
   }
 
   public Map<String, String[]> getParams()
@@ -102,9 +103,21 @@ public class HttpRequest
     return mAuthorizedUser;
   }
 
+  /**
+   * Puts the authorized user in the session under the attribute:
+   * 'Snap.AuthorizedUser'
+   * 
+   * @param user
+   *          The user to store in the session. set to null to remove the user
+   *          from the session
+   * 
+   */
   public void setAuthorizedUser(Object user)
   {
-    getRequest().getSession().setAttribute("Snap.AuthorizedUser", user);
+    if (user == null)
+      getRequest().getSession().removeAttribute(SNAP_AUTHORIZED_USER);
+    else
+      getRequest().getSession().setAttribute(SNAP_AUTHORIZED_USER, user);
     mAuthorizedUser = user;
   }
 
