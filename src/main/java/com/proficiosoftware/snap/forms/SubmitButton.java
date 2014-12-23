@@ -1,18 +1,22 @@
 package com.proficiosoftware.snap.forms;
 
+import com.proficiosoftware.snap.forms.internal.FormField;
+
 public class SubmitButton extends FormField
 {
 
-  public SubmitButton(String name, String label, String value)
+  public SubmitButton(String id, String name)
   {
-    super(name,label);
-    setValue(value);
+    super(id, name, "");
   }
-   
+
   @Override
-  public String render()
+  public String render(String value)
   {
-    return "<input type=\"submit\" value=\""+mValue+"\" name=\""+mName+"\">";
+    return String
+        .format(
+            "<input type=\"submit\" id=\"%0$s\" name=\"%2$s\" value=\"%3$s\"><br/>",
+            mId, mLabel, mName, value);
   }
 
 }
