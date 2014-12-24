@@ -107,6 +107,7 @@ public class Form
       String fieldName = classField.getName();
       String values[] = defaults.get(fieldName);
       if (values != null && values[0] != null)
+      {
         try
         {
           classField.set(this, values[0]);
@@ -115,6 +116,7 @@ public class Form
         {
           log.debug("Can't set value for field: " + fieldName, e);
         }
+      }
     }
 
   }

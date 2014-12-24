@@ -106,8 +106,7 @@ public class StaticRoute extends Route
 
   private String getExtension(String fileName)
   {
-    int pos = fileName.lastIndexOf(File.separator);
-    pos = fileName.indexOf('.', pos);
+    int pos = fileName.lastIndexOf(".");
     if (pos > 0)
       return fileName.substring(pos + 1);
     return "";
