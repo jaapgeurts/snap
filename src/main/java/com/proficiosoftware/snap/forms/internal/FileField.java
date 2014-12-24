@@ -13,7 +13,7 @@ public class FileField extends FormField
   {
     return String
         .format(
-            "<label for=\"%0$s\">%1$s</label>\n<input type=\"file\" id=\"%0$s\" name=\"%2$s\"><br/>",
+            "<label for=\"%1$s\">%2$s</label>\n<input type=\"file\" id=\"%1$s\" name=\"%3$s\"><br/>",
             mId, mLabel, mName);
   }
 

@@ -3,8 +3,14 @@ package com.proficiosoftware.snap.forms;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,12 +35,14 @@ public class Form
   public Form()
   {
     mFieldList = new ArrayList<FormField>();
+    mFieldMap = new HashMap<String, FormField>();
   }
 
   public void init()
   {
     mFieldList.clear();
-    
+    mFieldMap.clear();
+
     Field[] classFields = getClass().getFields();
     for (Field classField : classFields)
     {
@@ -44,32 +52,36 @@ public class Form
       // represenation obj
       for (Annotation annotation : annotations)
       {
+        FormField field = null;
+        String fieldName = classField.getName();
         if (annotation instanceof com.proficiosoftware.snap.forms.annotations.TextField)
         {
           com.proficiosoftware.snap.forms.annotations.TextField an = (com.proficiosoftware.snap.forms.annotations.TextField)annotation;
-          mFieldList
-              .add(new com.proficiosoftware.snap.forms.internal.TextField(an
-                  .id(), classField.getName(), an.label()));
+          field = new com.proficiosoftware.snap.forms.internal.TextField(
+              an.id(), fieldName, an.label());
         }
         else if (annotation instanceof com.proficiosoftware.snap.forms.annotations.PasswordField)
         {
           com.proficiosoftware.snap.forms.annotations.PasswordField pw = (com.proficiosoftware.snap.forms.annotations.PasswordField)annotation;
-          mFieldList
-              .add(new com.proficiosoftware.snap.forms.internal.PasswordField(
-                  pw.id(), classField.getName(), pw.label()));
+          field = new com.proficiosoftware.snap.forms.internal.PasswordField(
+              pw.id(), fieldName, pw.label());
         }
         else if (annotation instanceof com.proficiosoftware.snap.forms.annotations.FileField)
         {
           com.proficiosoftware.snap.forms.annotations.FileField ff = (com.proficiosoftware.snap.forms.annotations.FileField)annotation;
-          mFieldList
-              .add(new com.proficiosoftware.snap.forms.internal.FileField(ff
-                  .id(), classField.getName(), ff.label()));
+          field = new com.proficiosoftware.snap.forms.internal.FileField(
+              ff.id(), fieldName, ff.label());
         }
         else if (annotation instanceof com.proficiosoftware.snap.forms.annotations.SubmitField)
         {
           com.proficiosoftware.snap.forms.annotations.SubmitField sf = (com.proficiosoftware.snap.forms.annotations.SubmitField)annotation;
-          mFieldList.add(new com.proficiosoftware.snap.forms.SubmitButton(sf
-              .id(), classField.getName()));
+          field = new com.proficiosoftware.snap.forms.SubmitButton(sf.id(),
+              fieldName);
+        }
+        if (field != null)
+        {
+          mFieldList.add(field);
+          mFieldMap.put(fieldName, field);
         }
       }
     }
@@ -79,7 +91,7 @@ public class Form
   {
     if (defaults == null)
       return;
-    
+
     init();
 
     Field[] classFields = getClass().getFields();
@@ -121,8 +133,7 @@ public class Form
       }
       builder.append(field.render(value));
       if (field.hasError())
-        builder.append("<p style=\"field-error\">" + field.getErrorText()
-            + "</p>");
+        builder.append("<p style=\"field-error\">" + field.getError() + "</p>");
 
     }
     return builder.toString();
@@ -130,12 +141,26 @@ public class Form
 
   public boolean validate()
   {
-    return true;
+    Validator validator = Validation.buildDefaultValidatorFactory()
+        .getValidator();
+
+    Set<ConstraintViolation<Form>> constraintViolations = validator
+        .validate(this);
+
+    for (ConstraintViolation<Form> cv : constraintViolations)
+    {
+      FormField field = mFieldMap.get(cv.getPropertyPath().toString());
+      if (field != null)
+        field.setError(cv.getMessage());
+    }
+
+    return constraintViolations.isEmpty();
+
   }
 
   public boolean hasErrors()
   {
-    if (mErrorText != null)
+    if (mFormError != null)
       return true;
 
     for (FormField field : mFieldList)
@@ -145,24 +170,24 @@ public class Form
     return false;
   }
 
-  public String getErrorText()
+  public String getFormError()
   {
-    return mErrorText;
+    return mFormError;
   }
 
-  public void setErrorText(String errorText)
+  public void setFormError(String formError)
   {
-    mErrorText = errorText;
+    mFormError = formError;
   }
 
-  public void clearErrors()
+  public void clearAllErrors()
   {
-    mErrorText = null;
+    mFormError = null;
     for (FormField field : mFieldList)
       field.clearError();
-
   }
 
   private List<FormField> mFieldList;
-  private String mErrorText = null;
+  private Map<String, FormField> mFieldMap;
+  private String mFormError = null;
 }

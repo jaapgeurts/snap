@@ -13,7 +13,7 @@ public class PasswordField extends TextField
   {
     return String
         .format(
-            "<label for=\"%0$s\">%1$s</label><input type=\"password\" id=\"%0$s\" name=\"%2$s\" value=\"%3$s\"><br/>",
+            "<label for=\"%1$s\">%2$s</label><input type=\"password\" id=\"%1$s\" name=\"%3$s\" value=\"%4$s\"><br/>",
             mId, mLabel, mName, value);
   }
 

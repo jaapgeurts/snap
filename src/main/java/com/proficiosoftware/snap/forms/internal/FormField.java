@@ -46,12 +46,12 @@ public abstract class FormField
     this.mId = mId;
   }
 
-  public String getErrorText()
+  public String getError()
   {
     return mErrorText;
   }
 
-  public void setErrorText(String errorText)
+  public void setError(String errorText)
   {
     mErrorText = errorText;
   }
