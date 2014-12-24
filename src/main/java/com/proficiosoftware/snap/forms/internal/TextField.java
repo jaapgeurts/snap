@@ -13,7 +13,7 @@ public class TextField extends FormField
   {
     return String
         .format(
-            "<label for=\"%1$s\">%2$s</label>\n<input type=\"text\" id=\"%1$s\" name=\"%3$s\" value=\"%3$s\"><br/>\n",
+            "<label for=\"%1$s\">%2$s</label>\n<input type=\"text\" id=\"%1$s\" name=\"%3$s\" value=\"%4$s\"><br/>\n",
             mId, mLabel, mName, value);
   }
 

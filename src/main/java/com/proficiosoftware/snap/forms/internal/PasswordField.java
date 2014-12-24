@@ -11,10 +11,11 @@ public class PasswordField extends TextField
   @Override
   public String render(String value)
   {
+    // Ignore the value parameter:: never set passwords in HTML
     return String
         .format(
-            "<label for=\"%1$s\">%2$s</label><input type=\"password\" id=\"%1$s\" name=\"%3$s\" value=\"%4$s\"><br/>",
-            mId, mLabel, mName, value);
+            "<label for=\"%1$s\">%2$s</label><input type=\"password\" id=\"%1$s\" name=\"%3$s\"><br/>",
+            mId, mLabel, mName);
   }
 
 }

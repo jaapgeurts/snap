@@ -48,8 +48,9 @@ public class Form
     {
       Annotation[] annotations = classField.getAnnotations();
 
+      // TODO: Consider using classField.getAnnotationByType();
       // TODO: could cache the reflection field object in the Html Field
-      // represenation obj
+      // representation obj
       for (Annotation annotation : annotations)
       {
         FormField field = null;
@@ -77,6 +78,12 @@ public class Form
           com.proficiosoftware.snap.forms.annotations.SubmitField sf = (com.proficiosoftware.snap.forms.annotations.SubmitField)annotation;
           field = new com.proficiosoftware.snap.forms.SubmitButton(sf.id(),
               fieldName);
+        }
+        else if (annotation instanceof com.proficiosoftware.snap.forms.annotations.HiddenField)
+        {
+          com.proficiosoftware.snap.forms.annotations.HiddenField hf = (com.proficiosoftware.snap.forms.annotations.HiddenField)annotation;
+          field = new com.proficiosoftware.snap.forms.internal.HiddenField(
+              hf.id(), fieldName);
         }
         if (field != null)
         {
@@ -116,6 +123,12 @@ public class Form
   {
 
     StringBuilder builder = new StringBuilder();
+    if (mFormError != null && !"".equals(mFormError))
+    {
+      builder.append("<p class=\"form-error\">");
+      builder.append(getFormError());
+      builder.append("</p>");
+    }
     for (FormField field : mFieldList)
     {
       String value = "";
@@ -133,8 +146,11 @@ public class Form
       }
       builder.append(field.render(value));
       if (field.hasError())
-        builder.append("<p style=\"field-error\">" + field.getError() + "</p>");
-
+      {
+        builder.append("<p class=\"field-error\">");
+        builder.append(field.getError());
+        builder.append("</p>");
+      }
     }
     return builder.toString();
   }
