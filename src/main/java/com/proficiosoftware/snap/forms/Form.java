@@ -1,5 +1,6 @@
 package com.proficiosoftware.snap.forms;
 
+import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -8,6 +9,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.servlet.ServletException;
+import javax.servlet.http.Part;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
@@ -16,6 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.proficiosoftware.snap.forms.internal.FormField;
+import com.proficiosoftware.snap.http.HttpRequest;
 
 /**
  * Subclass this class to create a new form. You can add any field that derives
@@ -67,12 +71,6 @@ public class Form
           field = new com.proficiosoftware.snap.forms.internal.PasswordField(
               pw.id(), fieldName, pw.label());
         }
-        else if (annotation instanceof com.proficiosoftware.snap.forms.annotations.FileField)
-        {
-          com.proficiosoftware.snap.forms.annotations.FileField ff = (com.proficiosoftware.snap.forms.annotations.FileField)annotation;
-          field = new com.proficiosoftware.snap.forms.internal.FileField(
-              ff.id(), fieldName, ff.label());
-        }
         else if (annotation instanceof com.proficiosoftware.snap.forms.annotations.SubmitField)
         {
           com.proficiosoftware.snap.forms.annotations.SubmitField sf = (com.proficiosoftware.snap.forms.annotations.SubmitField)annotation;
@@ -85,6 +83,12 @@ public class Form
           field = new com.proficiosoftware.snap.forms.internal.HiddenField(
               hf.id(), fieldName);
         }
+        else if (annotation instanceof com.proficiosoftware.snap.forms.annotations.FileField)
+        {
+          com.proficiosoftware.snap.forms.annotations.FileField ff = (com.proficiosoftware.snap.forms.annotations.FileField)annotation;
+          field = new com.proficiosoftware.snap.forms.internal.FileField(
+              ff.id(), fieldName, ff.label());
+        }
         if (field != null)
         {
           mFieldList.add(field);
@@ -93,29 +97,38 @@ public class Form
       }
     }
   }
-
-  public void init(Map<String, String[]> defaults)
+  
+  public void init(HttpRequest request)
   {
-    if (defaults == null)
+    if (request == null)
       return;
 
     init();
+
+    Map<String, String[]> defaults = request.getParams();
 
     Field[] classFields = getClass().getFields();
     for (Field classField : classFields)
     {
       String fieldName = classField.getName();
-      String values[] = defaults.get(fieldName);
-      if (values != null && values[0] != null)
+      try
       {
-        try
+        if (classField.getType().isAssignableFrom(Part.class))
         {
-          classField.set(this, values[0]);
+          classField.set(this, request.getRequest().getPart(fieldName));
         }
-        catch (IllegalArgumentException | IllegalAccessException e)
+        else
         {
-          log.debug("Can't set value for field: " + fieldName, e);
+          String values[] = defaults.get(fieldName);
+          if (values != null && values[0] != null)
+          {
+            classField.set(this, values[0]);
+          }
         }
+      }
+      catch (IllegalArgumentException | IllegalAccessException | IOException | ServletException e)
+      {
+        log.debug("Can't set value for field: " + fieldName, e);
       }
     }
 
