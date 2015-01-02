@@ -17,6 +17,8 @@ import org.joni.Region;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.proficiosoftware.snap.annotations.HttpGet;
+import com.proficiosoftware.snap.annotations.HttpPost;
 import com.proficiosoftware.snap.annotations.LoginRequired;
 import com.proficiosoftware.snap.http.HttpRequest;
 import com.proficiosoftware.snap.http.HttpResponse;
@@ -68,7 +70,7 @@ public class Route
   }
 
   public View handleRoute(HttpRequest httpRequest, HttpResponse httpResponse)
-      throws UnauthorizedAccessException
+      throws UnauthorizedAccessException, HttpMethodException
   {
     Method actionMethod = getMethod();
     View view = null;
@@ -80,6 +82,18 @@ public class Route
         if (httpRequest.getAuthorizedUser() == null)
           throw new UnauthorizedAccessException("Not allowed to access URL: "
               + httpRequest.getRequest().getPathInfo());
+      }
+      if (actionMethod.isAnnotationPresent(HttpPost.class))
+      {
+        if (!HttpRequest.HTTP_POST.equals(httpRequest.getMethod()))
+          throw new HttpMethodException(
+              "Action method doesn't accept Http POST method. Annotate your method with '@HttpPost' or remove all annotations");
+      }
+      if (actionMethod.isAnnotationPresent(HttpGet.class))
+      {
+        if (!HttpRequest.HTTP_GET.equals(httpRequest.getMethod()))
+          throw new HttpMethodException(
+              "Action method doesn't accept Http GET method. Annotate your method with '@HttpPost' or remove all annotations");
       }
 
       try

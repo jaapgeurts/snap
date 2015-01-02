@@ -22,10 +22,9 @@ import com.proficiosoftware.snap.forms.internal.FormField;
 import com.proficiosoftware.snap.http.HttpRequest;
 
 /**
- * Subclass this class to create a new form. You can add any field that derives
- * from FormField. Form fields will be automatically created by the form. Only
- * fields that are public and have the annotation @Attributes will be used in
- * the HTML. If you need to exclude a field set the annotation @Exclude
+ * Subclass this class to create a new form. You can add any field and annotate
+ * it with the html input type you wish to use. Only fields that have the
+ * annotation in forms.annotations will be used in the HTML.
  * 
  * 
  * @author Jaap Geurts
@@ -97,7 +96,7 @@ public class Form
       }
     }
   }
-  
+
   public void init(HttpRequest request)
   {
     if (request == null)
@@ -126,7 +125,8 @@ public class Form
           }
         }
       }
-      catch (IllegalArgumentException | IllegalAccessException | IOException | ServletException e)
+      catch (IllegalArgumentException | IllegalAccessException | IOException
+          | ServletException e)
       {
         log.debug("Can't set value for field: " + fieldName, e);
       }
