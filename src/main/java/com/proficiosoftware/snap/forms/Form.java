@@ -64,11 +64,11 @@ public class Form
           field = new com.proficiosoftware.snap.forms.internal.TextField(
               an.id(), fieldName, an.label());
         }
-        else if (annotation instanceof com.proficiosoftware.snap.forms.annotations.PasswordField)
+        if (annotation instanceof com.proficiosoftware.snap.forms.annotations.TextArea)
         {
-          com.proficiosoftware.snap.forms.annotations.PasswordField pw = (com.proficiosoftware.snap.forms.annotations.PasswordField)annotation;
-          field = new com.proficiosoftware.snap.forms.internal.PasswordField(
-              pw.id(), fieldName, pw.label());
+          com.proficiosoftware.snap.forms.annotations.TextArea an = (com.proficiosoftware.snap.forms.annotations.TextArea)annotation;
+          field = new com.proficiosoftware.snap.forms.internal.TextArea(
+              an.id(), fieldName, an.label());
         }
         else if (annotation instanceof com.proficiosoftware.snap.forms.annotations.SubmitField)
         {
@@ -87,6 +87,12 @@ public class Form
           com.proficiosoftware.snap.forms.annotations.FileField ff = (com.proficiosoftware.snap.forms.annotations.FileField)annotation;
           field = new com.proficiosoftware.snap.forms.internal.FileField(
               ff.id(), fieldName, ff.label());
+        }
+        else if (annotation instanceof com.proficiosoftware.snap.forms.annotations.PasswordField)
+        {
+          com.proficiosoftware.snap.forms.annotations.PasswordField pw = (com.proficiosoftware.snap.forms.annotations.PasswordField)annotation;
+          field = new com.proficiosoftware.snap.forms.internal.PasswordField(
+              pw.id(), fieldName, pw.label());
         }
         if (field != null)
         {
