@@ -11,10 +11,13 @@ public class TextArea extends FormField
   @Override
   public String render(String value)
   {
-    return String
-        .format(
-            "<label for=\"%1$s\">%2$s</label>\n<textarea id=\"%1$s\" name=\"%3$s\">%4$s</textarea>\n",
-            mId, mLabel, mName, value);
+    String label = "";
+
+    if (!"".equals(mLabel))
+      label = String.format("<label for=\"%1$s\">%2$s</label>", mId, mLabel);
+    return String.format(
+        "%1$s<textarea id=\"%2$s\" name=\"%3$s\">%4$s</textarea>\n", label,
+        mId, mName, value);
 
   }
 
