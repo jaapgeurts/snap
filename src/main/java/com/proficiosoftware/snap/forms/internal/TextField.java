@@ -11,10 +11,14 @@ public class TextField extends FormField
   @Override
   public String render(String value)
   {
+    String label = "";
+
+    if (!"".equals(mLabel))
+      label = String.format("<label for=\"%1$s\">%2$s</label>", mId, mLabel);
     return String
         .format(
-            "<label for=\"%1$s\">%2$s</label>\n<input type=\"text\" id=\"%1$s\" name=\"%3$s\" value=\"%4$s\"><br/>\n",
-            mId, mLabel, mName, value);
+            "%1$s\n<input type=\"text\" id=\"%2$s\" name=\"%3$s\" value=\"%4$s\"><br/>\n",
+            label, mId, mName, value);
   }
 
 }

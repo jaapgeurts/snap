@@ -11,10 +11,13 @@ public class FileField extends FormField
   @Override
   public String render(String value)
   {
-    return String
-        .format(
-            "<label for=\"%1$s\">%2$s</label>\n<input type=\"file\" id=\"%1$s\" name=\"%3$s\"><br/>",
-            mId, mLabel, mName);
+    String label = "";
+
+    if (!"".equals(mLabel))
+      label = String.format("<label for=\"%1$s\">%2$s</label>", mId, mLabel);
+    return String.format(
+        "%1$s\n<input type=\"file\" id=\"%2$s\" name=\"%3$s\"><br/>", label,
+        mId, mName);
   }
 
 }

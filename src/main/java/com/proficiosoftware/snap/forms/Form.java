@@ -2,6 +2,7 @@ package com.proficiosoftware.snap.forms;
 
 import java.io.IOException;
 import java.lang.annotation.Annotation;
+import java.lang.annotation.AnnotationFormatError;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -69,6 +70,42 @@ public class Form
           com.proficiosoftware.snap.forms.annotations.TextArea an = (com.proficiosoftware.snap.forms.annotations.TextArea)annotation;
           field = new com.proficiosoftware.snap.forms.internal.TextArea(
               an.id(), fieldName, an.label());
+        }
+        else if (annotation instanceof com.proficiosoftware.snap.forms.annotations.DropDownList)
+        {
+          com.proficiosoftware.snap.forms.annotations.DropDownList ddl = (com.proficiosoftware.snap.forms.annotations.DropDownList)annotation;
+          Field listField;
+          try
+          {
+            listField = getClass().getField(ddl.optionList());
+          }
+          catch (NoSuchFieldException | SecurityException e)
+          {
+            throw new AnnotationFormatError(
+                "optionList value not specified or invalid or not accessible. optionList value must name a field in the object of type List<Object>",
+                e);
+          }
+          Object list;
+          try
+          {
+            list = listField.get(this);
+            if (list instanceof List<?>)
+            {
+              field = new com.proficiosoftware.snap.forms.internal.DropDownList(
+                  ddl.id(), fieldName, ddl.label(), (List<?>)list);
+            }
+            else
+            {
+              throw new AnnotationFormatError(
+                  "optionList value is not of type List<?>.");
+            }
+          }
+          catch (IllegalArgumentException | IllegalAccessException e)
+          {
+            throw new AnnotationFormatError(
+                "optionList value invalid or not accessible. optionList value must name a field in the object of type List<Object>",
+                e);
+          }
         }
         else if (annotation instanceof com.proficiosoftware.snap.forms.annotations.SubmitField)
         {
@@ -155,6 +192,7 @@ public class Form
       String value = "";
       try
       {
+        // TODO: consider passing the actual object
         Field classField = getClass().getField(field.getName());
         Object val = classField.get(this);
         if (val != null)

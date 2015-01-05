@@ -12,10 +12,13 @@ public class PasswordField extends TextField
   public String render(String value)
   {
     // Ignore the value parameter:: never set passwords in HTML
-    return String
-        .format(
-            "<label for=\"%1$s\">%2$s</label><input type=\"password\" id=\"%1$s\" name=\"%3$s\"><br/>",
-            mId, mLabel, mName);
+    String label = "";
+
+    if (!"".equals(mLabel))
+      label = String.format("<label for=\"%1$s\">%2$s</label>", mId, mLabel);
+    return String.format(
+        "%1$s<input type=\"password\" id=\"%2$s\" name=\"%3$s\"><br/>", label,
+        mId, mName);
   }
 
 }
