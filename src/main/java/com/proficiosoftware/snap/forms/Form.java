@@ -71,6 +71,12 @@ public class Form
           field = new com.proficiosoftware.snap.forms.internal.TextArea(
               an.id(), fieldName, an.label());
         }
+        if (annotation instanceof com.proficiosoftware.snap.forms.annotations.RadioField)
+        {
+          com.proficiosoftware.snap.forms.annotations.RadioField rf = (com.proficiosoftware.snap.forms.annotations.RadioField)annotation;
+          field = new com.proficiosoftware.snap.forms.internal.RadioField(
+              rf.id(), fieldName, classField.getType());
+        }
         else if (annotation instanceof com.proficiosoftware.snap.forms.annotations.DropDownList)
         {
           com.proficiosoftware.snap.forms.annotations.DropDownList ddl = (com.proficiosoftware.snap.forms.annotations.DropDownList)annotation;
