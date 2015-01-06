@@ -214,7 +214,7 @@ public class Form
     return builder.toString();
   }
 
-  public boolean validate()
+  public boolean isValid()
   {
     Validator validator = Validation.buildDefaultValidatorFactory()
         .getValidator();

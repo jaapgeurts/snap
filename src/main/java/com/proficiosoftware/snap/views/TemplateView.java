@@ -37,6 +37,7 @@ public class TemplateView implements View
   @Override
   public void render(HttpResponse response) throws RenderException, IOException
   {
+    // TODO: consider adding the User object automatically
 
     String template = mTemplateName;
 

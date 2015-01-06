@@ -48,11 +48,21 @@ public class Router
         String alias = parts[2];
         Route route = null;
         if ("STATIC".equals(parts[0]))
+        {
           route = new StaticRoute(mContextPath, parts[1], parts[2], parts[3]);
+          mRouteList.add(route);
+          mRouteMap.put(alias, route);
+        }
         else
-          route = new Route(mContextPath, parts[0], parts[1], alias, parts[3]);
-        mRouteList.add(route);
-        mRouteMap.put(alias, route);
+        {
+          String[] methods = parts[0].split("\\,");
+          for (String method : methods)
+          {
+            route = new Route(mContextPath, method, parts[1], alias, parts[3]);
+            mRouteList.add(route);
+            mRouteMap.put(alias, route);
+          }
+        }
         i++;
       }
       in.close();
