@@ -73,9 +73,10 @@ public class Form
         }
         if (annotation instanceof com.proficiosoftware.snap.forms.annotations.RadioField)
         {
+          // TODO:if type is Enum then create enum radio field else create normal radio field
           com.proficiosoftware.snap.forms.annotations.RadioField rf = (com.proficiosoftware.snap.forms.annotations.RadioField)annotation;
           field = new com.proficiosoftware.snap.forms.internal.RadioField(
-              rf.id(), fieldName, classField.getType());
+              rf.id(), fieldName, (Class<Enum>)classField.getType());
         }
         else if (annotation instanceof com.proficiosoftware.snap.forms.annotations.DropDownList)
         {
@@ -153,7 +154,7 @@ public class Form
 
     init();
 
-    Map<String, String[]> defaults = request.getParams();
+    Map<String, String[]> params = request.getParams();
 
     Field[] classFields = getClass().getFields();
     for (Field classField : classFields)
@@ -161,13 +162,22 @@ public class Form
       String fieldName = classField.getName();
       try
       {
+        //if this is a multipart submission (file submission)
         if (classField.getType().isAssignableFrom(Part.class))
         {
           classField.set(this, request.getRequest().getPart(fieldName));
         }
-        else
+        else if (classField.getType().isEnum())
         {
-          String values[] = defaults.get(fieldName);
+          // handle enums and set the correct value          
+          String values[] = params.get(fieldName);
+//          Object[] enums = classField.getType().getEnumConstants();
+          classField.set(this,Enum.valueOf((Class<Enum>)classField.getType(), values[0]));
+        }
+        else 
+        {
+          //finally attempt to set the value as an objeect
+          String values[] = params.get(fieldName);
           if (values != null && values[0] != null)
           {
             classField.set(this, values[0]);
