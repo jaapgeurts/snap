@@ -1,10 +1,13 @@
 package com.proficiosoftware.snap.http;
 
+import java.io.BufferedReader;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.alibaba.fastjson.JSONObject;
 import com.proficiosoftware.snap.Route;
 
 public class HttpRequest
@@ -24,6 +27,15 @@ public class HttpRequest
 
     mAuthorizedUser = getRequest().getSession().getAttribute(
         SNAP_AUTHORIZED_USER);
+  }
+
+  public JSONObject getContentAsJson() throws IOException
+  {
+
+    BufferedReader reader = mServletRequest.getReader();
+
+    return JSONObject.parseObject(reader.toString());
+
   }
 
   public Map<String, String[]> getParams()

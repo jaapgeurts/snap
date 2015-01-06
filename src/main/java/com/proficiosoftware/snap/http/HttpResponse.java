@@ -1,6 +1,7 @@
 package com.proficiosoftware.snap.http;
 
 import java.io.IOException;
+
 import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
@@ -23,6 +24,12 @@ public class HttpResponse
     Route route = Router.instance().getRoute(routeAlias);
     // mServletResponse.setStatus(HttpServletResponse.SC_TEMPORARY_REDIRECT);
     // mServletResponse.setHeader("Location", route.getLink(params));
+    if (route == null)
+    {
+      log.debug("Invalid route: %s\n", routeAlias);
+      throw new RuntimeException("Can't redirect: Unknown route: " + routeAlias);
+    }
+
     try
     {
       mServletResponse.sendRedirect(route.getLink(params));
