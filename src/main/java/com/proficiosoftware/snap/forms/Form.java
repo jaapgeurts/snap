@@ -71,9 +71,16 @@ public class Form
           field = new com.proficiosoftware.snap.forms.internal.TextArea(
               an.id(), fieldName, an.label());
         }
+        if (annotation instanceof com.proficiosoftware.snap.forms.annotations.CheckBoxField)
+        {
+          com.proficiosoftware.snap.forms.annotations.CheckBoxField cb = (com.proficiosoftware.snap.forms.annotations.CheckBoxField)annotation;
+          field = new com.proficiosoftware.snap.forms.internal.CheckBoxField(
+              cb.id(), fieldName, cb.label());
+        }
         if (annotation instanceof com.proficiosoftware.snap.forms.annotations.RadioField)
         {
-          // TODO:if type is Enum then create enum radio field else create normal radio field
+          // TODO:if type is Enum then create enum radio field else create
+          // normal radio field
           com.proficiosoftware.snap.forms.annotations.RadioField rf = (com.proficiosoftware.snap.forms.annotations.RadioField)annotation;
           field = new com.proficiosoftware.snap.forms.internal.RadioField(
               rf.id(), fieldName, (Class<Enum>)classField.getType());
@@ -162,21 +169,27 @@ public class Form
       String fieldName = classField.getName();
       try
       {
-        //if this is a multipart submission (file submission)
+        // if this is a multipart submission (file submission)
         if (classField.getType().isAssignableFrom(Part.class))
         {
           classField.set(this, request.getRequest().getPart(fieldName));
         }
         else if (classField.getType().isEnum())
         {
-          // handle enums and set the correct value          
+          // handle enums and set the correct value
           String values[] = params.get(fieldName);
-//          Object[] enums = classField.getType().getEnumConstants();
-          classField.set(this,Enum.valueOf((Class<Enum>)classField.getType(), values[0]));
+          // Object[] enums = classField.getType().getEnumConstants();
+          classField.set(this,
+              Enum.valueOf((Class<Enum>)classField.getType(), values[0]));
         }
-        else 
+        else if (classField.getType().equals(boolean.class))
         {
-          //finally attempt to set the value as an objeect
+          String values[] = params.get(fieldName);
+          classField.set(this, values.length > 0);
+        }
+        else
+        {
+          // finally attempt to set the value as an objeect
           String values[] = params.get(fieldName);
           if (values != null && values[0] != null)
           {

@@ -19,11 +19,11 @@ public class RadioField<E extends Enum<E>> extends FormField
       if (val.equals(value))
         b.append(String
             .format(
-                "<input type=\"radio\" name=\"%1$s\" value=\"%2$s\" checked>%2$s</input>",
+                "<input type=\"radio\" name=\"%1$s\" value=\"%2$s\" checked>%2$s",
                 mName, val));
       else
         b.append(String.format(
-            "<input type=\"radio\" name=\"%1$s\" value=\"%2$s\">%2$s</input>",
+            "<input type=\"radio\" name=\"%1$s\" value=\"%2$s\">%2$s",
             mName, val));
 
     }
