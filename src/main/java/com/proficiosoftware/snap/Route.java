@@ -76,7 +76,6 @@ public class Route
     View view = null;
     if (actionMethod != null)
     {
-      boolean methodPresent = false;
 
       if (actionMethod.isAnnotationPresent(LoginRequired.class))
       {
@@ -84,22 +83,22 @@ public class Route
           throw new UnauthorizedAccessException("Not allowed to access URL: "
               + httpRequest.getRequest().getPathInfo());
       }
-      if (actionMethod.isAnnotationPresent(HttpPost.class))
+      if (HttpRequest.HTTP_GET.equals(httpRequest.getMethod()))
       {
-        methodPresent = true;
-        if (!HttpRequest.HTTP_POST.equals(httpRequest.getMethod()))
+        if (!actionMethod.isAnnotationPresent(HttpGet.class))
           throw new HttpMethodException(
-              "Action method doesn't accept Http POST method. Annotate your method with '@HttpPost' or remove all annotations");
+              "Action method "
+                  + actionMethod.getName()
+                  + " doesn't accept Http GET method. Annotate your method with '@HttGet'");
       }
-      if (actionMethod.isAnnotationPresent(HttpGet.class))
+      else if (HttpRequest.HTTP_POST.equals(httpRequest.getMethod()))
       {
-        methodPresent = true;
-        if (!HttpRequest.HTTP_GET.equals(httpRequest.getMethod()))
+        if (!actionMethod.isAnnotationPresent(HttpPost.class))
           throw new HttpMethodException(
-              "Action method doesn't accept Http GET method. Annotate your method with '@HttpPost' or remove all annotations");
+              "Action method  "
+                  + actionMethod.getName()
+                  + " doesn't accept Http POST method. Annotate your method with '@HttpPost'");
       }
-      if (!methodPresent)
-        throw new HttpMethodException("You must specifiy one or more Http Methods for this controller action with @HttpPost or @HttpGet");
 
       try
       {
