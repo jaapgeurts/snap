@@ -3,6 +3,7 @@ package com.proficiosoftware.snap;
 import java.lang.ref.SoftReference;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -153,6 +154,11 @@ public class Route
 
   public String getLink(Object[] params)
   {
+    return getLink(null, params);
+  }
+
+  public String getLink(Map<String, String> getParams, Object[] params)
+  {
     StringBuilder builder = new StringBuilder();
     java.util.regex.Pattern pat = Pattern.compile("\\(.+?\\)");
     java.util.regex.Matcher m = pat.matcher(mPath);
@@ -167,7 +173,7 @@ public class Route
       try
       {
         builder.append(mPath.substring(start, m.start()));
-        builder.append(params[i].toString());
+        builder.append(URLEncoder.encode(params[i].toString()));
         i++;
         start = m.end();
       }
@@ -186,6 +192,22 @@ public class Route
         builder.append(mPath.substring(start, regExLength));
       }
     }
+
+    // add get params if available
+    if (getParams != null)
+    {
+      builder.append("?");
+      for (Map.Entry<String, String> entry : getParams.entrySet())
+      {
+        builder.append(URLEncoder.encode(entry.getKey()));
+        builder.append("=");
+        builder.append(URLEncoder.encode(entry.getValue()));
+        builder.append("&");
+      }
+      builder.deleteCharAt(builder.length() - 1);
+
+    }
+
     if (mContextPath == null || "".equals(mContextPath))
       return builder.toString();
     else

@@ -48,11 +48,13 @@ public class TemplateView implements View
     // template = StreamToString(is);
 
     HttpServletResponse r = response.getResponse();
+    r.setStatus(HttpServletResponse.SC_OK);
+    r.setContentType("text/html; charset=UTF-8");
+    r.setCharacterEncoding("UTF-8");
+
     PrintWriter pw = r.getWriter();
     pw.print(WebApplication.Instance().getRenderEngine()
         .render(template, mContext));
-    r.setStatus(HttpServletResponse.SC_OK);
-    r.setContentType("text/html");
 
   }
 

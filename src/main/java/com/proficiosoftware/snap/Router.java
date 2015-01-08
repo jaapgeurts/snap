@@ -4,8 +4,10 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -85,11 +87,46 @@ public class Router
     return null;
   }
 
+  /**
+   * Returns the URL string for a route with name alias. Any regex pattern
+   * groups will be substituted with the values in the params list*
+   * 
+   * @param alias
+   *          The alias name of the route
+   * @param params
+   *          The params the be replaces in the Regex groups
+   * @return The Url link as a string. If no route found returns "";
+   */
   public String linkForRoute(String alias, Object... params)
   {
     Route route = mRouteMap.get(alias);
     if (route != null)
       return route.getLink(params);
+    // TODO: fix and think about how to not return ""
+    return "";
+  }
+
+  /***
+   * Returns the URL string for a route with name alias. Any regex pattern
+   * groups will be substituted with the values in the params list*
+   * 
+   * @param alias
+   *          The alias name of the route
+   * @param getParams
+   *          The params to be appended to the URL
+   * @param params
+   *          The params the be replaces in the Regex groups
+   * @return The Url link as a string
+   */
+  public String linkForRoute(String alias, Map<String, String> getParams,
+      Object... params)
+  {
+    Route route = mRouteMap.get(alias);
+    if (route != null)
+    {
+      return route.getLink(getParams,params);
+    }
+    // TODO: fix and think about how to not return ""
     return "";
   }
 

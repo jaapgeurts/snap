@@ -3,6 +3,7 @@ package com.proficiosoftware.snap;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.URLEncoder;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -84,6 +85,8 @@ public class Dispatcher extends HttpServlet
       HttpServletResponse response) throws ServletException, IOException
   {
 
+    if (request.getCharacterEncoding() == null)
+      request.setCharacterEncoding("UTF-8");
     // match the path here and find a route
     String path = request.getPathInfo();
     if (path == null || "".equals(path))
@@ -133,8 +136,14 @@ public class Dispatcher extends HttpServlet
       // redirect to redirect URL
       log.debug("User not logged in, redirecting: {}", uae.getMessage());
       String url = Settings.redirectUrl;
+      String query = request.getQueryString();
       // TODO: should I encode the path??
-      response.sendRedirect(url + "?next=" + path);
+      String next;
+      if (query != null)
+        next = path + "?" + query;
+      else
+        next = path;
+      response.sendRedirect(url + "?next=" + URLEncoder.encode(next));
     }
     catch (Throwable t)
     {
@@ -143,7 +152,8 @@ public class Dispatcher extends HttpServlet
       // TODO: Load error view
 
       response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-      response.setContentType("text/html");
+      response.setContentType("text/html; charset=UTF-8");
+      response.setCharacterEncoding("UTF-8");
 
       PrintWriter pw = response.getWriter();
       pw.print("<html><body><p><pre>");

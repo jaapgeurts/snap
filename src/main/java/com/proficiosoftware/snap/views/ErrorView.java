@@ -45,15 +45,16 @@ public class ErrorView extends TemplateView
     String template = StreamToString(in);
 
     addParameter("statuscode", Integer.valueOf(mHttpStatusCode));
-    
-    PrintWriter pw = response.getResponse().getWriter();
-    pw.print(WebApplication.Instance().getRenderEngine()
-        .render(template, mContext));
 
     HttpServletResponse r = response.getResponse();
 
     r.setStatus(mHttpStatusCode);
-    r.setContentType("text/html");
+    r.setContentType("text/html; charset=UTF-8");
+    r.setCharacterEncoding("UTF-8");
+    
+    PrintWriter pw = response.getResponse().getWriter();
+    pw.print(WebApplication.Instance().getRenderEngine()
+        .render(template, mContext));
 
   }
 

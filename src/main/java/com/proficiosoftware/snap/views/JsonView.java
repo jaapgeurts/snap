@@ -24,11 +24,14 @@ public class JsonView implements View
   public void render(HttpResponse response) throws RenderException, IOException
   {
     HttpServletResponse r = response.getResponse();
+    r.setStatus(HttpServletResponse.SC_OK);
+    r.setContentType("application/json; charset=UTF-8");
+    r.setCharacterEncoding("UTF-8");
+
     PrintWriter pw = r.getWriter();
     pw.print(mJson.toJSONString());
     // TODO: specify encoding too
-    r.setStatus(HttpServletResponse.SC_OK);
-    r.setContentType("application/json");
+    
   }
 
   private JSONObject mJson;

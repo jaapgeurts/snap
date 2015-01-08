@@ -1,6 +1,7 @@
 package com.proficiosoftware.snap.http;
 
 import java.io.IOException;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -33,6 +34,29 @@ public class HttpResponse
     try
     {
       mServletResponse.sendRedirect(route.getLink(params));
+    }
+    catch (IOException e)
+    {
+      log.debug("Can't redirect.", e);
+    }
+  }
+
+  public void redirect(String routeAlias, Map<String, String> getParams,
+      Object... params)
+  {
+    Route route = Router.instance().getRoute(routeAlias);
+    // mServletResponse.setStatus(HttpServletResponse.SC_TEMPORARY_REDIRECT);
+    // mServletResponse.setHeader("Location", route.getLink(params));
+    if (route == null)
+    {
+      log.debug("Invalid route: %s\n", routeAlias);
+      throw new RuntimeException("Can't redirect: Unknown route: " + routeAlias);
+    }
+
+    try
+    {
+      String link = route.getLink(getParams, params);
+      mServletResponse.sendRedirect(link);
     }
     catch (IOException e)
     {
