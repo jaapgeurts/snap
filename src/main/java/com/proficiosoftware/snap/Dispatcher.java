@@ -131,7 +131,7 @@ public class Dispatcher extends HttpServlet
         }
       }
     }
-    catch (UnauthorizedAccessException uae)
+    catch (AuthenticationException uae)
     {
       // redirect to redirect URL
       log.debug("User not logged in, redirecting: {}", uae.getMessage());

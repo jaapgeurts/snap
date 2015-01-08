@@ -21,6 +21,7 @@ public class WebApplication
     mWebApplication = this;
 
     mServletContext = config.getServletContext();
+    
     // Setup the template engine
     Map<String, Object> conf = new HashMap<String, Object>();
     conf.put("engine.mode", "dev");

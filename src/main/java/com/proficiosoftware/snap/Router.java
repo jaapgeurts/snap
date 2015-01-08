@@ -86,6 +86,11 @@ public class Router
     }
     return null;
   }
+  
+  public String siteUrl()
+  {
+    return Settings.siteRootUrl;
+  }
 
   /**
    * Returns the URL string for a route with name alias. Any regex pattern

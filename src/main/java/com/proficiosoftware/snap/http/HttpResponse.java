@@ -20,6 +20,12 @@ public class HttpResponse
     mServletResponse = response;
   }
 
+  /**
+   * Redirect the user to the url identified by alias
+   * 
+   * @param routeAlias
+   * @param params
+   */
   public void redirect(String routeAlias, Object... params)
   {
     Route route = Router.instance().getRoute(routeAlias);
@@ -41,6 +47,12 @@ public class HttpResponse
     }
   }
 
+  /**
+   * Redirect the user to the url identified by alias
+   * 
+   * @param routeAlias
+   * @param params
+   */
   public void redirect(String routeAlias, Map<String, String> getParams,
       Object... params)
   {
@@ -64,6 +76,12 @@ public class HttpResponse
     }
   }
 
+  /**
+   * Redirect the user to the url identified by string URL
+   * 
+   * @param routeAlias
+   * @param params
+   */
   public void redirectUrl(String url)
   {
     try
@@ -75,6 +93,7 @@ public class HttpResponse
       log.debug("Can't redirect.", e);
     }
   }
+
 
   public HttpServletResponse getResponse()
   {

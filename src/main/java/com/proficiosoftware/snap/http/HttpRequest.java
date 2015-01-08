@@ -12,7 +12,7 @@ import com.proficiosoftware.snap.Route;
 
 public class HttpRequest
 {
-  private static final String SNAP_AUTHORIZED_USER = "Snap.AuthorizedUser";
+  private static final String SNAP_AUTHENTICATED_USER = "Snap.AuthenticatedUser";
   public static final String HTTP_GET = "GET";
   public static final String HTTP_POST = "POST";
 
@@ -25,8 +25,8 @@ public class HttpRequest
     mServletRequest = servletRequest;
     mMethod = method;
 
-    mAuthorizedUser = getRequest().getSession().getAttribute(
-        SNAP_AUTHORIZED_USER);
+    mAuthenticatedUser = getRequest().getSession().getAttribute(
+        SNAP_AUTHENTICATED_USER);
   }
 
   public JSONObject getContentAsJson() throws IOException
@@ -110,27 +110,28 @@ public class HttpRequest
     return mRoute;
   }
 
-  public Object getAuthorizedUser()
+  public Object getAuthenticatedUser()
   {
-    return mAuthorizedUser;
+    return mAuthenticatedUser;
   }
 
   /**
-   * Puts the authorized user in the session under the attribute:
+   * Puts the authenticated user in the session under the attribute:
    * 'Snap.AuthorizedUser'
+   * Use in combination with @LoginRequired.
    * 
    * @param user
    *          The user to store in the session. set to null to remove the user
    *          from the session
    * 
    */
-  public void setAuthorizedUser(Object user)
+  public void setAuthenticatedUser(Object user)
   {
     if (user == null)
-      getRequest().getSession().removeAttribute(SNAP_AUTHORIZED_USER);
+      getRequest().getSession().removeAttribute(SNAP_AUTHENTICATED_USER);
     else
-      getRequest().getSession().setAttribute(SNAP_AUTHORIZED_USER, user);
-    mAuthorizedUser = user;
+      getRequest().getSession().setAttribute(SNAP_AUTHENTICATED_USER, user);
+    mAuthenticatedUser = user;
   }
 
   private final Map<String, String[]> mParams;
@@ -138,6 +139,6 @@ public class HttpRequest
   private HttpServletRequest mServletRequest;
   private String mMethod;
   private Route mRoute;
-  private Object mAuthorizedUser;
+  private Object mAuthenticatedUser;
 
 }

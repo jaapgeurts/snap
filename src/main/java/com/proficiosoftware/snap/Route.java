@@ -71,7 +71,7 @@ public class Route
   }
 
   public View handleRoute(HttpRequest httpRequest, HttpResponse httpResponse)
-      throws UnauthorizedAccessException, HttpMethodException
+      throws AuthenticationException, HttpMethodException
   {
     Method actionMethod = getMethod();
     View view = null;
@@ -80,8 +80,8 @@ public class Route
 
       if (actionMethod.isAnnotationPresent(LoginRequired.class))
       {
-        if (httpRequest.getAuthorizedUser() == null)
-          throw new UnauthorizedAccessException("Not allowed to access URL: "
+        if (httpRequest.getAuthenticatedUser() == null)
+          throw new AuthenticationException("Not allowed to access URL: "
               + httpRequest.getRequest().getPathInfo());
       }
       if (HttpRequest.HTTP_GET.equals(httpRequest.getMethod()))
@@ -112,6 +112,10 @@ public class Route
         Throwable t = e;
         if (t instanceof InvocationTargetException)
           t = t.getCause();
+        
+        if (t instanceof AuthenticationException)
+          throw (AuthenticationException)t;
+        
         // TODO: wording
         String message = "Error happened during controller action.";
         log.error(message, t);

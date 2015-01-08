@@ -14,6 +14,7 @@ public class Settings
   public static String routesFile = "routes.conf";
   public static String webAppClass = null;
   public static String redirectUrl = "/";
+  public static String siteRootUrl = "http://localhost";
 
   static
   {
@@ -32,6 +33,10 @@ public class Settings
       t = p.getProperty("snap.login.redirecturl");
       if (t != null)
         redirectUrl = new String(t);
+
+      t = p.getProperty("snap.site.rooturl");
+      if (t != null)
+        siteRootUrl = new String(t);
 
       in.close();
     }

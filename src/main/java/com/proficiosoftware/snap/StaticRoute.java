@@ -32,7 +32,7 @@ public class StaticRoute extends Route
 
   @Override
   public View handleRoute(HttpRequest httpRequest, HttpResponse httpResponse)
-      throws UnauthorizedAccessException
+      throws AuthenticationException
   {
     // Fetch the actual file and serve it directly
     Pattern p = Pattern.compile(mPath);
