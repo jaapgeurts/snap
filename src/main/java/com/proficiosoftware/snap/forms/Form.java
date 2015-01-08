@@ -27,7 +27,7 @@ import com.proficiosoftware.snap.http.HttpRequest;
  * it with the html input type you wish to use. Only fields that have the
  * annotation in forms.annotations will be used in the HTML.
  * 
- * It's best to use wrapper objects instead of native types 
+ * It's best to use wrapper objects instead of native types
  * 
  * 
  * @author Jaap Geurts
@@ -196,10 +196,10 @@ public class Form
         {
           // finally attempt to set the value as an objeect
           String values[] = params.get(fieldName);
-          if (values != null && values[0] != null)
-          {
+          if (values == null)
+            classField.set(this, null);
+          else
             classField.set(this, values[0]);
-          }
         }
       }
       catch (IllegalArgumentException | IllegalAccessException | IOException
