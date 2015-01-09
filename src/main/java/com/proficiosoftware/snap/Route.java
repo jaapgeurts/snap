@@ -1,5 +1,6 @@
 package com.proficiosoftware.snap;
 
+import java.io.UnsupportedEncodingException;
 import java.lang.ref.SoftReference;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -112,10 +113,10 @@ public class Route
         Throwable t = e;
         if (t instanceof InvocationTargetException)
           t = t.getCause();
-        
+
         if (t instanceof AuthenticationException)
           throw (AuthenticationException)t;
-        
+
         // TODO: wording
         String message = "Error happened during controller action.";
         log.error(message, t);
@@ -177,7 +178,7 @@ public class Route
       try
       {
         builder.append(mPath.substring(start, m.start()));
-        builder.append(URLEncoder.encode(params[i].toString()));
+        builder.append(URLEncoder.encode(params[i].toString(), "UTF-8"));
         i++;
         start = m.end();
       }
@@ -186,6 +187,10 @@ public class Route
         String message = "Not enough parameters when reversing link: " + mPath;
         log.debug(message, e);
         throw new RuntimeException(message, e);
+      }
+      catch (UnsupportedEncodingException e)
+      {
+        log.debug("JVM doesn't support UTF-8", e);
       }
     }
     if (mPath.charAt(regExLength - 1) == '$')
@@ -203,12 +208,22 @@ public class Route
       builder.append("?");
       for (Map.Entry<String, String> entry : getParams.entrySet())
       {
-        builder.append(URLEncoder.encode(entry.getKey()));
-        builder.append("=");
-        builder.append(URLEncoder.encode(entry.getValue()));
-        builder.append("&");
+        try
+        {
+          builder.append(URLEncoder.encode(entry.getKey(), "UTF-8"));
+          builder.append("=");
+          builder.append(URLEncoder.encode(entry.getValue(), "UTF-8"));
+          builder.append("&");
+        }
+        catch (UnsupportedEncodingException e)
+        {
+          log.debug("JVM doesn't support UTF-8", e);
+        }
       }
-      builder.deleteCharAt(builder.length() - 1);
+      // just make sure
+      if (builder.length() >= 1)
+        if (builder.charAt(builder.length() - 1) == '&')
+          builder.deleteCharAt(builder.length() - 1);
 
     }
 

@@ -143,7 +143,7 @@ public class Dispatcher extends HttpServlet
         next = path + "?" + query;
       else
         next = path;
-      response.sendRedirect(url + "?next=" + URLEncoder.encode(next));
+      response.sendRedirect(url + "?next=" + URLEncoder.encode(next,"UTF-8"));
     }
     catch (Throwable t)
     {
