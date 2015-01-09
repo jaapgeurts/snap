@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import com.alibaba.fastjson.JSONObject;
 import com.proficiosoftware.snap.Route;
+import com.proficiosoftware.snap.User;
 
 public class HttpRequest
 {
@@ -25,7 +26,7 @@ public class HttpRequest
     mServletRequest = servletRequest;
     mMethod = method;
 
-    mAuthenticatedUser = getRequest().getSession().getAttribute(
+    mAuthenticatedUser = (User)getRequest().getSession().getAttribute(
         SNAP_AUTHENTICATED_USER);
   }
 
@@ -110,22 +111,21 @@ public class HttpRequest
     return mRoute;
   }
 
-  public Object getAuthenticatedUser()
+  public User getAuthenticatedUser()
   {
     return mAuthenticatedUser;
   }
 
   /**
    * Puts the authenticated user in the session under the attribute:
-   * 'Snap.AuthorizedUser'
-   * Use in combination with @LoginRequired.
+   * 'Snap.AuthorizedUser' Use in combination with @LoginRequired.
    * 
    * @param user
    *          The user to store in the session. set to null to remove the user
    *          from the session
    * 
    */
-  public void setAuthenticatedUser(Object user)
+  public void setAuthenticatedUser(User user)
   {
     if (user == null)
       getRequest().getSession().removeAttribute(SNAP_AUTHENTICATED_USER);
@@ -139,6 +139,6 @@ public class HttpRequest
   private HttpServletRequest mServletRequest;
   private String mMethod;
   private Route mRoute;
-  private Object mAuthenticatedUser;
+  private User mAuthenticatedUser;
 
 }

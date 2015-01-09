@@ -5,9 +5,9 @@ import com.proficiosoftware.snap.forms.internal.FormField;
 public class SubmitButton extends FormField
 {
 
-  public SubmitButton(String id, String name)
+  public SubmitButton(String id, String name, String label)
   {
-    super(id, name, "");
+    super(id, name, label);
   }
 
   @Override
@@ -16,7 +16,7 @@ public class SubmitButton extends FormField
     return String
         .format(
             "<input type=\"submit\" id=\"%1$s\" name=\"%2$s\" value=\"%3$s\"><br/>",
-            mId, mName, value);
+            mId, mName, mLabel);
   }
 
 }

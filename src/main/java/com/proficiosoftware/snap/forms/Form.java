@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.servlet.ServletException;
@@ -127,7 +128,7 @@ public class Form
         {
           com.proficiosoftware.snap.forms.annotations.SubmitField sf = (com.proficiosoftware.snap.forms.annotations.SubmitField)annotation;
           field = new com.proficiosoftware.snap.forms.SubmitButton(sf.id(),
-              fieldName);
+              fieldName,sf.label());
         }
         else if (annotation instanceof com.proficiosoftware.snap.forms.annotations.HiddenField)
         {

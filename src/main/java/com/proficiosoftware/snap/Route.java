@@ -5,6 +5,7 @@ import java.lang.ref.SoftReference;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URLEncoder;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -22,6 +23,7 @@ import org.slf4j.LoggerFactory;
 import com.proficiosoftware.snap.annotations.HttpGet;
 import com.proficiosoftware.snap.annotations.HttpPost;
 import com.proficiosoftware.snap.annotations.LoginRequired;
+import com.proficiosoftware.snap.annotations.RoleRequired;
 import com.proficiosoftware.snap.http.HttpRequest;
 import com.proficiosoftware.snap.http.HttpResponse;
 import com.proficiosoftware.snap.views.ErrorView;
@@ -72,19 +74,14 @@ public class Route
   }
 
   public View handleRoute(HttpRequest httpRequest, HttpResponse httpResponse)
-      throws AuthenticationException, HttpMethodException
+      throws AuthenticationException, HttpMethodException,
+      AuthorizationException
   {
     Method actionMethod = getMethod();
     View view = null;
     if (actionMethod != null)
     {
 
-      if (actionMethod.isAnnotationPresent(LoginRequired.class))
-      {
-        if (httpRequest.getAuthenticatedUser() == null)
-          throw new AuthenticationException("Not allowed to access URL: "
-              + httpRequest.getRequest().getPathInfo());
-      }
       if (HttpRequest.HTTP_GET.equals(httpRequest.getMethod()))
       {
         if (!actionMethod.isAnnotationPresent(HttpGet.class))
@@ -100,6 +97,32 @@ public class Route
               "Action method  "
                   + actionMethod.getName()
                   + " doesn't accept Http POST method. Annotate your method with '@HttpPost'");
+      }
+      else if (actionMethod.isAnnotationPresent(LoginRequired.class))
+      {
+        // TODO: think about this, because it requires session and not stateless
+        if (httpRequest.getAuthenticatedUser() == null)
+          throw new AuthenticationException("Not allowed to access URL: "
+              + httpRequest.getRequest().getPathInfo()
+              + ". User not Authenticated");
+      }
+      else if (actionMethod.isAnnotationPresent(RoleRequired.class))
+      {
+        User user = httpRequest.getAuthenticatedUser();
+        if (user == null)
+          throw new AuthenticationException("Not allowed to access URL: "
+              + httpRequest.getRequest().getPathInfo()
+              + ". User not Authenticated");
+
+        RoleRequired[] roles = actionMethod
+            .getAnnotationsByType(RoleRequired.class);
+        boolean hasRole = Arrays.stream(roles).anyMatch(
+            r -> user.hasRole(r.role()));
+
+        if (!hasRole)
+          throw new AuthorizationException("Not allowed to access URL: "
+              + httpRequest.getRequest().getPathInfo()
+              + ". User not Authorized");
       }
 
       try

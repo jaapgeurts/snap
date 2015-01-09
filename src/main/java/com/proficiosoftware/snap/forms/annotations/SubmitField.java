@@ -10,5 +10,7 @@ import java.lang.annotation.Target;
 public @interface SubmitField
 {
   public String id() default "";
+  
+  public String label() default "";
 
 }

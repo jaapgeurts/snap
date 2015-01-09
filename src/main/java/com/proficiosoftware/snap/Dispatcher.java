@@ -131,19 +131,25 @@ public class Dispatcher extends HttpServlet
         }
       }
     }
+    catch (AuthorizationException ae)
+    {
+      log.debug("User not authorized access", ae.getMessage());
+      // todo: consider how to return this to the framework so the user can show
+      // their own error view
+    }
     catch (AuthenticationException uae)
     {
       // redirect to redirect URL
       log.debug("User not logged in, redirecting: {}", uae.getMessage());
       String url = Settings.redirectUrl;
       String query = request.getQueryString();
-      // TODO: should I encode the path??
       String next;
       if (query != null)
         next = path + "?" + query;
       else
         next = path;
-      response.sendRedirect(url + "?next=" + URLEncoder.encode(next,"UTF-8"));
+      // encode the path
+      response.sendRedirect(url + "?next=" + URLEncoder.encode(next, "UTF-8"));
     }
     catch (Throwable t)
     {
