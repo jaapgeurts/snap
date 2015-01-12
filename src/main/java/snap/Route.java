@@ -125,6 +125,7 @@ public class Route
               + ". User not Authorized");
       }
 
+      // Execute the actual controller action here.
       try
       {
         view = (View)actionMethod.invoke(getController(), httpRequest,
@@ -292,6 +293,22 @@ public class Route
 
   private Object getController()
   {
+    // If the app is threadsafe then create a new instance
+
+    if (Settings.threadSafeController)
+    {
+      try
+      {
+        return (Object)Class.forName(mController).newInstance();
+      }
+      catch (InstantiationException | IllegalAccessException
+          | ClassNotFoundException e)
+      {
+        log.error("Can't instantiate controller", e);
+        return null;
+      }
+    }
+
     if (mControllerRef == null || mControllerRef.get() == null)
     {
       try

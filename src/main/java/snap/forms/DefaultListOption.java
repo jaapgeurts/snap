@@ -24,4 +24,27 @@ public class DefaultListOption implements ListOption
     return mText;
   }
 
+  @Override
+  public boolean equals(Object obj)
+  {
+    if (obj == null)
+      return false;
+
+    if (!(obj instanceof DefaultListOption))
+      return false;
+
+    DefaultListOption dlo = (DefaultListOption)obj;
+
+    return mText.equals(dlo.mText) && mValue.equals(dlo.mValue);
+
+  }
+
+  @Override
+  public int hashCode()
+  {
+    int result = 37 * mText.hashCode();
+    result = 37 * mValue.hashCode() + result;
+    return result;
+  }
+
 }

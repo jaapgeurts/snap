@@ -16,10 +16,12 @@ public class Settings
   public static String redirectUrl = "/";
   public static String siteRootUrl = "http://localhost";
 
+  public static boolean threadSafeController = false;
+
   static
   {
     InputStream in = Thread.currentThread().getContextClassLoader()
-        .getResourceAsStream("settings.properties");
+        .getResourceAsStream("snap.properties");
     Properties p = new Properties();
     try
     {
@@ -37,6 +39,10 @@ public class Settings
       t = p.getProperty("snap.site.rooturl");
       if (t != null)
         siteRootUrl = new String(t);
+
+      t = p.getProperty("snap.controller.threadsafe");
+      if (t != null)
+        threadSafeController = Boolean.valueOf(t);
 
       in.close();
     }
