@@ -26,7 +26,7 @@ public class DropDownList extends FormField
       b.append(String.format("<label for=\"%1$s\">%2$s</label>",
           mAnnotation.id(), mAnnotation.label()));
     b.append(String.format(
-        "\n<select multiple=\"false\" id=\"%1$s\" name=\"%2$s\"><br/>\n",
+        "\n<select id=\"%1$s\" name=\"%2$s\"><br/>\n",
         mAnnotation.id(), mField.getName()));
 
     // Check if the field is present

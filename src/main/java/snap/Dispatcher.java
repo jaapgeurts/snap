@@ -54,7 +54,7 @@ public class Dispatcher extends HttpServlet
     // force loading of settings so that the static initializer is called
     try
     {
-      Class.forName("com.proficiosoftware.snap.Settings");
+      Class.forName("snap.Settings");
       mWebApplication = (WebApplication)Class.forName(Settings.webAppClass)
           .newInstance();
     }

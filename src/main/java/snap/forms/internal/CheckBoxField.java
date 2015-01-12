@@ -66,7 +66,7 @@ public class CheckBoxField extends FormField
     {
       if (values == null)
       {
-        mField.set(this, false);
+        mField.set(mForm, Boolean.FALSE);
       }
       else
       {
@@ -77,14 +77,14 @@ public class CheckBoxField extends FormField
         }
         if (values[0].equals(mField.getName()))
         {
-          mField.set(mForm, true);
+          mField.set(mForm, Boolean.TRUE);
         }
         else
         {
           log.warn("Possible hacking attempt! Expected value \""
               + mField.getName() + "\" got value: \"" + values[0]
               + "\" for Field: " + mField.getName());
-          mField.set(mForm, false);
+          mField.set(mForm, Boolean.FALSE);
         }
       }
     }

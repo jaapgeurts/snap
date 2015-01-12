@@ -98,7 +98,8 @@ public class Route
                   + actionMethod.getName()
                   + " doesn't accept Http POST method. Annotate your method with '@HttpPost'");
       }
-      else if (actionMethod.isAnnotationPresent(LoginRequired.class))
+      
+      if (actionMethod.isAnnotationPresent(LoginRequired.class))
       {
         // TODO: think about this, because it requires session and not stateless
         if (httpRequest.getAuthenticatedUser() == null)
@@ -106,7 +107,7 @@ public class Route
               + httpRequest.getRequest().getPathInfo()
               + ". User not Authenticated");
       }
-      else if (actionMethod.isAnnotationPresent(RoleRequired.class))
+      if (actionMethod.isAnnotationPresent(RoleRequired.class))
       {
         User user = httpRequest.getAuthenticatedUser();
         if (user == null)

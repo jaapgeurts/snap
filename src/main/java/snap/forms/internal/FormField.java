@@ -76,7 +76,7 @@ public abstract class FormField
     {
       Object o = mField.get(mForm);
       if (o != null)
-        return toString();
+        return o.toString();
       else
         return "";
     }

@@ -1,7 +1,9 @@
 package snap.forms.internal;
 
 import java.lang.reflect.Field;
+import java.util.List;
 import java.util.Set;
+
 import org.apache.commons.lang3.NotImplementedException;
 
 import snap.forms.Form;
@@ -17,7 +19,58 @@ public class MultiSelectField extends FormField
     super(form, field);
     mAnnotation = annotation;
     if (!field.getType().equals(Set.class))
-      throw new IllegalArgumentException("MultiSelectFields must be of type Set<String> or Set<ListOption>");
+      throw new IllegalArgumentException(
+          "MultiSelectFields must be of type Set<String> or Set<ListOption>");
+  }
+
+  /**
+   * Renders a multiselect item identified by it's value. Only works for
+   * checkboxes
+   * 
+   * @param value
+   * @return
+   */
+  public String render(String value)
+  {
+    StringBuilder b = new StringBuilder();
+
+    if (mAnnotation.type() == MultiSelectType.LIST)
+      throw new NotImplementedException(
+          "MultiSelectField LIST type is not yet implemented");
+
+    // Checkbox
+    // Check if the field is present
+    getFormFields();
+
+    // search all options
+    for (Object o : mOptions)
+    {
+      String val, text;
+      if (o instanceof ListOption)
+      {
+        ListOption lo = (ListOption)o;
+        val = lo.getValue();
+        text = lo.getText();
+      }
+      else
+      {
+        val = text = o.toString();
+      }
+      if (val.equals(value))
+      {
+        // check type here.
+        if (mFieldValues.contains(val))
+          b.append(String
+              .format(
+                  "\t<input type=\"checkbox\" name=\"%1$s\" value=\"%2$s\" checked>%3$s",
+                  mField.getName(), val, text));
+        else
+          b.append(String.format(
+              "\t<input type=\"checkbox\" name=\"%1$s\" value=\"%2$s\">%3$s",
+              mField.getName(), val, text));
+      }
+    }
+    return b.toString();
   }
 
   @Override
@@ -109,13 +162,15 @@ public class MultiSelectField extends FormField
           + "\" not present in form", nsfe);
     }
 
-    
     // Get the options and the values
     try
     {
-      mOptions = (Set<Object>)mOptionsField.get(mForm);
+      mOptions = (List<Object>)mOptionsField.get(mForm);
       if (mField.getType().isAssignableFrom(Set.class))
         mFieldValues = (Set<String>)mField.get(mForm);
+      if (mFieldValues == null)
+        throw new RuntimeException("Field " + mField.getName()
+            + " is null. Did you forget to initialize it?");
     }
     catch (IllegalArgumentException | IllegalAccessException e)
     {
@@ -127,6 +182,6 @@ public class MultiSelectField extends FormField
   private snap.forms.annotations.MultiSelectField mAnnotation;
 
   private Field mOptionsField;
-  private Set<Object> mOptions;
+  private List<Object> mOptions;
   private Set<String> mFieldValues;
 }

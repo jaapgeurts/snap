@@ -158,9 +158,9 @@ public class Form
         }
         catch (IOException | ServletException e)
         {
-          log.debug("Can't get multipart class",e);
+          log.debug("Can't get multipart class", e);
         }
-        
+
       }
       entry.getValue().setFieldValue(params.get(entry.getKey()));
     }
@@ -190,13 +190,24 @@ public class Form
     return builder.toString();
   }
 
-  public String field(String fieldName, int index)
+  public String field(String fieldName)
+  {
+    FormField field = mFieldMap.get(fieldName);
+    if (field instanceof MultiSelectField)
+    {
+      throw new RuntimeException(
+          "Field render requested on wrong type. Must not be MultiSelectField");
+    }
+    return field.render();
+  }
+
+  public String field(String fieldName, Object value)
   {
     FormField field = mFieldMap.get(fieldName);
     if (field instanceof MultiSelectField)
     {
       MultiSelectField msf = (MultiSelectField)field;
-      return msf.render();
+      return msf.render(value.toString());
     }
     throw new RuntimeException(
         "Field render requested on wrong type. Must be MultiSelectField");
