@@ -1,6 +1,7 @@
 package snap.forms.internal;
 
 import java.lang.reflect.Field;
+import java.util.List;
 
 import snap.forms.Form;
 import snap.forms.ListOption;
@@ -43,21 +44,21 @@ public class DropDownList extends FormField
 
     // Check the field type
     String wrongTypeMessage = "Option field \"" + mAnnotation.options()
-        + "\" must be an array of Object or array of ListOption";
-    if (!optionsField.getType().isArray())
+        + "\" must be of type List<Object> or List<ListOption>";
+    if (!optionsField.getType().isAssignableFrom(List.class))
       throw new RuntimeException(wrongTypeMessage);
 
-    Object[] options;
+    List<?> options;
     try
     {
-      options = (Object[])optionsField.get(mForm);
+      options = (List<?>)optionsField.get(mForm);
     }
     catch (IllegalArgumentException | IllegalAccessException e)
     {
       throw new RuntimeException(
           "Can't access field: " + mAnnotation.options(), e);
     }
-
+    
     for (Object o : options)
     {
       String val, text;

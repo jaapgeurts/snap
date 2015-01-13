@@ -29,6 +29,8 @@ public class DefaultListOption implements ListOption
   {
     if (obj == null)
       return false;
+    if (this == obj)
+      return true;
 
     if (!(obj instanceof DefaultListOption))
       return false;

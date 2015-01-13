@@ -47,21 +47,10 @@ public class Form
     initFields();
   }
 
-  public Form(HttpRequest request)
-  {
-
-    mFieldList = new ArrayList<FormField>();
-    mFieldMap = new HashMap<String, FormField>();
-
-    initFields();
-    assignValues(request);
-
-  }
-
   private void initFields()
   {
 
-    Field[] classFields = getClass().getFields();
+    Field[] classFields = getClass().getDeclaredFields();
     for (Field classField : classFields)
     {
       Annotation[] annotations = classField.getAnnotations();
@@ -133,7 +122,7 @@ public class Form
     }
   }
 
-  private void assignValues(HttpRequest request)
+  public void assignFieldValues(HttpRequest request)
   {
     if (request == null)
       return;
@@ -162,9 +151,11 @@ public class Form
         }
 
       }
-      entry.getValue().setFieldValue(params.get(entry.getKey()));
+      else
+      {
+        entry.getValue().setFieldValue(params.get(entry.getKey()));
+      }
     }
-
   }
 
   public String render()

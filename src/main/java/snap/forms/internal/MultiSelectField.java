@@ -1,6 +1,7 @@
 package snap.forms.internal;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
 import java.util.List;
 import java.util.Set;
 
@@ -20,7 +21,8 @@ public class MultiSelectField extends FormField
     mAnnotation = annotation;
     if (!field.getType().equals(Set.class))
       throw new IllegalArgumentException(
-          "MultiSelectFields must be of type Set<String> or Set<ListOption>");
+          "MultiSelectFields must be of type Set<String>, Set<Long>, Set<Integer> or Set<ListOption>");
+
   }
 
   /**
@@ -45,7 +47,7 @@ public class MultiSelectField extends FormField
     // search all options
     for (Object o : mOptions)
     {
-      String val, text;
+      String val, text = "";
       if (o instanceof ListOption)
       {
         ListOption lo = (ListOption)o;
@@ -54,7 +56,7 @@ public class MultiSelectField extends FormField
       }
       else
       {
-        val = text = o.toString();
+        val = o.toString();
       }
       if (val.equals(value))
       {
@@ -119,33 +121,51 @@ public class MultiSelectField extends FormField
 
     getFormFields();
     mFieldValues.clear();
+    
+    if (values == null)
+      return;
 
-    Object o = mOptions.stream().findFirst();
-    boolean isListOption = false;
-    if (o instanceof ListOption)
-      isListOption = true;
     for (String value : values)
     {
-      if (isListOption)
+      if (mOptionFieldClass.isAssignableFrom(ListOption.class))
       {
-        if (mOptions.stream().anyMatch(obj -> {
-          return ((ListOption)obj).getValue().equals(value);
-        }))
-          mFieldValues.add(value);
+        if (mOptions.stream().anyMatch(
+            obj -> ((ListOption)obj).getValue().equals(value)))
+          addValueToFormFieldSet(value);
         else
           log.warn("Possible hacking attempt! Submitted field value \"" + value
               + "\" not found in options");
       }
       else
       {
-        if (mOptions.stream().anyMatch(obj -> {
-          return obj.toString().equals(value);
-        }))
-          mFieldValues.add(value);
+        // content is another type of object
+        if (mOptions.stream().anyMatch(obj -> obj.toString().equals(value)))
+          addValueToFormFieldSet(value);
         else
           log.warn("Possible hacking attempt! Submitted field value \"" + value
               + "\" not found in options");
       }
+    }
+  }
+
+  private void addValueToFormFieldSet(String value)
+  {
+    try
+    {
+      if (mOptionFieldClass.equals(String.class))
+        mFieldValues.add(value);
+      if (mOptionFieldClass.equals(Long.class))
+        mFieldValues.add(Long.valueOf(value));
+      else if (mOptionFieldClass.equals(Integer.class))
+        mFieldValues.add(Integer.valueOf(value));
+      else
+        throw new RuntimeException(
+            "Currently only Set<String>, Set<Long>, Set<Integer> are supported");
+    }
+    catch (NumberFormatException nfe)
+    {
+      log.warn("Possible hacking attempt! Submitted field value \"" + value
+          + "\" can't be converted to numeric type");
     }
   }
 
@@ -165,12 +185,16 @@ public class MultiSelectField extends FormField
     // Get the options and the values
     try
     {
-      mOptions = (List<Object>)mOptionsField.get(mForm);
+      mOptions = (List<?>)mOptionsField.get(mForm);
       if (mField.getType().isAssignableFrom(Set.class))
-        mFieldValues = (Set<String>)mField.get(mForm);
+        mFieldValues = (Set<Object>)mField.get(mForm);
       if (mFieldValues == null)
         throw new RuntimeException("Field " + mField.getName()
             + " is null. Did you forget to initialize it?");
+      // Get the type of the Set container./
+      ParameterizedType pType = (ParameterizedType)mField.getGenericType();
+      mOptionFieldClass = (Class<?>)pType.getActualTypeArguments()[0];
+
     }
     catch (IllegalArgumentException | IllegalAccessException e)
     {
@@ -182,6 +206,7 @@ public class MultiSelectField extends FormField
   private snap.forms.annotations.MultiSelectField mAnnotation;
 
   private Field mOptionsField;
-  private List<Object> mOptions;
-  private Set<String> mFieldValues;
+  private List<?> mOptions;
+  private Set<Object> mFieldValues;
+  private Class<?> mOptionFieldClass;
 }
