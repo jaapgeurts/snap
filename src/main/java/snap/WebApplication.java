@@ -1,7 +1,6 @@
 package snap;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Properties;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
@@ -21,11 +20,11 @@ public class WebApplication
     mWebApplication = this;
 
     mServletContext = config.getServletContext();
-    
+
     // Setup the template engine
-    Map<String, Object> conf = new HashMap<String, Object>();
+    Properties conf = new Properties();
     conf.put("engine.mode", "dev");
-    conf.put("home.template",mServletContext.getRealPath("."));
+    conf.put("home.template", mServletContext.getRealPath("."));
     mEngine = new RythmEngine(conf);
 
   }

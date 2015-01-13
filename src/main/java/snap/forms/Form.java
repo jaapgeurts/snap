@@ -190,18 +190,18 @@ public class Form
     return builder.toString();
   }
 
-  public String field(String fieldName)
+  public String renderField(String fieldName)
   {
     FormField field = mFieldMap.get(fieldName);
     if (field instanceof MultiSelectField)
     {
       throw new RuntimeException(
-          "Field render requested on wrong type. Must not be MultiSelectField");
+          "Field render requested for MultiSelectField, but wrong method called. Call: renderField(String fieldName, Object value) instead.");
     }
     return field.render();
   }
 
-  public String field(String fieldName, Object value)
+  public String renderField(String fieldName, Object value)
   {
     FormField field = mFieldMap.get(fieldName);
     if (field instanceof MultiSelectField)
@@ -210,7 +210,12 @@ public class Form
       return msf.render(value.toString());
     }
     throw new RuntimeException(
-        "Field render requested on wrong type. Must be MultiSelectField");
+        "Field render requested on normal field but method called for MultiSelectField. Call renderField(String fieldName) instead.");
+  }
+
+  public FormField field(String fieldName)
+  {
+    return mFieldMap.get(fieldName);
   }
 
   public boolean isValid()
