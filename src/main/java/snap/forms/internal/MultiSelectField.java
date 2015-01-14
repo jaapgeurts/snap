@@ -121,9 +121,12 @@ public class MultiSelectField extends FormField
 
     getFormFields();
     mFieldValues.clear();
-    
+
     if (values == null)
       return;
+
+    if (mOptions == null)
+      throw new RuntimeException("Did you forget to set the Options variable");
 
     for (String value : values)
     {

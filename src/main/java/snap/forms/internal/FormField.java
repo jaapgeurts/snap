@@ -21,7 +21,7 @@ public abstract class FormField
     mForm = form;
     try
     {
-      mOriginalValue = mField.get(this);
+      mOriginalValue = mField.get(mForm);
     }
     catch (IllegalArgumentException | IllegalAccessException e)
     {
@@ -36,7 +36,7 @@ public abstract class FormField
     clearError();
     try
     {
-      mField.set(this, mOriginalValue);
+      mField.set(mForm, mOriginalValue);
     }
     catch (IllegalArgumentException | IllegalAccessException e)
     {
