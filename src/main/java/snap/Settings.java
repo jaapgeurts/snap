@@ -45,11 +45,21 @@ public class Settings
         threadSafeController = Boolean.valueOf(t);
 
       in.close();
+      mProperties = p;
     }
     catch (IOException e)
     {
       log.warn("Can't read settings.", e);
     }
   }
+
+  public static Properties asProperties()
+  {
+    Properties p = new Properties();
+    p.putAll(mProperties);
+    return p;
+  }
+
+  private static Properties mProperties;
 
 }

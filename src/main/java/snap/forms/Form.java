@@ -249,6 +249,12 @@ public class Form
   {
     mFormError = formError;
   }
+  
+  public void reset()
+  {
+    for (FormField field : mFieldList)
+      field.reset();
+  }
 
   public void clearAllErrors()
   {
