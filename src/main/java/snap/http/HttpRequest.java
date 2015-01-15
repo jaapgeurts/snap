@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 
 import snap.Route;
@@ -54,6 +55,35 @@ public class HttpRequest
   public String getParam(String name)
   {
     return getParam(name, 0);
+  }
+
+  /**
+   * Returns a list of all cookies sent with this request Forwards the request
+   * to the HttpServletRequest
+   * 
+   * @return An array of cookies or null of there were no cookies sent
+   */
+  public Cookie[] getCookies()
+  {
+    return mServletRequest.getCookies();
+  }
+
+  /**
+   * Returns a cookie identified by name.
+   * 
+   * @param name
+   *          The name of the cookie
+   * @return the cookie of null if there was no cookie by that name
+   */
+  public Cookie getCookie(String name)
+  {
+    Cookie[] cookies = mServletRequest.getCookies();
+    for (Cookie c : cookies)
+    {
+      if (c.getName().equals(name))
+        return c;
+    }
+    return null;
   }
 
   /**

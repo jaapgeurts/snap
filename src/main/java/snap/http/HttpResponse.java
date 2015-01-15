@@ -3,6 +3,7 @@ package snap.http;
 import java.io.IOException;
 import java.util.Map;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
@@ -94,6 +95,16 @@ public class HttpResponse
     }
   }
 
+  /**
+   * Forwards the cookie adding request to HttpServeletResponse
+   * 
+   * @param cookie
+   *          The cookie to the response
+   */
+  public void addCookie(Cookie cookie)
+  {
+    mServletResponse.addCookie(cookie);
+  }
 
   public HttpServletResponse getResponse()
   {
