@@ -53,7 +53,7 @@ public class ErrorView extends TemplateView
     r.setCharacterEncoding("UTF-8");
     
     PrintWriter pw = response.getResponse().getWriter();
-    pw.print(WebApplication.Instance().getRenderEngine()
+    pw.print(WebApplication.getInstance().getRenderEngine()
         .render(template, mContext));
 
   }

@@ -10,21 +10,28 @@ import org.rythmengine.RythmEngine;
 public class WebApplication
 {
 
-  public static WebApplication Instance()
+  public static WebApplication getInstance()
   {
     return mWebApplication;
   }
 
-  public void init(ServletConfig config)
+  public WebApplication()
   {
     mWebApplication = this;
+  }
+
+  public void init(ServletConfig config)
+  {
 
     mServletContext = config.getServletContext();
+
+    String rootPath = mServletContext.getRealPath(".");
+    Settings.rootPath = rootPath;
 
     // Setup the template engine
     Properties conf = new Properties();
     conf.put("engine.mode", "dev");
-    conf.put("home.template", mServletContext.getRealPath("."));
+    conf.put("home.template", rootPath);
     mEngine = new RythmEngine(conf);
 
   }

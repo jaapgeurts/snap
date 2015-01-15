@@ -18,39 +18,49 @@ public class Settings
 
   public static boolean threadSafeController = false;
 
+  public static String rootPath;
+
   static
   {
-    InputStream in = Thread.currentThread().getContextClassLoader()
-        .getResourceAsStream("snap.properties");
-    Properties p = new Properties();
     try
     {
-      p.load(in);
-      String t = p.getProperty("snap.routes");
-      if (t != null)
-        routesFile = new String(t);
+      InputStream in = Thread.currentThread().getContextClassLoader()
+          .getResourceAsStream("snap.properties");
+      Properties p = new Properties();
+      try
+      {
+        p.load(in);
+        String t = p.getProperty("snap.routes");
+        if (t != null)
+          routesFile = new String(t);
 
-      webAppClass = p.getProperty("snap.applicationclass");
+        webAppClass = p.getProperty("snap.applicationclass");
 
-      t = p.getProperty("snap.login.redirecturl");
-      if (t != null)
-        redirectUrl = new String(t);
+        t = p.getProperty("snap.login.redirecturl");
+        if (t != null)
+          redirectUrl = new String(t);
 
-      t = p.getProperty("snap.site.rooturl");
-      if (t != null)
-        siteRootUrl = new String(t);
+        t = p.getProperty("snap.site.rooturl");
+        if (t != null)
+          siteRootUrl = new String(t);
 
-      t = p.getProperty("snap.controller.threadsafe");
-      if (t != null)
-        threadSafeController = Boolean.valueOf(t);
+        t = p.getProperty("snap.controller.threadsafe");
+        if (t != null)
+          threadSafeController = Boolean.valueOf(t);
 
-      in.close();
-      mProperties = p;
+        mProperties = p;
+      }
+      finally
+      {
+        if (in != null)
+          in.close();
+      }
     }
     catch (IOException e)
     {
       log.warn("Can't read settings.", e);
     }
+
   }
 
   public static Properties asProperties()

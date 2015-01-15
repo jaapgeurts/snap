@@ -53,7 +53,7 @@ public class TemplateView implements View
     r.setCharacterEncoding("UTF-8");
 
     PrintWriter pw = r.getWriter();
-    pw.print(WebApplication.Instance().getRenderEngine()
+    pw.print(WebApplication.getInstance().getRenderEngine()
         .render(template, mContext));
 
   }
