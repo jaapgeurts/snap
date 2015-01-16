@@ -27,7 +27,7 @@ public class FileField extends FormField
       label = String.format("<label for=\"%1$s\">%2$s</label>",
           mAnnotation.id(), mAnnotation.label());
     return String.format(
-        "%1$s\n<input type=\"file\" id=\"%2$s\" name=\"%3$s\"><br/>", label,
+        "%1$s\n<input type=\"file\" id=\"%2$s\" name=\"%3$s\">\n", label,
         mAnnotation.id(), mField.getName());
   }
 

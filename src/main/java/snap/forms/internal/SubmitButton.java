@@ -21,7 +21,7 @@ public class SubmitButton extends FormField
   {
     return String
         .format(
-            "<input type=\"submit\" id=\"%1$s\" name=\"%2$s\" value=\"%3$s\"><br/>",
+            "<input type=\"submit\" id=\"%1$s\" name=\"%2$s\" value=\"%3$s\">",
             mAnnotation.id(), mField.getName(), mAnnotation.label());
   }
 

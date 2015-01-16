@@ -27,7 +27,7 @@ public class TextField extends FormField
           mAnnotation.id(), mAnnotation.label());
     return String
         .format(
-            "%1$s\n<input type=\"text\" id=\"%2$s\" name=\"%3$s\" value=\"%4$s\"><br/>\n",
+            "%1$s\n<input type=\"text\" id=\"%2$s\" name=\"%3$s\" value=\"%4$s\">\n",
             label, mAnnotation.id(), mField.getName(), value);
   }
 
