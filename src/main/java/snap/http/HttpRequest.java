@@ -78,6 +78,9 @@ public class HttpRequest
   public Cookie getCookie(String name)
   {
     Cookie[] cookies = mServletRequest.getCookies();
+    if (cookies == null)
+      return null;
+
     for (Cookie c : cookies)
     {
       if (c.getName().equals(name))
