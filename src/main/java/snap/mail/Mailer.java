@@ -54,7 +54,7 @@ public class Mailer
       return this;
     }
 
-    public MessageBuilder setFrom(String address, String name)
+    public MessageBuilder setFrom(String name, String address)
         throws AddressException
     {
 
