@@ -54,7 +54,19 @@ public class Route
     mHttpMethod = method;
     String[] parts = objectMethodPath.split("::");
     mController = parts[0];
-    mMethodName = parts[1];
+    if (parts.length == 2)
+    {
+      // Controller is a method
+      mMethodName = parts[1];
+      mIsControllerInterface = false;
+    }
+    else
+    {
+      // Controller is an interface class
+      mMethodName = "handleRequest";
+      mIsControllerInterface = true;
+    }
+
   }
 
   // TODO: store parameters immediately
@@ -81,6 +93,7 @@ public class Route
     View view = null;
     if (actionMethod != null)
     {
+      // Check all annotations
 
       if (HttpRequest.HTTP_GET.equals(httpRequest.getMethod()))
       {
@@ -98,7 +111,7 @@ public class Route
                   + actionMethod.getName()
                   + " doesn't accept Http POST method. Annotate your method with '@HttpPost'");
       }
-      
+
       if (actionMethod.isAnnotationPresent(LoginRequired.class))
       {
         // TODO: think about this, because it requires session and not stateless
@@ -129,8 +142,26 @@ public class Route
       // Execute the actual controller action here.
       try
       {
-        view = (View)actionMethod.invoke(getController(), httpRequest,
-            httpResponse);
+        Object controller = getController();
+        if (mIsControllerInterface)
+        {
+          if (controller instanceof Controller)
+          {
+            Controller control = (Controller)controller;
+            view = control.handleRequest(httpRequest, httpResponse);
+          }
+          else
+          {
+            String message = "Route specifies controller class but doesn't implement the Controller interface";
+            log.warn(message);
+            throw new RuntimeException(message);
+          }
+        }
+        else
+        {
+          view = (View)actionMethod.invoke(controller, httpRequest,
+              httpResponse);
+        }
         return view;
       }
       catch (InvocationTargetException e)
@@ -369,6 +400,7 @@ public class Route
   private String mHttpMethod;
   private String mMethodName;
 
+  private boolean mIsControllerInterface;
   protected Regex mRegex;
 
   // Cached version of the controller

@@ -16,6 +16,8 @@ public class Settings
   public static String redirectUrl = "/";
   public static String siteRootUrl = "http://localhost";
 
+  public static String emailTemplatePath;
+
   public static boolean threadSafeController = false;
 
   public static String rootPath;
@@ -43,6 +45,10 @@ public class Settings
         t = p.getProperty("snap.site.rooturl");
         if (t != null)
           siteRootUrl = new String(t);
+
+        t = p.getProperty("snap.mail.templatepath");
+        if (t != null)
+          emailTemplatePath = new String(t);
 
         t = p.getProperty("snap.controller.threadsafe");
         if (t != null)
