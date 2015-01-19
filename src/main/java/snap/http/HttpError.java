@@ -52,18 +52,18 @@ public class HttpError implements RequestResult
       view.addParameter("statuscode", mErrorCode);
       view.addParameter("message", mMessage);
 
-      if (view != null)
-      {
-        HttpServletResponse r = context.getResponse();
-        r.setStatus(mErrorCode);
-        r.setContentType("text/html; charset=UTF-8");
-        r.setCharacterEncoding("UTF-8");
-        view.render(context);
-      }
+      HttpServletResponse r = context.getResponse();
+      r.setStatus(mErrorCode);
+      r.setContentType("text/html; charset=UTF-8");
+      r.setCharacterEncoding("UTF-8");
+      view.render(context);
+
     }
     else
     {
-      // Else call the user to display their standard ERROR pages.
+      // Else call the User's Web application display custom error pages
+      // The default implementation just returns the error to the Servlet
+      // Container
       WebApplication webApp = WebApplication.getInstance();
       webApp.handleError(context, mErrorCode, mException);
     }

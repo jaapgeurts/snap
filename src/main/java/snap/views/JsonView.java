@@ -26,6 +26,11 @@ public class JsonView extends View
   public void render(RequestContext context) throws IOException
   {
     HttpServletResponse r = context.getResponse();
+
+    r.setStatus(HttpServletResponse.SC_OK);
+    r.setContentType("application/json; charset=UTF-8");
+    r.setCharacterEncoding("UTF-8");
+
     PrintWriter pw = r.getWriter();
     pw.print(mJson.toJSONString());
     // TODO: specify encoding too

@@ -24,6 +24,10 @@ public class StringView extends View
   {
     HttpServletResponse r = context.getResponse();
 
+    r.setStatus(HttpServletResponse.SC_OK);
+    r.setContentType("text/html; charset=UTF-8");
+    r.setCharacterEncoding("UTF-8");
+
     PrintWriter pw = r.getWriter();
     pw.print(String.format(
         "<html><head><title>StringView</title></head><body>%s</body></html>",

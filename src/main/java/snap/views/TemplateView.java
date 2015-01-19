@@ -39,6 +39,10 @@ public class TemplateView extends View
     HttpServletResponse r = context.getResponse();
     mContext.put("router", context.getRouter());
 
+    r.setStatus(HttpServletResponse.SC_OK);
+    r.setContentType("text/html; charset=UTF-8");
+    r.setCharacterEncoding("UTF-8");
+
     String s = WebApplication.getInstance().getRenderEngine()
         .render(mTemplateName, mContext);
     PrintWriter writer = r.getWriter();

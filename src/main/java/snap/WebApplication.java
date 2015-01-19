@@ -10,6 +10,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.rythmengine.RythmEngine;
 
 import snap.http.RequestContext;
+import snap.views.NullView;
+import snap.views.View;
 
 public class WebApplication
 {
@@ -48,7 +50,7 @@ public class WebApplication
    * @param exception
    * @throws IOException
    */
-  public void handleError(RequestContext context, int errorCode,
+  public View handleError(RequestContext context, int errorCode,
       Throwable exception) throws IOException
   {
     HttpServletResponse response = context.getResponse();
@@ -57,6 +59,7 @@ public class WebApplication
     else
       response.sendError(errorCode, exception.getMessage());
 
+    return NullView.INSTANCE;
   }
 
   public void destroy()

@@ -15,9 +15,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import snap.http.HttpMethod;
-import snap.http.HttpNull;
 import snap.http.RequestContext;
 import snap.http.RequestResult;
+import snap.views.NullView;
 
 public class StaticRoute extends Route
 {
@@ -82,7 +82,7 @@ public class StaticRoute extends Route
       log.error("Error serving file", e);
       throw e;
     }
-    return HttpNull.INSTANCE;
+    return NullView.INSTANCE;
   }
 
   @Override

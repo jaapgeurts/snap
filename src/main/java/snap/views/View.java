@@ -16,21 +16,7 @@ public abstract class View implements RequestResult
 
   public void handleResult(RequestContext context) throws IOException
   {
-    HttpServletResponse r = context.getResponse();
-    r.setStatus(HttpServletResponse.SC_OK);
-    r.setContentType("text/html; charset=UTF-8");
-    r.setCharacterEncoding("UTF-8");
-
-    // TODO: should I try a catch here, and then change the response error code?
-    try
-    {
-      render(context);
-    }
-    catch (Exception e)
-    {
-      log.warn("Rendering error: " + e.getMessage(), e);
-      throw e;
-    }
+    render(context);
   }
 
   public abstract void render(RequestContext context) throws IOException;
