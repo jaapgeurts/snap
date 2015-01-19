@@ -24,9 +24,9 @@ import snap.annotations.HttpGet;
 import snap.annotations.HttpPost;
 import snap.annotations.LoginRequired;
 import snap.annotations.RoleRequired;
-import snap.http.HttpRequest;
-import snap.http.HttpResponse;
-import snap.views.ErrorView;
+import snap.http.HttpMethod;
+import snap.http.RequestContext;
+import snap.http.RequestResult;
 import snap.views.View;
 
 public class Route
@@ -46,11 +46,10 @@ public class Route
     mRegex = new Regex(re, 0, re.length, Option.NONE, UTF8Encoding.INSTANCE);
   }
 
-  public Route(String contextPath, String method, String path, String alias,
-      String objectMethodPath)
+  public Route(String contextPath, HttpMethod method, String path,
+      String alias, String objectMethodPath)
   {
     this(contextPath, alias, path);
-    // TODO: check * route
     mHttpMethod = method;
     String[] parts = objectMethodPath.split("::");
     mController = parts[0];
@@ -70,13 +69,11 @@ public class Route
   }
 
   // TODO: store parameters immediately
-  public boolean match(String method, String path)
+  public boolean match(HttpMethod method, String path)
   {
-    if (mHttpMethod != null)
-    {
-      if (mHttpMethod.charAt(0) != '*' && !method.equalsIgnoreCase(mHttpMethod))
-        return false;
-    }
+    if (mHttpMethod != method)
+      return false;
+
     boolean success = false;
     byte[] p = path.getBytes();
     Matcher m = mRegex.matcher(p);
@@ -85,48 +82,46 @@ public class Route
     return success;
   }
 
-  public View handleRoute(HttpRequest httpRequest, HttpResponse httpResponse)
-      throws AuthenticationException, HttpMethodException,
-      AuthorizationException
+  public RequestResult handleRoute(RequestContext context) throws Throwable
   {
     Method actionMethod = getMethod();
-    View view = null;
+    RequestResult result = null;
     if (actionMethod != null)
     {
       // Check all annotations
-
-      if (HttpRequest.HTTP_GET.equals(httpRequest.getMethod()))
+      switch(context.getMethod())
       {
-        if (!actionMethod.isAnnotationPresent(HttpGet.class))
-          throw new HttpMethodException(
-              "Action method "
-                  + actionMethod.getName()
-                  + " doesn't accept Http GET method. Annotate your method with '@HttGet'");
+        case GET:
+          if (!actionMethod.isAnnotationPresent(HttpGet.class))
+            throw new HttpMethodException(
+                "Action method "
+                    + actionMethod.getName()
+                    + " doesn't accept Http GET method. Annotate your method with '@HttGet'");
+          break;
+        case POST:
+          if (!actionMethod.isAnnotationPresent(HttpPost.class))
+            throw new HttpMethodException(
+                "Action method  "
+                    + actionMethod.getName()
+                    + " doesn't accept Http POST method. Annotate your method with '@HttpPost'");
+          break;
+        default:
+          // do nothing, there is nothing to check here.
+          break;
       }
-      else if (HttpRequest.HTTP_POST.equals(httpRequest.getMethod()))
-      {
-        if (!actionMethod.isAnnotationPresent(HttpPost.class))
-          throw new HttpMethodException(
-              "Action method  "
-                  + actionMethod.getName()
-                  + " doesn't accept Http POST method. Annotate your method with '@HttpPost'");
-      }
-
       if (actionMethod.isAnnotationPresent(LoginRequired.class))
       {
         // TODO: think about this, because it requires session and not stateless
-        if (httpRequest.getAuthenticatedUser() == null)
+        if (context.getAuthenticatedUser() == null)
           throw new AuthenticationException("Not allowed to access URL: "
-              + httpRequest.getRequest().getPathInfo()
-              + ". User not Authenticated");
+              + context.getRequest().getPathInfo() + ". User not Authenticated");
       }
       if (actionMethod.isAnnotationPresent(RoleRequired.class))
       {
-        User user = httpRequest.getAuthenticatedUser();
+        User user = context.getAuthenticatedUser();
         if (user == null)
           throw new AuthenticationException("Not allowed to access URL: "
-              + httpRequest.getRequest().getPathInfo()
-              + ". User not Authenticated");
+              + context.getRequest().getPathInfo() + ". User not Authenticated");
 
         RoleRequired[] roles = actionMethod
             .getAnnotationsByType(RoleRequired.class);
@@ -135,8 +130,7 @@ public class Route
 
         if (!hasRole)
           throw new AuthorizationException("Not allowed to access URL: "
-              + httpRequest.getRequest().getPathInfo()
-              + ". User not Authorized");
+              + context.getRequest().getPathInfo() + ". User not Authorized");
       }
 
       // Execute the actual controller action here.
@@ -148,68 +142,53 @@ public class Route
           if (controller instanceof Controller)
           {
             Controller control = (Controller)controller;
-            view = control.handleRequest(httpRequest, httpResponse);
+            result = control.handleRequest(context);
           }
           else
           {
             String message = "Route specifies controller class but doesn't implement the Controller interface";
             log.warn(message);
-            throw new RuntimeException(message);
+            throw new SnapException(message);
           }
         }
         else
         {
-          view = (View)actionMethod.invoke(controller, httpRequest,
-              httpResponse);
+          result = (View)actionMethod.invoke(controller, context);
         }
-        return view;
+        return result;
       }
       catch (InvocationTargetException e)
       {
         Throwable t = e;
+        // unwrap the exception and get the exception thrown by the app
         if (t instanceof InvocationTargetException)
           t = t.getCause();
 
-        if (t instanceof AuthenticationException)
-          throw (AuthenticationException)t;
-
-        // TODO: wording
-        String message = "Error happened during controller action.";
-        log.error(message, t);
-        view = new ErrorView(message, t);
-        return view;
-
+        throw t;
       }
       catch (IllegalAccessException e)
       {
         String message = "Snap has no invokation access to the controller.";
         log.error(message, e);
-        view = new ErrorView(message, e);
-        return view;
+        throw new SnapException(message, e);
       }
       catch (IllegalArgumentException e)
       {
         String message = "The method signature of the controller action is not correct.";
-        log.error(message, e);
-        view = new ErrorView(message, e);
-        return view;
+        throw new SnapException(message, e);
       }
-      catch (ClassCastException cce)
+      catch (ClassCastException e)
       {
-        String message = "Instance of view expected. Found: "
-            + view.getClass().getCanonicalName();
-        log.error(message, cce);
-        view = new ErrorView(message, cce);
-        return view;
+        String message = "Instance of RequestResult expected. Found: "
+            + result.getClass().getCanonicalName();
+        throw new SnapException(message, e);
       }
     }
     else
     {
       String message = "Controller or Method not found for route: "
           + getAlias() + ". Specified: " + mController + "::" + mMethodName;
-      view = new ErrorView(message);
-      log.warn(message);
-      return view;
+      throw new SnapException(message);
     }
   }
 
@@ -371,7 +350,7 @@ public class Route
         if (controller == null)
           return null;
         m = getController().getClass().getMethod(mMethodName,
-            HttpRequest.class, HttpResponse.class);
+            RequestContext.class);
         mMethodRef = new SoftReference<Method>(m);
       }
       catch (NoSuchMethodException | SecurityException e)
@@ -383,7 +362,7 @@ public class Route
     return mMethodRef.get();
   }
 
-  public String getHttpMethod()
+  public HttpMethod getHttpMethod()
   {
     return mHttpMethod;
   }
@@ -397,7 +376,7 @@ public class Route
   protected String mContextPath;
   private String mAlias;
   private String mController;
-  private String mHttpMethod;
+  private HttpMethod mHttpMethod;
   private String mMethodName;
 
   private boolean mIsControllerInterface;

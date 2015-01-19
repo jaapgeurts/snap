@@ -16,9 +16,9 @@ import org.slf4j.LoggerFactory;
 
 import snap.Router;
 import snap.WebApplication;
-import snap.http.HttpResponse;
+import snap.http.RequestContext;
 
-public class TemplateView implements View
+public class TemplateView extends View
 {
   final Logger log = LoggerFactory.getLogger(TemplateView.class);
 
@@ -35,35 +35,23 @@ public class TemplateView implements View
   }
 
   @Override
-  public void render(HttpResponse response) throws RenderException, IOException
+  public void render(RequestContext context) throws IOException
   {
-    // TODO: consider adding the User object automatically
 
-    String template = mTemplateName;
+    HttpServletResponse r = context.getResponse();
 
-    // ServletContext context = WebApplication.Instance().getContext();
-
-    // log.debug("Path: "+context.getRealPath("."));
-    // InputStream is = context.getResourceAsStream("/"+mTemplateName);
-    // template = StreamToString(is);
-
-    HttpServletResponse r = response.getResponse();
-    r.setStatus(HttpServletResponse.SC_OK);
-    r.setContentType("text/html; charset=UTF-8");
-    r.setCharacterEncoding("UTF-8");
-
-    PrintWriter pw = r.getWriter();
-    pw.print(WebApplication.getInstance().getRenderEngine()
-        .render(template, mContext));
+    WebApplication.getInstance().getRenderEngine()
+        .render(r.getOutputStream(), mTemplateName, mContext);
 
   }
 
-  protected String StreamToString(InputStream in) throws RenderException
+  protected String StreamToString(InputStream in) throws IOException
   {
     if (in == null)
     {
-      log.warn("Error reading snap error template");
-      throw new RenderException("Can't read template: " + mTemplateName);
+      log.warn("Inputstream argument can't be null");
+      throw new IllegalArgumentException("Can't read template: "
+          + mTemplateName);
     }
     BufferedReader br;
     StringBuilder builder = new StringBuilder();
@@ -83,13 +71,14 @@ public class TemplateView implements View
     }
     catch (UnsupportedEncodingException e)
     {
-      log.warn("JVM doesn't support UTF-8 encoding", e);
-      throw new RenderException("Can't read template: " + mTemplateName, e);
+      log.error("JVM doesn't support UTF-8 encoding: template: "
+          + mTemplateName, e);
+      throw e;
     }
     catch (IOException e)
     {
-      log.warn("Error reading template", e);
-      throw new RenderException("Can't read template: " + mTemplateName, e);
+      log.error("IO Exception reading template: " + mTemplateName, e);
+      throw e;
     }
   }
 

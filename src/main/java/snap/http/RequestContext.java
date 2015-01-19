@@ -7,28 +7,34 @@ import java.util.Map;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import snap.Route;
+import snap.Router;
 import snap.User;
 
 import com.alibaba.fastjson.JSONObject;
 
-public class HttpRequest
+public class RequestContext
 {
-  private static final String SNAP_AUTHENTICATED_USER = "Snap.AuthenticatedUser";
-  public static final String HTTP_GET = "GET";
-  public static final String HTTP_POST = "POST";
 
-  public HttpRequest(Route route, HttpServletRequest servletRequest,
-      String method)
+  final static Logger log = LoggerFactory.getLogger(RequestContext.class);
+
+  private static final String SNAP_AUTHENTICATED_USER = "Snap.AuthenticatedUser";
+
+  public RequestContext(HttpMethod method, HttpServletRequest servletRequest,
+      HttpServletResponse servletResponse)
   {
-    mRoute = route;
     mParams = new HashMap<String, String[]>();
     mParams.putAll(servletRequest.getParameterMap());
     mServletRequest = servletRequest;
+    mServletResponse = servletResponse;
     mMethod = method;
 
-    mAuthenticatedUser = (User)getRequest().getSession().getAttribute(
+    mAuthenticatedUser = (User)mServletRequest.getSession().getAttribute(
         SNAP_AUTHENTICATED_USER);
   }
 
@@ -90,6 +96,17 @@ public class HttpRequest
   }
 
   /**
+   * Forwards the cookie adding request to HttpServeletResponse
+   * 
+   * @param cookie
+   *          The cookie to the response
+   */
+  public void addCookie(Cookie cookie)
+  {
+    mServletResponse.addCookie(cookie);
+  }
+
+  /**
    * Return variable with name and in position pos of the list
    * 
    * @param name
@@ -107,7 +124,7 @@ public class HttpRequest
     return null;
   }
 
-  public String getMethod()
+  public HttpMethod getMethod()
   {
     return mMethod;
   }
@@ -135,14 +152,24 @@ public class HttpRequest
     mParams.putAll(params);
   }
 
+  public Route getRoute()
+  {
+    return mRoute;
+  }
+
+  public void setRoute(Route route)
+  {
+    mRoute = route;
+  }
+
   public HttpServletRequest getRequest()
   {
     return mServletRequest;
   }
 
-  public Route getRoute()
+  public HttpServletResponse getResponse()
   {
-    return mRoute;
+    return mServletResponse;
   }
 
   public User getAuthenticatedUser()
@@ -162,17 +189,18 @@ public class HttpRequest
   public void setAuthenticatedUser(User user)
   {
     if (user == null)
-      getRequest().getSession().removeAttribute(SNAP_AUTHENTICATED_USER);
+      mServletRequest.getSession().removeAttribute(SNAP_AUTHENTICATED_USER);
     else
-      getRequest().getSession().setAttribute(SNAP_AUTHENTICATED_USER, user);
+      mServletRequest.getSession().setAttribute(SNAP_AUTHENTICATED_USER, user);
     mAuthenticatedUser = user;
   }
 
   private final Map<String, String[]> mParams;
 
   private HttpServletRequest mServletRequest;
-  private String mMethod;
+  private HttpServletResponse mServletResponse;
+
+  private HttpMethod mMethod;
   private Route mRoute;
   private User mAuthenticatedUser;
-
 }

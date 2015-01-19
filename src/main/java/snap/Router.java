@@ -11,6 +11,8 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import snap.http.HttpMethod;
+
 // TODO: make this a singleton
 public class Router
 {
@@ -57,11 +59,33 @@ public class Router
         else
         {
           String[] methods = parts[0].split("\\,");
-          for (String method : methods)
+          if (methods != null && methods.length > 0 && methods[0].length() > 0
+              && methods[0].charAt(0) == '*')
           {
-            route = new Route(mContextPath, method, parts[1], alias, parts[3]);
-            mRouteList.add(route);
-            mRouteMap.put(alias, route);
+            // for wildcard methods add a route for all methods
+            // TODO: consider using a special Route named WildcardRoute
+            // Or a route that can handle more than one method
+            for (HttpMethod m : HttpMethod.values())
+            {
+              route = new Route(mContextPath, m, parts[1], alias, parts[3]);
+              mRouteList.add(route);
+              mRouteMap.put(alias, route);
+            }
+          }
+          for (String methodName : methods)
+          {
+            try
+            {
+              route = new Route(mContextPath, HttpMethod.valueOf(methodName),
+                  parts[1], alias, parts[3]);
+              mRouteList.add(route);
+              mRouteMap.put(alias, route);
+            }
+            catch (IllegalArgumentException iae)
+            {
+              log.error("Wrong method name \"" + methodName + "\" for route: "
+                  + line);
+            }
           }
         }
         i++;
@@ -76,16 +100,26 @@ public class Router
 
   }
 
-  public Route findRouteForPath(String method, String path)
+  /**
+   * Finds a route in the list for the specified method and path
+   * 
+   * @param method
+   * @param path
+   * @return
+   * @throws RouteNotFoundException
+   *           when the method and path don't match any route rules
+   */
+  public Route findRouteForPath(HttpMethod method, String path)
   {
     for (Route route : mRouteList)
     {
       if (route.match(method, path))
         return route;
     }
-    return null;
+    throw new RouteNotFoundException("Can't find route for Method: "
+        + method.toString() + " path: " + path);
   }
-  
+
   public String siteUrl()
   {
     return Settings.siteRootUrl;
@@ -100,14 +134,13 @@ public class Router
    * @param params
    *          The params the be replaces in the Regex groups
    * @return The Url link as a string. If no route found returns "";
+   * @throws RouteNotFoundException
+   *           When the route can't be found.
    */
   public String linkForRoute(String alias, Object... params)
   {
-    Route route = mRouteMap.get(alias);
-    if (route != null)
-      return route.getLink(params);
-    // TODO: fix and think about how to not return ""
-    return "";
+    Route route = getRoute(alias);
+    return route.getLink(params);
   }
 
   /***
@@ -121,22 +154,30 @@ public class Router
    * @param params
    *          The params the be replaces in the Regex groups
    * @return The Url link as a string
+   * @throws RouteNotFoundException
+   *           When the route can't be found.
    */
   public String linkForRoute(String alias, Map<String, String> getParams,
       Object... params)
   {
-    Route route = mRouteMap.get(alias);
-    if (route != null)
-    {
-      return route.getLink(getParams,params);
-    }
-    // TODO: fix and think about how to not return ""
-    return "";
+    Route route = getRoute(alias);
+    return route.getLink(getParams, params);
   }
 
+  /**
+   * 
+   * @param routeAlias
+   * @return
+   * @throws RouteNotFoundException
+   *           When the route can't be found.
+   */
   public Route getRoute(String routeAlias)
   {
-    return mRouteMap.get(routeAlias);
+    Route route = mRouteMap.get(routeAlias);
+    if (route == null)
+      throw new RouteNotFoundException("Can't redirect: Unknown route: "
+          + routeAlias);
+    return route;
   }
 
   public void setContextPath(String contextPath)

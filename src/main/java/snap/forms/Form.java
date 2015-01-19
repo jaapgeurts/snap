@@ -21,7 +21,7 @@ import org.slf4j.LoggerFactory;
 import snap.forms.internal.FileField;
 import snap.forms.internal.FormField;
 import snap.forms.internal.MultiSelectField;
-import snap.http.HttpRequest;
+import snap.http.RequestContext;
 
 /**
  * Subclass this class to create a new form. You can add any field and annotate
@@ -122,12 +122,12 @@ public class Form
     }
   }
 
-  public void assignFieldValues(HttpRequest request)
+  public void assignFieldValues(RequestContext context)
   {
-    if (request == null)
+    if (context == null)
       return;
 
-    Map<String, String[]> params = request.getParams();
+    Map<String, String[]> params = context.getParams();
 
     // for all fields find parameters in the request and assign
 
@@ -143,7 +143,7 @@ public class Form
         FileField ff = (FileField)entry.getValue();
         try
         {
-          ff.setFieldValue(request.getRequest().getPart(entry.getKey()));
+          ff.setFieldValue(context.getRequest().getPart(entry.getKey()));
         }
         catch (IOException | ServletException e)
         {
@@ -249,7 +249,7 @@ public class Form
   {
     mFormError = formError;
   }
-  
+
   public void reset()
   {
     for (FormField field : mFieldList)

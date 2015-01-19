@@ -14,9 +14,9 @@ import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import snap.http.HttpRequest;
-import snap.http.HttpResponse;
-import snap.views.View;
+import snap.http.HttpNull;
+import snap.http.RequestContext;
+import snap.http.RequestResult;
 
 public class StaticRoute extends Route
 {
@@ -31,35 +31,33 @@ public class StaticRoute extends Route
   }
 
   @Override
-  public View handleRoute(HttpRequest httpRequest, HttpResponse httpResponse)
-      throws AuthenticationException
+  public RequestResult handleRoute(RequestContext context) throws IOException
   {
     // Fetch the actual file and serve it directly
     Pattern p = Pattern.compile(mPath);
-    Matcher m = p.matcher(httpRequest.getRequest().getPathInfo());
+    Matcher m = p.matcher(context.getRequest().getPathInfo());
     String file = m.replaceAll("");
     String extension = getExtension(file);
     String finalFile = mDirectory + "/" + file;
     File f = new File(finalFile);
 
     if (!f.isAbsolute())
-      f = new File(httpRequest.getRequest().getServletContext()
+      f = new File(context.getRequest().getServletContext()
           .getRealPath(finalFile));
 
-    log.debug("Serving file: " + f.getPath());
+    // TODO: if possible forward serving the file to the Servlet container
 
     BufferedInputStream in;
     BufferedOutputStream out;
     try
     {
-      HttpServletResponse response = httpResponse.getResponse();
+      HttpServletResponse response = context.getResponse();
 
       response.setContentType(getMimeType(extension));
       response.setStatus(HttpServletResponse.SC_OK);
 
       in = new BufferedInputStream(new FileInputStream(f));
-      out = new BufferedOutputStream(httpResponse.getResponse()
-          .getOutputStream());
+      out = new BufferedOutputStream(response.getOutputStream());
       byte[] buffer = new byte[2048];
       int len = in.read(buffer);
       while (len != -1)
@@ -72,16 +70,16 @@ public class StaticRoute extends Route
     }
     catch (FileNotFoundException fnfe)
     {
-      log.warn("File not found: " + mDirectory + "/" + file);
-      httpResponse.getResponse().setStatus(HttpServletResponse.SC_NOT_FOUND);
+      String message = "File not found: " + mDirectory + "/" + file;
+      log.info(message);
+      throw new ResourceNotFoundException(message, fnfe);
     }
     catch (IOException e)
     {
-      httpResponse.getResponse().setStatus(
-          HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
       log.error("Error serving file", e);
+      throw e;
     }
-    return null;
+    return HttpNull.INSTANCE;
   }
 
   @Override

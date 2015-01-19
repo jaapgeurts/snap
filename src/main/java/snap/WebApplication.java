@@ -1,11 +1,15 @@
 package snap;
 
+import java.io.IOException;
 import java.util.Properties;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletResponse;
 
 import org.rythmengine.RythmEngine;
+
+import snap.http.RequestContext;
 
 public class WebApplication
 {
@@ -33,6 +37,25 @@ public class WebApplication
     conf.put("engine.mode", "dev");
     conf.put("home.template", rootPath);
     mEngine = new RythmEngine(conf);
+
+  }
+
+  /**
+   * Default error handling
+   * 
+   * @param context
+   * @param errorCode
+   * @param exception
+   * @throws IOException
+   */
+  public void handleError(RequestContext context, int errorCode,
+      Throwable exception) throws IOException
+  {
+    HttpServletResponse response = context.getResponse();
+    if (exception == null)
+      response.sendError(errorCode);
+    else
+      response.sendError(errorCode, exception.getMessage());
 
   }
 

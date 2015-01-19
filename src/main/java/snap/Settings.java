@@ -15,7 +15,7 @@ public class Settings
   public static String webAppClass = null;
   public static String redirectUrl = "/";
   public static String siteRootUrl = "http://localhost";
-
+  public static boolean debug = true;
   public static String emailTemplatePath;
 
   public static boolean threadSafeController = false;
@@ -53,6 +53,10 @@ public class Settings
         t = p.getProperty("snap.controller.threadsafe");
         if (t != null)
           threadSafeController = Boolean.valueOf(t);
+
+        t = p.getProperty("snap.site.debug");
+        if (t != null)
+          debug = Boolean.parseBoolean(t);
 
         mProperties = p;
       }

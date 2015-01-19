@@ -5,11 +5,11 @@ import java.io.PrintWriter;
 
 import javax.servlet.http.HttpServletResponse;
 
-import snap.http.HttpResponse;
+import snap.http.RequestContext;
 
 import com.alibaba.fastjson.JSONObject;
 
-public class JsonView implements View
+public class JsonView extends View
 {
 
   public JsonView()
@@ -23,17 +23,13 @@ public class JsonView implements View
   }
 
   @Override
-  public void render(HttpResponse response) throws RenderException, IOException
+  public void render(RequestContext context) throws IOException
   {
-    HttpServletResponse r = response.getResponse();
-    r.setStatus(HttpServletResponse.SC_OK);
-    r.setContentType("application/json; charset=UTF-8");
-    r.setCharacterEncoding("UTF-8");
-
+    HttpServletResponse r = context.getResponse();
     PrintWriter pw = r.getWriter();
     pw.print(mJson.toJSONString());
     // TODO: specify encoding too
-    
+
   }
 
   private JSONObject mJson;

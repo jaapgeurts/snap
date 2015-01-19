@@ -14,10 +14,10 @@ import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import snap.http.HttpRequest;
-import snap.http.HttpResponse;
-import snap.views.ErrorView;
-import snap.views.View;
+import snap.http.HttpError;
+import snap.http.HttpMethod;
+import snap.http.RequestContext;
+import snap.http.RequestResult;
 
 public class Dispatcher extends HttpServlet
 {
@@ -67,23 +67,62 @@ public class Dispatcher extends HttpServlet
     mWebApplication.init(config);
   }
 
+  /* forward all requests to a single point of entry */
   @Override
-  protected void doPost(HttpServletRequest request, HttpServletResponse response)
+  protected void doHead(HttpServletRequest request, HttpServletResponse response)
       throws ServletException, IOException
   {
-    handleRequest(HttpRequest.HTTP_POST, request, response);
+    handleRequest(new RequestContext(HttpMethod.HEAD, request, response));
   }
 
   @Override
   protected void doGet(HttpServletRequest request, HttpServletResponse response)
       throws ServletException, IOException
   {
-    handleRequest(HttpRequest.HTTP_GET, request, response);
+    handleRequest(new RequestContext(HttpMethod.GET, request, response));
   }
 
-  private void handleRequest(String method, HttpServletRequest request,
+  @Override
+  protected void doPost(HttpServletRequest request, HttpServletResponse response)
+      throws ServletException, IOException
+  {
+    handleRequest(new RequestContext(HttpMethod.POST, request, response));
+  }
+
+  @Override
+  protected void doPut(HttpServletRequest request, HttpServletResponse response)
+      throws ServletException, IOException
+  {
+    handleRequest(new RequestContext(HttpMethod.PUT, request, response));
+  }
+
+  @Override
+  protected void doDelete(HttpServletRequest request,
       HttpServletResponse response) throws ServletException, IOException
   {
+    handleRequest(new RequestContext(HttpMethod.DELETE, request, response));
+  }
+
+  @Override
+  protected void doOptions(HttpServletRequest request,
+      HttpServletResponse response) throws ServletException, IOException
+  {
+    handleRequest(new RequestContext(HttpMethod.OPTIONS, request, response));
+  }
+
+  @Override
+  protected void doTrace(HttpServletRequest request,
+      HttpServletResponse response) throws ServletException, IOException
+  {
+    handleRequest(new RequestContext(HttpMethod.TRACE, request, response));
+  }
+
+  private void handleRequest(RequestContext context) throws ServletException,
+      IOException
+  {
+
+    HttpServletRequest request = context.getRequest();
+    HttpServletResponse response = context.getResponse();
 
     if (request.getCharacterEncoding() == null)
       request.setCharacterEncoding("UTF-8");
@@ -95,47 +134,42 @@ public class Dispatcher extends HttpServlet
       log.error(message);
       throw new ServletException(message);
     }
-    Route route = mRouter.findRouteForPath(method, path);
+    HttpMethod method = context.getMethod();
 
-    log.debug(String.format("%s - %s", method, path));
-
-    HttpRequest httpRequest = new HttpRequest(route, request, method);
-    HttpResponse httpResponse = new HttpResponse(response);
+    RequestResult requestResult = null;
+    RequestResult errorResult = null;
 
     try
     {
-      View view = null;
-      if (route == null)
+
+      Route route = mRouter.findRouteForPath(method, path);
+      context.setRoute(route);
+
+      log.debug(String.format("%s - %s", method, path));
+
+      context.addParameters(route.getParameters(path));
+      requestResult = route.handleRoute(context);
+
+      if (requestResult == null)
       {
-        String message = "No routes matched path: " + path;
-        view = new ErrorView(message, HttpServletResponse.SC_NOT_FOUND);
-        log.warn(message);
+        String message = "Expected RequestResult object, null found.";
+        throw new SnapException(message);
       }
-      else
-      {
-        httpRequest.addParameters(route.getParameters(path));
-        view = route.handleRoute(httpRequest, httpResponse);
-      }
-      if (view != null)
-      {
-        try
-        {
-          view.render(httpResponse);
-        }
-        catch (Exception e)
-        {
-          String message = "Error during rendering";
-          view = new ErrorView(message, e);
-          view.render(httpResponse);
-          log.warn(message);
-        }
-      }
+
+      requestResult.handleResult(context);
+    }
+    catch (RouteNotFoundException rnfe)
+    {
+      errorResult = new HttpError(HttpServletResponse.SC_NOT_FOUND, rnfe);
+    }
+    catch (ResourceNotFoundException rnfe)
+    {
+      errorResult = new HttpError(HttpServletResponse.SC_NOT_FOUND, rnfe);
     }
     catch (AuthorizationException ae)
     {
       log.debug("User not authorized access", ae.getMessage());
-      // todo: consider how to return this to the framework so the user can show
-      // their own error view
+      errorResult = new HttpError(HttpServletResponse.SC_FORBIDDEN, ae);
     }
     catch (AuthenticationException uae)
     {
@@ -151,25 +185,35 @@ public class Dispatcher extends HttpServlet
       // encode the path
       response.sendRedirect(url + "?next=" + URLEncoder.encode(next, "UTF-8"));
     }
+    catch (SnapException se)
+    {
+      errorResult = new HttpError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
+          se);
+    }
     catch (Throwable t)
     {
       // Catch everything and report it in the browser.
       // If we really can't handle it then bail
       // TODO: Load error view
-
-      response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-      response.setContentType("text/html; charset=UTF-8");
-      response.setCharacterEncoding("UTF-8");
-
-      PrintWriter pw = response.getWriter();
-      pw.print("<html><body><p><pre>");
-      pw.print(t.getMessage());
-      pw.println("</pre><br/><pre>");
-      t.printStackTrace(pw);
-      pw.print("</pre></p></body></html>");
+      errorResult = new HttpError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
+          t);
 
       log.error(t.getMessage(), t);
     }
+
+    // If requestresult != null then an error occurred;
+    if (errorResult != null)
+    {
+      try
+      {
+        errorResult.handleResult(context);
+      }
+      catch (IOException ioe)
+      {
+        log.error("Rendering of error also failed", ioe);
+      }
+    }
+
   }
 
   @Override
