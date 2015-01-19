@@ -73,19 +73,22 @@ public class Router
               mRouteMap.put(alias, route);
             }
           }
-          for (String methodName : methods)
+          else
           {
-            try
+            for (String methodName : methods)
             {
-              route = new Route(mContextPath, HttpMethod.valueOf(methodName),
-                  parts[1], alias, parts[3]);
-              mRouteList.add(route);
-              mRouteMap.put(alias, route);
-            }
-            catch (IllegalArgumentException iae)
-            {
-              log.error("Wrong method name \"" + methodName + "\" for route: "
-                  + line);
+              try
+              {
+                route = new Route(mContextPath, HttpMethod.valueOf(methodName),
+                    parts[1], alias, parts[3]);
+                mRouteList.add(route);
+                mRouteMap.put(alias, route);
+              }
+              catch (IllegalArgumentException iae)
+              {
+                log.error("Wrong method name \"" + methodName
+                    + "\" for route: " + line);
+              }
             }
           }
         }

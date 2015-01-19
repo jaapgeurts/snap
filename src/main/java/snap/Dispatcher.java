@@ -148,28 +148,26 @@ public class Dispatcher extends HttpServlet
       log.debug(String.format("%s - %s", method, path));
 
       context.addParameters(route.getParameters(path));
+      // Ask the controller to process the request
       requestResult = route.handleRoute(context);
-
-      if (requestResult == null)
-      {
-        String message = "Expected RequestResult object, null found.";
-        throw new SnapException(message);
-      }
-
+      // Process the returned result of the controller.
       requestResult.handleResult(context);
     }
     catch (RouteNotFoundException rnfe)
     {
-      errorResult = new HttpError(HttpServletResponse.SC_NOT_FOUND, rnfe);
+      errorResult = new HttpError(HttpServletResponse.SC_NOT_FOUND,
+          "Route not found", rnfe);
     }
     catch (ResourceNotFoundException rnfe)
     {
-      errorResult = new HttpError(HttpServletResponse.SC_NOT_FOUND, rnfe);
+      errorResult = new HttpError(HttpServletResponse.SC_NOT_FOUND,
+          "Resource not found", rnfe);
     }
     catch (AuthorizationException ae)
     {
       log.debug("User not authorized access", ae.getMessage());
-      errorResult = new HttpError(HttpServletResponse.SC_FORBIDDEN, ae);
+      errorResult = new HttpError(HttpServletResponse.SC_FORBIDDEN,
+          "User not authorized", ae);
     }
     catch (AuthenticationException uae)
     {
@@ -188,7 +186,7 @@ public class Dispatcher extends HttpServlet
     catch (SnapException se)
     {
       errorResult = new HttpError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
-          se);
+          se.getMessage(), se);
     }
     catch (Throwable t)
     {
@@ -196,7 +194,7 @@ public class Dispatcher extends HttpServlet
       // If we really can't handle it then bail
       // TODO: Load error view
       errorResult = new HttpError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
-          t);
+          "Internal Server Error", t);
 
       log.error(t.getMessage(), t);
     }

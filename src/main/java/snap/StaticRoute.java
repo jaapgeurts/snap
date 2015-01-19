@@ -14,6 +14,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import snap.http.HttpMethod;
 import snap.http.HttpNull;
 import snap.http.RequestContext;
 import snap.http.RequestResult;
@@ -28,6 +29,8 @@ public class StaticRoute extends Route
     super(contextPath, alias, path);
     // TODO: merge the matching into the super class
     mDirectory = directory;
+    // Only allow GET method for static media
+    mHttpMethod = HttpMethod.GET;
   }
 
   @Override

@@ -5,10 +5,7 @@
 <title>Snap error</title>
 </head>
 <body>
-<h1>@statuscode - An error has occurred</h1>
-@if(message != null) {
- <p>@message</p>
-}
+<h1>@statuscode - @if(message != null) { @message } else { Unknown reason }</h1>
 @if(exception != null) {
 <pre>@exception.getMessage()</pre>
 <pre>@{

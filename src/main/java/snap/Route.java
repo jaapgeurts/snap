@@ -153,8 +153,12 @@ public class Route
         }
         else
         {
-          result = (View)actionMethod.invoke(controller, context);
+          result = (RequestResult)actionMethod.invoke(controller, context);
         }
+        // controllers should not return NULL
+        if (result == null)
+          throw new SnapException("Controller " + mController + "::"
+              + mMethodName + " returned null. Expected RequestResult");
         return result;
       }
       catch (InvocationTargetException e)
@@ -218,7 +222,7 @@ public class Route
       try
       {
         builder.append(mPath.substring(start, m.start()));
-        if (i < params.length - 1)
+        if (i < params.length)
         {
           builder.append(URLEncoder.encode(params[i].toString(), "UTF-8"));
         }
@@ -381,11 +385,20 @@ public class Route
     return mAlias;
   }
 
+  @Override
+  public String toString()
+  {
+    String s = "handleRequest()";
+    if (mMethodName != null)
+      s = mMethodName;
+    return "Alias: " + mAlias + ", Path: " + mPath + ", Endpoint: " + s;
+  }
+
   protected String mPath;
   protected String mContextPath;
   private String mAlias;
   private String mController;
-  private HttpMethod mHttpMethod;
+  protected HttpMethod mHttpMethod;
   private String mMethodName;
 
   private boolean mIsControllerInterface;
