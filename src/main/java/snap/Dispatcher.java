@@ -2,7 +2,6 @@ package snap;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.net.URLEncoder;
 
 import javax.servlet.ServletConfig;
@@ -40,7 +39,7 @@ public class Dispatcher extends HttpServlet
   public void init(ServletConfig config) throws ServletException
   {
     // Setup the router
-    mRouter = Router.instance();
+    mRouter = Router.getInstance();
 
     try
     {
@@ -121,6 +120,7 @@ public class Dispatcher extends HttpServlet
       IOException
   {
 
+    context.setRouter(mRouter);
     HttpServletRequest request = context.getRequest();
     HttpServletResponse response = context.getResponse();
 

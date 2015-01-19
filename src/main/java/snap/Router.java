@@ -12,13 +12,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import snap.http.HttpMethod;
+import snap.http.HttpRedirect;
 
 // TODO: make this a singleton
 public class Router
 {
   final static Logger log = LoggerFactory.getLogger(Router.class);
 
-  public static Router instance()
+  public static Router getInstance()
   {
     if (mRouter == null)
       mRouter = new Router();
@@ -123,6 +124,17 @@ public class Router
   public String siteUrl()
   {
     return Settings.siteRootUrl;
+  }
+
+  public HttpRedirect redirectForRoute(String alias, Object... params)
+  {
+    return new HttpRedirect(linkForRoute(alias, params));
+  }
+
+  public HttpRedirect redirectForRoute(String alias,
+      Map<String, String> getParams, Object... params)
+  {
+    return new HttpRedirect(linkForRoute(alias, getParams, params));
   }
 
   /**

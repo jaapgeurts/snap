@@ -12,31 +12,6 @@ public class HttpRedirect implements RequestResult
 {
 
   /**
-   * Redirect the user to the url identified by alias
-   * 
-   * @param routeAlias
-   * @param params
-   */
-  public HttpRedirect(String routeAlias, Object... params)
-  {
-    Route route = Router.instance().getRoute(routeAlias);
-    mUrl = route.getLink(params);
-  }
-
-  /**
-   * Redirect the user to the url identified by alias
-   * 
-   * @param routeAlias
-   * @param params
-   */
-  public HttpRedirect(String routeAlias, Map<String, String> getParams,
-      Object... params)
-  {
-    Route route = Router.instance().getRoute(routeAlias);
-    mUrl = route.getLink(getParams, params);
-  }
-
-  /**
    * Redirect the user to the url identified by string URL
    * 
    * @param routeAlias
@@ -46,7 +21,7 @@ public class HttpRedirect implements RequestResult
   {
     mUrl = url;
   }
-
+  
   @Override
   public void handleResult(RequestContext context) throws IOException
   {

@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
@@ -14,7 +13,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import snap.Router;
 import snap.WebApplication;
 import snap.http.RequestContext;
 
@@ -26,7 +24,6 @@ public class TemplateView extends View
   {
     mTemplateName = templateName;
     mContext = new HashMap<String, Object>();
-    mContext.put("router", Router.instance());
   }
 
   public void addParameter(String name, Object value)
@@ -39,6 +36,7 @@ public class TemplateView extends View
   {
 
     HttpServletResponse r = context.getResponse();
+    mContext.put("router", context.getRouter());
 
     WebApplication.getInstance().getRenderEngine()
         .render(r.getOutputStream(), mTemplateName, mContext);

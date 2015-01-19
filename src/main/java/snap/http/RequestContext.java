@@ -162,6 +162,16 @@ public class RequestContext
     mRoute = route;
   }
 
+  public Router getRouter()
+  {
+    return mRouter;
+  }
+
+  public void setRouter(Router router)
+  {
+    mRouter = router;
+  }
+
   public HttpServletRequest getRequest()
   {
     return mServletRequest;
@@ -175,6 +185,17 @@ public class RequestContext
   public User getAuthenticatedUser()
   {
     return mAuthenticatedUser;
+  }
+
+  public HttpRedirect getRedirect(String alias, Object... params)
+  {
+    return getRouter().redirectForRoute(alias, params);
+  }
+
+  public HttpRedirect getRedirect(String alias, Map<String, String> getParams,
+      Object... params)
+  {
+    return getRouter().redirectForRoute(alias, getParams, params);
   }
 
   /**
@@ -203,4 +224,6 @@ public class RequestContext
   private HttpMethod mMethod;
   private Route mRoute;
   private User mAuthenticatedUser;
+  private Router mRouter;
+
 }

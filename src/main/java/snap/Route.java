@@ -192,6 +192,11 @@ public class Route
     }
   }
 
+  public String getLink()
+  {
+    return getLink(null, null);
+  }
+
   public String getLink(Object[] params)
   {
     return getLink(null, params);
@@ -213,15 +218,19 @@ public class Route
       try
       {
         builder.append(mPath.substring(start, m.start()));
-        builder.append(URLEncoder.encode(params[i].toString(), "UTF-8"));
+        if (i < params.length - 1)
+        {
+          builder.append(URLEncoder.encode(params[i].toString(), "UTF-8"));
+        }
+        else
+        {
+          String message = "Not enough parameters when reversing link: "
+              + mPath;
+          log.error(message);
+          throw new SnapException(message);
+        }
         i++;
         start = m.end();
-      }
-      catch (ArrayIndexOutOfBoundsException e)
-      {
-        String message = "Not enough parameters when reversing link: " + mPath;
-        log.debug(message, e);
-        throw new RuntimeException(message, e);
       }
       catch (UnsupportedEncodingException e)
       {

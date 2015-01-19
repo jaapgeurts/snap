@@ -12,7 +12,6 @@ import snap.views.View;
 public class HttpError implements RequestResult
 {
   private static final String ERROR_PAGE_NAME = "snap-error.html";
-
   public HttpError(int errorCode)
   {
     mErrorCode = errorCode;
@@ -22,6 +21,12 @@ public class HttpError implements RequestResult
   {
     this(errorCode);
     mException = t;
+  }
+
+  public HttpError(int errorCode, String message, Throwable t)
+  {
+    this(errorCode,t);
+    mMessage = message;
   }
 
   @Override
@@ -35,6 +40,7 @@ public class HttpError implements RequestResult
       TemplateView view = new TemplateView(ERROR_PAGE_NAME);
       view.addParameter("exception", mException);
       view.addParameter("statuscode", mErrorCode);
+      view.addParameter("message", mMessage);
 
       if (view != null)
       {
@@ -54,6 +60,7 @@ public class HttpError implements RequestResult
   }
 
   private int mErrorCode;
+  private String mMessage;
   private Throwable mException;
 
 }
