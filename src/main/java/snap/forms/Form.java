@@ -45,6 +45,10 @@ public class Form
     mFieldMap = new HashMap<String, FormField>();
 
     initFields();
+
+    mFormName = getClass().getCanonicalName();
+    mFormName = mFormName.substring(mFormName.lastIndexOf('.') + 1,
+        mFormName.length());
   }
 
   private void initFields()
@@ -172,6 +176,10 @@ public class Form
 
   private void checkCsrfToken(RequestContext context)
   {
+    // if the user is not logged in do nothing.
+    if (context.getAuthenticatedUser() == null)
+      return;
+
     String token = context.getParam("csrf_token");
     if (token == null)
       throw new MissingCsrfToken("Csrf Token not found for form: "
@@ -208,16 +216,17 @@ public class Form
       String t = type.trim().toLowerCase();
       if (t.equals("table"))
       {
-        startTag = "<table>";
+        // set css class to the form name
+        startTag = "<table class=\"form-table\">";
         endTag = "</table>";
-        rowOpenTag = "<tr><td>";
+        rowOpenTag = "<tr class=\"form-table-row\"><td class=\"form-table-cell\">";
         rowCloseTag = "</td></tr>";
       }
       else if (t.equals("div"))
       {
-        startTag = "<div>";
+        startTag = "<div class=\"form-div\">";
         endTag = "</div>";
-        rowOpenTag = "<div>";
+        rowOpenTag = "<div class=\"form-div-row\">";
         rowCloseTag = "</div>";
       }
     }
@@ -371,4 +380,5 @@ public class Form
   private List<FormField> mFieldList;
   private Map<String, FormField> mFieldMap;
   private String mFormError = null;
+  private String mFormName;
 }

@@ -13,7 +13,8 @@ public class TextArea extends FormField
     super(form, field);
     mAnnotation = annotation;
     if (!field.getType().equals(String.class))
-      throw new IllegalArgumentException("TextAreaFields must be of type String");
+      throw new IllegalArgumentException(
+          "TextAreaFields must be of type String");
   }
 
   @Override
@@ -21,13 +22,21 @@ public class TextArea extends FormField
   {
     String label = "";
     String value = getFieldValue();
+    String cols = "";
+    String rows = "";
 
     if (!"".equals(mAnnotation.label()))
       label = String.format("<label for=\"%1$s\">%2$s</label>",
           mAnnotation.id(), mAnnotation.label());
+
+    if (mAnnotation.cols() > 0)
+      cols = " cols=\"" + mAnnotation.cols() + "\" ";
+    if (mAnnotation.rows() > 0)
+      rows = " rows=\"" + mAnnotation.rows() + "\" ";
+
     return String.format(
-        "%1$s<textarea id=\"%2$s\" name=\"%3$s\">%4$s</textarea>\n", label,
-        mAnnotation.id(), mField.getName(), value);
+        "%1$s<textarea id=\"%2$s\" name=\"%3$s\"%4$s%5$s>%6$s</textarea>\n",
+        label, mAnnotation.id(), mField.getName(), cols, rows, value);
 
   }
 
