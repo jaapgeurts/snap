@@ -4,7 +4,7 @@ import java.lang.reflect.Field;
 
 import snap.forms.Form;
 
-public class PasswordField extends FormField
+public class PasswordField extends FormBase
 {
 
   public PasswordField(Form form, Field field,
@@ -19,6 +19,9 @@ public class PasswordField extends FormField
   @Override
   public String render()
   {
+    if (!isVisible())
+      return "";
+
     // Ignore the value parameter:: never set passwords in HTML
     String label = "";
 

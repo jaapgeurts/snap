@@ -6,16 +6,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import snap.forms.Form;
+import snap.forms.FormField;
 
-public abstract class FormField
+public abstract class FormBase implements FormField
 {
-  final Logger log = LoggerFactory.getLogger(FormField.class);
+  final Logger log = LoggerFactory.getLogger(FormBase.class);
 
-  protected FormField()
+  protected FormBase()
   {
   }
 
-  public FormField(Form form, Field field)
+  public FormBase(Form form, Field field)
   {
     mField = field;
     mForm = form;
@@ -87,8 +88,19 @@ public abstract class FormField
     }
   }
 
+  public void setVisible(boolean visible)
+  {
+    mVisible = visible;
+  }
+
+  public boolean isVisible()
+  {
+    return mVisible;
+  }
+
   protected Field mField;
   protected Form mForm;
   private String mErrorText = null;
+  protected boolean mVisible = true;
 
 }

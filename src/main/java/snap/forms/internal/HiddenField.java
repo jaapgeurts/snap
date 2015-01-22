@@ -4,7 +4,7 @@ import java.lang.reflect.Field;
 
 import snap.forms.Form;
 
-public class HiddenField extends FormField
+public class HiddenField extends FormBase
 {
 
   public HiddenField(Form form, Field field,
@@ -19,6 +19,9 @@ public class HiddenField extends FormField
   @Override
   public String render()
   {
+    if (!isVisible())
+      return "";
+
     return String.format(
         "<input type=\"hidden\" id=\"%1$s\" name=\"%2$s\" value=\"%3$s\"/>",
         mAnnotation.id(), mField.getName(), getFieldValue());

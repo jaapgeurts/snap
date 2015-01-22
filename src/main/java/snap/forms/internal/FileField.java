@@ -6,7 +6,7 @@ import javax.servlet.http.Part;
 
 import snap.forms.Form;
 
-public class FileField extends FormField
+public class FileField extends FormBase
 {
 
   public FileField(Form form, Field field,
@@ -21,6 +21,9 @@ public class FileField extends FormField
   @Override
   public String render()
   {
+    if (!isVisible())
+      return "";
+
     String label = "";
 
     if (!"".equals(mAnnotation.label()))

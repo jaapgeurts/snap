@@ -4,7 +4,7 @@ import java.lang.reflect.Field;
 
 import snap.forms.Form;
 
-public class TextArea extends FormField
+public class TextArea extends FormBase
 {
 
   public TextArea(Form form, Field field,
@@ -20,6 +20,9 @@ public class TextArea extends FormField
   @Override
   public String render()
   {
+    if (!isVisible())
+      return "";
+
     String label = "";
     String value = getFieldValue();
     String cols = "";

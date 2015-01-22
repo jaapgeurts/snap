@@ -6,7 +6,7 @@ import java.util.List;
 import snap.forms.Form;
 import snap.forms.ListOption;
 
-public class DropDownList extends FormField
+public class DropDownList extends FormBase
 {
 
   public DropDownList(Form form, Field field,
@@ -21,6 +21,9 @@ public class DropDownList extends FormField
   @Override
   public String render()
   {
+    if (!isVisible())
+      return "";
+
     StringBuilder b = new StringBuilder();
 
     if (!"".equals(mAnnotation.label()))

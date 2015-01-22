@@ -4,7 +4,7 @@ import java.lang.reflect.Field;
 
 import snap.forms.Form;
 
-public class RadioField extends FormField
+public class RadioField extends FormBase
 {
 
   public RadioField(Form form, Field field,
@@ -19,6 +19,9 @@ public class RadioField extends FormField
   @Override
   public String render()
   {
+    if (!isVisible())
+      return "";
+
     StringBuilder b = new StringBuilder();
     Object[] enumValues;
 

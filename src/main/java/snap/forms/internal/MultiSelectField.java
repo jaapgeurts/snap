@@ -11,7 +11,7 @@ import snap.forms.Form;
 import snap.forms.ListOption;
 import snap.forms.annotations.MultiSelectField.MultiSelectType;
 
-public class MultiSelectField extends FormField
+public class MultiSelectField extends FormBase
 {
 
   public MultiSelectField(Form form, Field field,
@@ -34,6 +34,9 @@ public class MultiSelectField extends FormField
    */
   public String render(String value)
   {
+    if (!isVisible())
+      return "";
+
     StringBuilder b = new StringBuilder();
 
     if (mAnnotation.type() == MultiSelectType.LIST)

@@ -19,7 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import snap.forms.internal.FileField;
-import snap.forms.internal.FormField;
+import snap.forms.internal.FormBase;
 import snap.forms.internal.MultiSelectField;
 import snap.http.RequestContext;
 
@@ -169,7 +169,7 @@ public class Form
       }
       else
       {
-        entry.getValue().setFieldValue(params.get(entry.getKey()));
+        ((FormBase)entry.getValue()).setFieldValue(params.get(entry.getKey()));
       }
     }
   }

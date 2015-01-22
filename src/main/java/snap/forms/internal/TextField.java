@@ -4,7 +4,7 @@ import java.lang.reflect.Field;
 
 import snap.forms.Form;
 
-public class TextField extends FormField
+public class TextField extends FormBase
 {
 
   public TextField(Form form, Field field,
@@ -19,6 +19,8 @@ public class TextField extends FormField
   @Override
   public String render()
   {
+    if (!isVisible())
+      return "";
     String label = "";
     String value = getFieldValue();
 

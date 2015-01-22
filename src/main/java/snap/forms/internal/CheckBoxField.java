@@ -4,7 +4,7 @@ import java.lang.reflect.Field;
 
 import snap.forms.Form;
 
-public class CheckBoxField extends FormField
+public class CheckBoxField extends FormBase
 {
 
   public CheckBoxField(Form form, Field field,
@@ -19,6 +19,9 @@ public class CheckBoxField extends FormField
   @Override
   public String render()
   {
+    if (!isVisible())
+      return "";
+
     String labelPre = "";
     String labelPost = "";
 
