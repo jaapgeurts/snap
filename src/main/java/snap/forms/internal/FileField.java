@@ -16,6 +16,9 @@ public class FileField extends FormBase
     mAnnotation = annotation;
     if (!field.getType().equals(Part.class))
       throw new IllegalArgumentException("FileFields must be of type Part");
+    
+    mLabel = mAnnotation.label();
+
   }
 
   @Override

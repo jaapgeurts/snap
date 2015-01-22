@@ -23,6 +23,7 @@ public class MultiSelectField extends FormBase
       throw new IllegalArgumentException(
           "MultiSelectFields must be of type Set<String>, Set<Long>, Set<Integer> or Set<ListOption>");
 
+
   }
 
   /**

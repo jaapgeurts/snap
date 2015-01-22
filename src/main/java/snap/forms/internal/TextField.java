@@ -14,6 +14,8 @@ public class TextField extends FormBase
     mAnnotation = annotation;
     if (!field.getType().equals(String.class))
       throw new IllegalArgumentException("TextFields must be of type String");
+    
+    mLabel = mAnnotation.label();
   }
 
   @Override
@@ -24,9 +26,9 @@ public class TextField extends FormBase
     String label = "";
     String value = getFieldValue();
 
-    if (!"".equals(mAnnotation.label()))
+    if (!"".equals(mLabel))
       label = String.format("<label for=\"%1$s\">%2$s</label>",
-          mAnnotation.id(), mAnnotation.label());
+          mAnnotation.id(), mLabel);
     return String
         .format(
             "%1$s\n<input type=\"text\" id=\"%2$s\" name=\"%3$s\" value=\"%4$s\"/>\n",

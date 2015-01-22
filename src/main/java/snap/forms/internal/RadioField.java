@@ -14,6 +14,7 @@ public class RadioField extends FormBase
     mAnnotation = annotation;
     if (!field.getType().isEnum())
       throw new IllegalArgumentException("RadioFieldsmust be an enum");
+
   }
 
   @Override

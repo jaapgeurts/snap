@@ -14,6 +14,9 @@ public class PasswordField extends FormBase
     mAnnotation = annotation;
     if (!field.getType().equals(String.class))
       throw new IllegalArgumentException("PasswordFields must be of type String");
+    
+    mLabel = mAnnotation.label();
+
   }
 
   @Override

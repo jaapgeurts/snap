@@ -11,5 +11,7 @@ public interface FormField
   public boolean hasError();
   public void setVisible(boolean visible);
   public boolean isVisible();
+  public void setLabel(String label);
+  public String getLabel();
 
 }

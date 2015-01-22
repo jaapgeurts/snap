@@ -98,6 +98,19 @@ public abstract class FormBase implements FormField
     return mVisible;
   }
 
+  @Override
+  public String getLabel()
+  {
+    return mLabel;
+  }
+
+  @Override
+  public void setLabel(String label)
+  {
+    mLabel = label;
+  }
+
+  protected String mLabel;
   protected Field mField;
   protected Form mForm;
   private String mErrorText = null;

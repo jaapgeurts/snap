@@ -15,6 +15,9 @@ public class TextArea extends FormBase
     if (!field.getType().equals(String.class))
       throw new IllegalArgumentException(
           "TextAreaFields must be of type String");
+
+    mLabel = mAnnotation.label();
+
   }
 
   @Override
