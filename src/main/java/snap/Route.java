@@ -27,7 +27,6 @@ import snap.annotations.RoleRequired;
 import snap.http.HttpMethod;
 import snap.http.RequestContext;
 import snap.http.RequestResult;
-import snap.views.View;
 
 public class Route
 {

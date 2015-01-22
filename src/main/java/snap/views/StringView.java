@@ -5,7 +5,6 @@ import java.io.PrintWriter;
 
 import javax.servlet.http.HttpServletResponse;
 
-import snap.WebApplication;
 import snap.http.RequestContext;
 
 public class StringView extends View

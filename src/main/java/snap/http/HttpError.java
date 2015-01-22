@@ -17,8 +17,6 @@ import org.slf4j.LoggerFactory;
 import snap.Router;
 import snap.Settings;
 import snap.WebApplication;
-import snap.views.TemplateView;
-import snap.views.View;
 
 public class HttpError implements RequestResult
 {

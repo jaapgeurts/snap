@@ -3,7 +3,6 @@ package snap.forms;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
-import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -308,5 +307,4 @@ public class Form
   private List<FormField> mFieldList;
   private Map<String, FormField> mFieldMap;
   private String mFormError = null;
-  private Object mCsrfToken;
 }

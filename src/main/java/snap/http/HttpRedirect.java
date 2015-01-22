@@ -1,12 +1,7 @@
 package snap.http;
 
 import java.io.IOException;
-import java.util.Map;
-
 import javax.servlet.http.HttpServletResponse;
-
-import snap.Route;
-import snap.Router;
 
 public class HttpRedirect implements RequestResult
 {
