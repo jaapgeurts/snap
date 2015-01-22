@@ -39,6 +39,11 @@ public class TemplateView extends View
     HttpServletResponse r = context.getResponse();
     mContext.put("router", context.getRouter());
 
+    // add csrf_token if the user is logged in
+    String tokenValue = context.getCsrfToken();
+    if (tokenValue != null)
+      mContext.put("csrf_token_value", tokenValue);
+    
     r.setStatus(HttpServletResponse.SC_OK);
     r.setContentType("text/html; charset=UTF-8");
     r.setCharacterEncoding("UTF-8");

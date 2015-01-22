@@ -2,12 +2,14 @@ package snap.http;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.security.SecureRandom;
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,6 +26,7 @@ public class RequestContext
   final static Logger log = LoggerFactory.getLogger(RequestContext.class);
 
   private static final String SNAP_AUTHENTICATED_USER = "Snap.AuthenticatedUser";
+  private static final String SNAP_CSRF_TOKEN = "Snap.CsrfToken";
 
   public RequestContext(HttpMethod method, HttpServletRequest servletRequest,
       HttpServletResponse servletResponse)
@@ -56,7 +59,7 @@ public class RequestContext
    * Return variable with name. implicitly returns first value in the list
    * 
    * @param name
-   * @return returns null when parameter is not avialable.
+   * @return returns null when parameter is not available.
    */
   public String getParam(String name)
   {
@@ -209,11 +212,61 @@ public class RequestContext
    */
   public void setAuthenticatedUser(User user)
   {
+    HttpSession session = mServletRequest.getSession();
     if (user == null)
-      mServletRequest.getSession().removeAttribute(SNAP_AUTHENTICATED_USER);
+    {
+      session.removeAttribute(SNAP_AUTHENTICATED_USER);
+      session.removeAttribute(SNAP_CSRF_TOKEN);
+    }
     else
-      mServletRequest.getSession().setAttribute(SNAP_AUTHENTICATED_USER, user);
+    {
+      session.setAttribute(SNAP_AUTHENTICATED_USER, user);
+      session.setAttribute(SNAP_CSRF_TOKEN, generateCsrfToken());
+    }
     mAuthenticatedUser = user;
+  }
+
+  /**
+   * Returns the current generated CSRF token
+   * 
+   * @return
+   */
+  public String getCsrfToken()
+  {
+    HttpSession session = mServletRequest.getSession();
+    if (session.getAttribute(SNAP_CSRF_TOKEN) != null)
+      return (String)session.getAttribute(SNAP_CSRF_TOKEN);
+    else
+      log.warn("User not logged in. Not returning CSRF Token");
+    return null;
+  }
+
+  public void resetCsrfToken()
+  {
+    HttpSession session = mServletRequest.getSession();
+    if (session.getAttribute(SNAP_CSRF_TOKEN) != null)
+      session.setAttribute(SNAP_CSRF_TOKEN, generateCsrfToken());
+    else
+      log.warn("User not logged in. Not resetting CSRF Token");
+  }
+
+  private String generateCsrfToken()
+  {
+    SecureRandom lSecureRandom = new SecureRandom();
+
+    byte bytes[] = new byte[12];
+    lSecureRandom.nextBytes(bytes);
+    return byteToHex(bytes);
+  }
+
+  private String byteToHex(byte[] array)
+  {
+    StringBuffer sb = new StringBuffer();
+    for (int i = 0; i < array.length; ++i)
+    {
+      sb.append(Integer.toHexString((array[i] & 0xFF) | 0x100).substring(1, 3));
+    }
+    return sb.toString();
   }
 
   private final Map<String, String[]> mParams;

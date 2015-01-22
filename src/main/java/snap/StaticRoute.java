@@ -45,8 +45,17 @@ public class StaticRoute extends Route
     File f = new File(finalFile);
 
     if (!f.isAbsolute())
-      f = new File(context.getRequest().getServletContext()
-          .getRealPath(finalFile));
+    {
+      String realPath = context.getRequest().getServletContext()
+          .getRealPath(finalFile);
+      if (realPath == null)
+      {
+        log.error("Can't locate file: " + finalFile);
+        throw new SnapException("File \"" + finalFile
+            + "\" not found on local disk");
+      }
+      f = new File(realPath);
+    }
 
     // TODO: if possible forward serving the file to the Servlet container
 

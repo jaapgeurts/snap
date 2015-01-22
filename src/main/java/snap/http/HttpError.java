@@ -4,7 +4,10 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -47,16 +50,20 @@ public class HttpError implements RequestResult
           ERROR_PAGE_NAME);
       String template = StreamToString(in);
 
-      TemplateView view = new TemplateView(template);
-      view.addParameter("exception", mException);
-      view.addParameter("statuscode", mErrorCode);
-      view.addParameter("message", mMessage);
+      Map<String, Object> map = new HashMap<>();
+      map.put("exception", mException);
+      map.put("statuscode", mErrorCode);
+      map.put("message", mMessage);
 
       HttpServletResponse r = context.getResponse();
       r.setStatus(mErrorCode);
       r.setContentType("text/html; charset=UTF-8");
       r.setCharacterEncoding("UTF-8");
-      view.render(context);
+
+      String s = WebApplication.getInstance().getRenderEngine()
+          .render(template, map);
+      PrintWriter writer = r.getWriter();
+      writer.print(s);
 
     }
     else

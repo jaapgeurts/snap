@@ -13,6 +13,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import snap.forms.InvalidCsrfToken;
+import snap.forms.MissingCsrfToken;
 import snap.http.HttpError;
 import snap.http.HttpMethod;
 import snap.http.RequestContext;
@@ -152,6 +154,21 @@ public class Dispatcher extends HttpServlet
       requestResult = route.handleRoute(context);
       // Process the returned result of the controller.
       requestResult.handleResult(context);
+    }
+    catch (MissingCsrfToken mct)
+    {
+      errorResult = new HttpError(HttpServletResponse.SC_BAD_REQUEST,
+          "CsrfToken missing", mct);
+    }
+    catch (InvalidCsrfToken ict)
+    {
+      errorResult = new HttpError(HttpServletResponse.SC_BAD_REQUEST,
+          "CsrfToken invalid", ict);
+    }
+    catch (HttpMethodException hme)
+    {
+      errorResult = new HttpError(HttpServletResponse.SC_METHOD_NOT_ALLOWED,
+          "Incorrect Http Method", hme);
     }
     catch (RouteNotFoundException rnfe)
     {

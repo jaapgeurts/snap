@@ -19,30 +19,9 @@ public abstract class FormField
   {
     mField = field;
     mForm = form;
-    try
-    {
-      mOriginalValue = mField.get(mForm);
-    }
-    catch (IllegalArgumentException | IllegalAccessException e)
-    {
-      log.debug("Can't get value of field", e);
-    }
   }
 
   public abstract String render();
-
-  public void reset()
-  {
-    clearError();
-    try
-    {
-      mField.set(mForm, mOriginalValue);
-    }
-    catch (IllegalArgumentException | IllegalAccessException e)
-    {
-      log.debug("Can't set value of field", e);
-    }
-  }
 
   public String getError()
   {
@@ -109,7 +88,6 @@ public abstract class FormField
   }
 
   protected Field mField;
-  private Object mOriginalValue;
   protected Form mForm;
   private String mErrorText = null;
 

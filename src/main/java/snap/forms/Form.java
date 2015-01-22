@@ -3,6 +3,7 @@ package snap.forms;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -127,6 +128,9 @@ public class Form
     if (context == null)
       return;
 
+    // throw exception if token is not present
+    checkCsrfToken(context);
+
     Map<String, String[]> params = context.getParams();
 
     // for all fields find parameters in the request and assign
@@ -156,6 +160,19 @@ public class Form
         entry.getValue().setFieldValue(params.get(entry.getKey()));
       }
     }
+  }
+
+  private void checkCsrfToken(RequestContext context)
+  {
+    String token = context.getParam("csrf_token");
+    if (token == null)
+      throw new MissingCsrfToken("Csrf Token not found for form: "
+          + this.getClass().getCanonicalName()
+          + ". Did you forget to include it with @csrf_token()");
+
+    if (!token.equals(context.getCsrfToken()))
+      throw new InvalidCsrfToken(
+          "The token submitted did not match the expected token value.");
   }
 
   public String render()
@@ -204,10 +221,25 @@ public class Form
         "Field render requested on normal field but method called for MultiSelectField. Call renderField(String fieldName) instead.");
   }
 
+  /**
+   * Returns a Field Subtype Object that represents the Annotated Form field.
+   * 
+   * @param fieldName
+   *          The name of the field you want to get
+   * @return The Form field
+   */
   public FormField field(String fieldName)
   {
     return mFieldMap.get(fieldName);
   }
+
+  /**
+   * Validates the form. Runs the Hibernate Validator to check if the form
+   * values are correct. You can override this method if you want to implement
+   * extra or different logic.
+   * 
+   * @return true, when there are no errors, false if there are
+   */
 
   public boolean isValid()
   {
@@ -228,6 +260,12 @@ public class Form
 
   }
 
+  /**
+   * Returns true if there are error messages present in this form or in any of
+   * the form fields
+   * 
+   * @return true or false
+   */
   public boolean hasErrors()
   {
     if (mFormError != null)
@@ -240,20 +278,24 @@ public class Form
     return false;
   }
 
+  /**
+   * Sets the error of this form
+   * 
+   * @return
+   */
   public String getFormError()
   {
     return mFormError;
   }
 
+  /**
+   * Sets the error string of this form
+   * 
+   * @param formError
+   */
   public void setFormError(String formError)
   {
     mFormError = formError;
-  }
-
-  public void reset()
-  {
-    for (FormField field : mFieldList)
-      field.reset();
   }
 
   public void clearAllErrors()
@@ -266,4 +308,5 @@ public class Form
   private List<FormField> mFieldList;
   private Map<String, FormField> mFieldMap;
   private String mFormError = null;
+  private Object mCsrfToken;
 }
