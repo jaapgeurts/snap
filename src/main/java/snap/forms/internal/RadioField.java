@@ -47,12 +47,12 @@ public class RadioField extends FormField
       if (e.equals(value))
         b.append(String
             .format(
-                "<input id=\"%3$s\" type=\"radio\" name=\"%1$s\" value=\"%2$s\" checked>%2$s",
+                "<input id=\"%3$s\" type=\"radio\" name=\"%1$s\" value=\"%2$s\" checked/>%2$s",
                 mField.getName(), e.toString(), mAnnotation.id()));
       else
         b.append(String
             .format(
-                "<input id=\"%3$s\" type=\"radio\" name=\"%1$s\" value=\"%2$s\">%2$s",
+                "<input id=\"%3$s\" type=\"radio\" name=\"%1$s\" value=\"%2$s\"/>%2$s",
                 mField.getName(), e.toString(), mAnnotation.id()));
 
     }

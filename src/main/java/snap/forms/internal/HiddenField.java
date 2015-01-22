@@ -20,7 +20,7 @@ public class HiddenField extends FormField
   public String render()
   {
     return String.format(
-        "<input type=\"hidden\" id=\"%1$s\" name=\"%2$s\" value=\"%3$s\">",
+        "<input type=\"hidden\" id=\"%1$s\" name=\"%2$s\" value=\"%3$s\"/>",
         mAnnotation.id(), mField.getName(), getFieldValue());
   }
 

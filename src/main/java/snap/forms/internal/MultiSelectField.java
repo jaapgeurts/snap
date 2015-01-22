@@ -64,11 +64,11 @@ public class MultiSelectField extends FormField
         if (mFieldValues.contains(val))
           b.append(String
               .format(
-                  "\t<input type=\"checkbox\" name=\"%1$s\" value=\"%2$s\" checked>%3$s",
+                  "\t<input type=\"checkbox\" name=\"%1$s\" value=\"%2$s\" checked/>%3$s",
                   mField.getName(), val, text));
         else
           b.append(String.format(
-              "\t<input type=\"checkbox\" name=\"%1$s\" value=\"%2$s\">%3$s",
+              "\t<input type=\"checkbox\" name=\"%1$s\" value=\"%2$s\"/>%3$s",
               mField.getName(), val, text));
       }
     }
@@ -105,11 +105,11 @@ public class MultiSelectField extends FormField
       if (mFieldValues.contains(val))
         b.append(String
             .format(
-                "\t<input type=\"checkbox\" name=\"%1$s\" value=\"%2$s\" checked>%3$s",
+                "\t<input type=\"checkbox\" name=\"%1$s\" value=\"%2$s\" checked/>%3$s",
                 mField.getName(), val, text));
       else
         b.append(String.format(
-            "\t<input type=\"checkbox\" name=\"%1$s\" value=\"%2$s\">%3$s",
+            "\t<input type=\"checkbox\" name=\"%1$s\" value=\"%2$s\"/>%3$s",
             mField.getName(), val, text));
     }
     return b.toString();

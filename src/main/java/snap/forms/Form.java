@@ -122,6 +122,15 @@ public class Form
     }
   }
 
+  /**
+   * Populates this form with values contained in the request. If the field is a
+   * select field, this method will check if the posted value matches one of the
+   * values in the choice
+   * 
+   * @param context
+   * @throws InvalidCsrtToken
+   *           or MissingCsrfToken when the token is invalid or missing
+   */
   public void assignFieldValues(RequestContext context)
   {
     if (context == null)
@@ -174,8 +183,44 @@ public class Form
           "The token submitted did not match the expected token value.");
   }
 
-  public String render()
+  /**
+   * Renders the form as HTML tags. Also renders errors if any. Layout is
+   * applied according to the type parameter.
+   * 
+   * @param type
+   *          Specifies the way the form should be layed out.
+   *          <ul>
+   *          <li>null - Don't apply any formatting</li>
+   *          <li>"table" - Format with table/tr/td tags</li>
+   *          <li>"div" - Format with div tags</li>
+   *          </ul>
+   * @return A complete string of all the html form fields
+   */
+  public String render(String type)
   {
+    String startTag = "";
+    String endTag = "";
+    String rowOpenTag = "";
+    String rowCloseTag = "";
+
+    if (type != null)
+    {
+      String t = type.trim().toLowerCase();
+      if (t.equals("table"))
+      {
+        startTag = "<table>";
+        endTag = "</table>";
+        rowOpenTag = "<tr><td>";
+        rowCloseTag = "</td></tr>";
+      }
+      else if (t.equals("div"))
+      {
+        startTag = "<div>";
+        endTag = "</div>";
+        rowOpenTag = "<div>";
+        rowCloseTag = "</div>";
+      }
+    }
     // TODO: render a CSRF token
     StringBuilder builder = new StringBuilder();
     if (mFormError != null && !"".equals(mFormError))
@@ -184,9 +229,12 @@ public class Form
       builder.append(getFormError());
       builder.append("</p>");
     }
+    builder.append(startTag);
     for (FormField field : mFieldList)
     {
+      builder.append(rowOpenTag);
       builder.append(field.render());
+      builder.append(rowCloseTag);
       if (field.hasError())
       {
         builder.append("<p class=\"field-error\">");
@@ -194,9 +242,17 @@ public class Form
         builder.append("</p>");
       }
     }
+    builder.append(endTag);
     return builder.toString();
   }
 
+  /**
+   * Renders a specific field as HTML. Also renders errors if any
+   * 
+   * @param fieldName
+   *          The field to be rendered
+   * @return The HTML string
+   */
   public String renderField(String fieldName)
   {
     FormField field = mFieldMap.get(fieldName);
@@ -208,6 +264,15 @@ public class Form
     return field.render();
   }
 
+  /**
+   * Renders a specific field as HTML with a value. Also renders errors if any
+   * 
+   * @param fieldName
+   *          The field to render
+   * @param value
+   *          The value to use for the field
+   * @return The HTML string
+   */
   public String renderField(String fieldName, Object value)
   {
     FormField field = mFieldMap.get(fieldName);
@@ -237,9 +302,8 @@ public class Form
    * values are correct. You can override this method if you want to implement
    * extra or different logic.
    * 
-   * @return true, when there are no errors, false if there are
+   * @return True, when there are no errors, false if there are
    */
-
   public boolean isValid()
   {
     Validator validator = Validation.buildDefaultValidatorFactory()

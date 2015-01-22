@@ -48,12 +48,12 @@ public class CheckBoxField extends FormField
     if (val)
       return String
           .format(
-              "%1$s\n<input type=\"checkbox\" id=\"%2$s\" name=\"%3$s\" value=\"%3$s\" checked>%4$s\n",
+              "%1$s\n<input type=\"checkbox\" id=\"%2$s\" name=\"%3$s\" value=\"%3$s\" checked/>%4$s\n",
               labelPre, mAnnotation.id(), mField.getName(), labelPost);
     else
       return String
           .format(
-              "%1$s\n<input type=\"checkbox\" id=\"%2$s\" name=\"%3$s\" value=\"%3$s\">%4$s\n",
+              "%1$s\n<input type=\"checkbox\" id=\"%2$s\" name=\"%3$s\" value=\"%3$s\"/>%4$s\n",
               labelPre, mAnnotation.id(), mField.getName(), labelPost);
 
   }

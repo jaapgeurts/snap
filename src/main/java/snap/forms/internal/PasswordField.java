@@ -26,7 +26,7 @@ public class PasswordField extends FormField
       label = String.format("<label for=\"%1$s\">%2$s</label>",
           mAnnotation.id(), mAnnotation.label());
     return String.format(
-        "%1$s<input type=\"password\" id=\"%2$s\" name=\"%3$s\">\n", label,
+        "%1$s<input type=\"password\" id=\"%2$s\" name=\"%3$s\"/>\n", label,
         mAnnotation.id(), mField.getName());
   }
 
