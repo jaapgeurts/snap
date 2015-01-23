@@ -13,7 +13,7 @@ import snap.http.RequestContext;
 import snap.views.NullView;
 import snap.views.View;
 
-public class WebApplication
+public abstract class WebApplication
 {
 
   public static WebApplication getInstance()
@@ -41,7 +41,7 @@ public class WebApplication
     conf.put("engine.mode", "dev");
     conf.put("home.template", rootPath);
     mEngine = new RythmEngine(conf);
-    
+
     // register snap custom transformers
 
     // register snap custom tags
@@ -51,7 +51,7 @@ public class WebApplication
     mEngine.registerFastTag(new snap.rythm.DynamicRootLink());
     mEngine.registerFastTag(new snap.rythm.Csrf_Token());
     mEngine.registerFastTag(new snap.rythm.LinebreaksToParagraph());
-    
+
     // todo: investigate adding custom resource loader to solve loading Router
 
   }

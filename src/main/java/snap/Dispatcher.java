@@ -136,6 +136,7 @@ public class Dispatcher extends HttpServlet
       log.error(message);
       throw new ServletException(message);
     }
+
     HttpMethod method = context.getMethod();
 
     RequestResult requestResult = null;
@@ -154,6 +155,7 @@ public class Dispatcher extends HttpServlet
       requestResult = route.handleRoute(context);
       // Process the returned result of the controller.
       requestResult.handleResult(context);
+
     }
     catch (MissingCsrfToken mct)
     {
