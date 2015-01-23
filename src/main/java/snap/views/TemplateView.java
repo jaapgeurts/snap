@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import snap.User;
 import snap.WebApplication;
 import snap.http.RequestContext;
 
@@ -39,7 +40,12 @@ public class TemplateView extends View
     String tokenValue = context.getCsrfToken();
     if (tokenValue != null)
       mContext.put("csrf_token_value", tokenValue);
-    
+
+    // Add a user if they are logged in
+    User user = context.getAuthenticatedUser();
+    if (user != null)
+      mContext.put("user", user);
+
     r.setStatus(HttpServletResponse.SC_OK);
     r.setContentType("text/html; charset=UTF-8");
     r.setCharacterEncoding("UTF-8");
