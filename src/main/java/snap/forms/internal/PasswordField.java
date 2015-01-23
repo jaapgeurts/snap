@@ -16,7 +16,7 @@ public class PasswordField extends FormBase
       throw new IllegalArgumentException("PasswordFields must be of type String");
     
     mLabel = mAnnotation.label();
-
+    mCssClass = mAnnotation.cssClass();
   }
 
   @Override

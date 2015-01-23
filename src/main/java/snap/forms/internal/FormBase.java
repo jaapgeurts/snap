@@ -109,8 +109,21 @@ public abstract class FormBase implements FormField
   {
     mLabel = label;
   }
+  
+  @Override
+  public String getCssClass()
+  {
+    return mCssClass;
+  }
+
+  @Override
+  public void setCssClass(String cssClass)
+  {
+    mCssClass = cssClass;;
+  }
 
   protected String mLabel;
+  protected String mCssClass;
   protected Field mField;
   protected Form mForm;
   private String mErrorText = null;

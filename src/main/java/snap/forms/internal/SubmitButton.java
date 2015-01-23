@@ -16,7 +16,7 @@ public class SubmitButton extends FormBase
       throw new IllegalArgumentException("SubmitFields must be of type String");
     
     mLabel = mAnnotation.label();
-
+    mCssClass = mAnnotation.cssClass();
   }
 
   @Override

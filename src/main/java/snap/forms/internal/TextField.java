@@ -16,6 +16,7 @@ public class TextField extends FormBase
       throw new IllegalArgumentException("TextFields must be of type String");
     
     mLabel = mAnnotation.label();
+    mCssClass = mAnnotation.cssClass();
   }
 
   @Override

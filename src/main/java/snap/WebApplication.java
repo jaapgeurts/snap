@@ -35,10 +35,21 @@ public class WebApplication
     Settings.rootPath = rootPath;
 
     // Setup the template engine
+    // TODO: RythmEngine not thread safe?? see bug:
+    // https://github.com/greenlaw110/Rythm/issues/20
     Properties conf = new Properties();
     conf.put("engine.mode", "dev");
     conf.put("home.template", rootPath);
     mEngine = new RythmEngine(conf);
+    
+    // register snap custom transformers
+
+    // register snap custom tags
+    mEngine.registerFastTag(new snap.rythm.Form());
+    mEngine.registerFastTag(new snap.rythm.Field());
+    mEngine.registerFastTag(new snap.rythm.LinebreaksToParagraph());
+    
+    // todo: investigate adding custom resource loader to solve loading Router
 
   }
 

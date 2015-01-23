@@ -11,4 +11,6 @@ public @interface RadioField
 {
   public String id() default "";
 
+  public String cssClass() default "";
+
 }

@@ -16,6 +16,9 @@ public class DropDownList extends FormBase
     mAnnotation = annotation;
     if (!field.getType().equals(String.class))
       throw new IllegalArgumentException("FileFields must be of type String");
+    
+    mLabel = mAnnotation.label();
+    mCssClass = mAnnotation.cssClass();
   }
 
   @Override

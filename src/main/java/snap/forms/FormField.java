@@ -13,5 +13,7 @@ public interface FormField
   public boolean isVisible();
   public void setLabel(String label);
   public String getLabel();
+  public void setCssClass(String cssClass);
+  public String getCssClass();
 
 }

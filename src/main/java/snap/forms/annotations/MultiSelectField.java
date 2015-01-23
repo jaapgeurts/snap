@@ -9,12 +9,16 @@ import java.lang.annotation.Target;
 @Target(ElementType.FIELD)
 public @interface MultiSelectField
 {
-  public enum MultiSelectType { CHECKBOX, LIST };
-  
+  public enum MultiSelectType {
+    CHECKBOX, LIST
+  };
+
   public MultiSelectType type() default MultiSelectType.CHECKBOX;
-  
+
   public String id() default "";
-  
+
+  public String cssClass() default "";
+
   public String options() default "";
 
 }

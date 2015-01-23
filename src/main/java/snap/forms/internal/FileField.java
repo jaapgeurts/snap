@@ -18,7 +18,7 @@ public class FileField extends FormBase
       throw new IllegalArgumentException("FileFields must be of type Part");
     
     mLabel = mAnnotation.label();
-
+    mCssClass = mAnnotation.cssClass();
   }
 
   @Override

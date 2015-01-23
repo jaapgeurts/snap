@@ -17,7 +17,7 @@ public class TextArea extends FormBase
           "TextAreaFields must be of type String");
 
     mLabel = mAnnotation.label();
-
+    mCssClass = mAnnotation.cssClass();
   }
 
   @Override
