@@ -3,6 +3,7 @@ package snap;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URLEncoder;
+import java.sql.SQLException;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -148,8 +149,6 @@ public class Dispatcher extends HttpServlet
       Route route = mRouter.findRouteForPath(method, path);
       context.setRoute(route);
 
-      log.debug(String.format("%s - %s", method, path));
-
       context.addParameters(route.getParameters(path));
       // Ask the controller to process the request
       requestResult = route.handleRoute(context);
@@ -159,26 +158,31 @@ public class Dispatcher extends HttpServlet
     }
     catch (MissingCsrfToken mct)
     {
+      log.error("Possible hacking attempt: Missing Csrf Token", mct);
       errorResult = new HttpError(HttpServletResponse.SC_BAD_REQUEST,
           "CsrfToken missing", mct);
     }
     catch (InvalidCsrfToken ict)
     {
+      log.error("Possible hacking attempt: Invalid Csrf Token", ict);
       errorResult = new HttpError(HttpServletResponse.SC_BAD_REQUEST,
           "CsrfToken invalid", ict);
     }
     catch (HttpMethodException hme)
     {
+      log.error("Invalid Http Method", hme);
       errorResult = new HttpError(HttpServletResponse.SC_METHOD_NOT_ALLOWED,
-          "Incorrect Http Method", hme);
+          "Incorrect Http Method. Annotate your controller methods", hme);
     }
     catch (RouteNotFoundException rnfe)
     {
+      log.info("The route was not found", rnfe);
       errorResult = new HttpError(HttpServletResponse.SC_NOT_FOUND,
           "Route not found", rnfe);
     }
     catch (ResourceNotFoundException rnfe)
     {
+      log.info("Requested resource was not found", rnfe);
       errorResult = new HttpError(HttpServletResponse.SC_NOT_FOUND,
           "Resource not found", rnfe);
     }
@@ -204,18 +208,19 @@ public class Dispatcher extends HttpServlet
     }
     catch (SnapException se)
     {
+      log.error("Snap Framework error", se);
       errorResult = new HttpError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
           se.getMessage(), se);
     }
     catch (Throwable t)
     {
+      log.error("Uncaught exception", t);
       // Catch everything and report it in the browser.
       // If we really can't handle it then bail
       // TODO: Load error view
       errorResult = new HttpError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
           "Internal Server Error", t);
 
-      log.error(t.getMessage(), t);
     }
 
     // If requestresult != null then an error occurred;
@@ -230,7 +235,6 @@ public class Dispatcher extends HttpServlet
         log.error("Rendering of error also failed", ioe);
       }
     }
-
   }
 
   @Override
