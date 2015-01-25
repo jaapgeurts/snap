@@ -158,37 +158,31 @@ public class Dispatcher extends HttpServlet
     }
     catch (MissingCsrfToken mct)
     {
-      log.error("Possible hacking attempt: Missing Csrf Token", mct);
       errorResult = new HttpError(HttpServletResponse.SC_BAD_REQUEST,
           "CsrfToken missing", mct);
     }
     catch (InvalidCsrfToken ict)
     {
-      log.error("Possible hacking attempt: Invalid Csrf Token", ict);
       errorResult = new HttpError(HttpServletResponse.SC_BAD_REQUEST,
           "CsrfToken invalid", ict);
     }
     catch (HttpMethodException hme)
     {
-      log.error("Invalid Http Method", hme);
       errorResult = new HttpError(HttpServletResponse.SC_METHOD_NOT_ALLOWED,
           "Incorrect Http Method. Annotate your controller methods", hme);
     }
     catch (RouteNotFoundException rnfe)
     {
-      log.info("The route was not found", rnfe);
       errorResult = new HttpError(HttpServletResponse.SC_NOT_FOUND,
           "Route not found", rnfe);
     }
     catch (ResourceNotFoundException rnfe)
     {
-      log.info("Requested resource was not found", rnfe);
       errorResult = new HttpError(HttpServletResponse.SC_NOT_FOUND,
           "Resource not found", rnfe);
     }
     catch (AuthorizationException ae)
     {
-      log.debug("User not authorized access", ae.getMessage());
       errorResult = new HttpError(HttpServletResponse.SC_FORBIDDEN,
           "User not authorized", ae);
     }

@@ -50,8 +50,7 @@ public class StaticRoute extends Route
           .getRealPath(finalFile);
       if (realPath == null)
       {
-        log.error("Can't locate file: " + finalFile);
-        throw new SnapException("File \"" + finalFile
+        throw new ResourceNotFoundException("File \"" + finalFile
             + "\" not found on local disk");
       }
       f = new File(realPath);
