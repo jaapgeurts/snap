@@ -17,8 +17,14 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
-public @interface DropDownList
+public @interface ListField
 {
+  public enum ListType {
+    DROPDOWN_LIST, SINGLE_LIST, MULTI_LIST
+  };
+
+  public ListType type() default ListType.DROPDOWN_LIST;
+
   public String id() default "";
 
   public String cssClass() default "";
@@ -26,5 +32,7 @@ public @interface DropDownList
   public String label() default "";
 
   public String options() default "";
+
+  public int size() default 5;
 
 }

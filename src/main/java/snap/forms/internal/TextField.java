@@ -14,7 +14,7 @@ public class TextField extends FormBase
     mAnnotation = annotation;
     if (!field.getType().equals(String.class))
       throw new IllegalArgumentException("TextFields must be of type String");
-    
+
     mLabel = mAnnotation.label();
     mCssClass = mAnnotation.cssClass();
   }
@@ -34,6 +34,12 @@ public class TextField extends FormBase
         .format(
             "%1$s\n<input type=\"text\" id=\"%2$s\" name=\"%3$s\" value=\"%4$s\"/>\n",
             label, mAnnotation.id(), mField.getName(), value);
+  }
+
+  @Override
+  public String toString()
+  {
+    return "TextField [" + mField.getName() + "]";
   }
 
   private snap.forms.annotations.TextField mAnnotation;

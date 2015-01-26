@@ -26,6 +26,13 @@ public class HiddenField extends FormBase
         "<input type=\"hidden\" id=\"%1$s\" name=\"%2$s\" value=\"%3$s\"/>",
         mAnnotation.id(), mField.getName(), getFieldValue());
   }
+  
+  @Override
+  public String toString()
+  {
+    return "HiddenField [" + mField.getName() + "]";
+  }
+
 
   private snap.forms.annotations.HiddenField mAnnotation;
 }

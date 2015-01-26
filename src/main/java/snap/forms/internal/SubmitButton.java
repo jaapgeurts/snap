@@ -14,7 +14,7 @@ public class SubmitButton extends FormBase
     mAnnotation = annotation;
     if (!field.getType().equals(String.class))
       throw new IllegalArgumentException("SubmitFields must be of type String");
-    
+
     mLabel = mAnnotation.label();
     mCssClass = mAnnotation.cssClass();
   }
@@ -25,10 +25,15 @@ public class SubmitButton extends FormBase
     if (!isVisible())
       return "";
 
-    return String
-        .format(
-            "<input type=\"submit\" id=\"%1$s\" name=\"%2$s\" value=\"%3$s\"/>",
-            mAnnotation.id(), mField.getName(), mLabel);
+    return String.format(
+        "<input type=\"submit\" id=\"%1$s\" name=\"%2$s\" value=\"%3$s\"/>",
+        mAnnotation.id(), mField.getName(), mLabel);
+  }
+
+  @Override
+  public String toString()
+  {
+    return "SubmitButton [" + mField.getName() + "]";
   }
 
   private snap.forms.annotations.SubmitField mAnnotation;

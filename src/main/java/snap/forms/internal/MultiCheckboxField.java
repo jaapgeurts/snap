@@ -9,19 +9,18 @@ import org.apache.commons.lang3.NotImplementedException;
 
 import snap.forms.Form;
 import snap.forms.ListOption;
-import snap.forms.annotations.MultiSelectField.MultiSelectType;
 
-public class MultiSelectField extends FormBase
+public class MultiCheckboxField extends FormBase
 {
 
-  public MultiSelectField(Form form, Field field,
-      snap.forms.annotations.MultiSelectField annotation)
+  public MultiCheckboxField(Form form, Field field,
+      snap.forms.annotations.MultiCheckboxField annotation)
   {
     super(form, field);
     mAnnotation = annotation;
     if (!field.getType().equals(Set.class))
       throw new IllegalArgumentException(
-          "MultiSelectFields must be of type Set<String>, Set<Long>, Set<Integer> or Set<ListOption>");
+          "MultiCheckboxFields must be of type Set<String>, Set<Long>, Set<Integer> or Set<ListOption>");
 
     mCssClass = mAnnotation.cssClass();
   }
@@ -39,10 +38,6 @@ public class MultiSelectField extends FormBase
       return "";
 
     StringBuilder b = new StringBuilder();
-
-    if (mAnnotation.type() == MultiSelectType.LIST)
-      throw new NotImplementedException(
-          "MultiSelectField LIST type is not yet implemented");
 
     // Checkbox
     // Check if the field is present
@@ -62,6 +57,7 @@ public class MultiSelectField extends FormBase
       {
         val = o.toString();
       }
+
       if (val.equals(value))
       {
         // check type here.
@@ -83,10 +79,6 @@ public class MultiSelectField extends FormBase
   public String render()
   {
     StringBuilder b = new StringBuilder();
-
-    if (mAnnotation.type() == MultiSelectType.LIST)
-      throw new NotImplementedException(
-          "MultiSelectField LIST type is not yet implemented");
 
     // Checkbox
     // Check if the field is present
@@ -209,8 +201,15 @@ public class MultiSelectField extends FormBase
           "Can't access field: " + mAnnotation.options(), e);
     }
   }
+  
+  @Override
+  public String toString()
+  {
+    return "MultiCheckBoxField [" + mField.getName() + "]";
+  }
 
-  private snap.forms.annotations.MultiSelectField mAnnotation;
+
+  private snap.forms.annotations.MultiCheckboxField mAnnotation;
 
   private Field mOptionsField;
   private List<?> mOptions;

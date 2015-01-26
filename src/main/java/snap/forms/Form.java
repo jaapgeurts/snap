@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory;
 
 import snap.forms.internal.FileField;
 import snap.forms.internal.FormBase;
-import snap.forms.internal.MultiSelectField;
+import snap.forms.internal.MultiCheckboxField;
 import snap.http.RequestContext;
 
 /**
@@ -86,16 +86,16 @@ public class Form
           snap.forms.annotations.RadioField rfa = (snap.forms.annotations.RadioField)annotation;
           field = new snap.forms.internal.RadioField(this, classField, rfa);
         }
-        else if (annotation instanceof snap.forms.annotations.MultiSelectField)
+        else if (annotation instanceof snap.forms.annotations.MultiCheckboxField)
         {
-          snap.forms.annotations.MultiSelectField msfa = (snap.forms.annotations.MultiSelectField)annotation;
-          field = new snap.forms.internal.MultiSelectField(this, classField,
+          snap.forms.annotations.MultiCheckboxField msfa = (snap.forms.annotations.MultiCheckboxField)annotation;
+          field = new snap.forms.internal.MultiCheckboxField(this, classField,
               msfa);
         }
-        else if (annotation instanceof snap.forms.annotations.DropDownList)
+        else if (annotation instanceof snap.forms.annotations.ListField)
         {
-          snap.forms.annotations.DropDownList ddla = (snap.forms.annotations.DropDownList)annotation;
-          field = new snap.forms.internal.DropDownList(this, classField, ddla);
+          snap.forms.annotations.ListField ddla = (snap.forms.annotations.ListField)annotation;
+          field = new snap.forms.internal.ListField(this, classField, ddla);
         }
         else if (annotation instanceof snap.forms.annotations.SubmitField)
         {
@@ -265,7 +265,7 @@ public class Form
   public String renderField(String fieldName)
   {
     FormField field = mFieldMap.get(fieldName);
-    if (field instanceof MultiSelectField)
+    if (field instanceof MultiCheckboxField)
     {
       throw new RuntimeException(
           "Field render requested for MultiSelectField, but wrong method called. Call: renderField(String fieldName, Object value) instead.");
@@ -285,9 +285,9 @@ public class Form
   public String renderField(String fieldName, Object value)
   {
     FormField field = mFieldMap.get(fieldName);
-    if (field instanceof MultiSelectField)
+    if (field instanceof MultiCheckboxField)
     {
-      MultiSelectField msf = (MultiSelectField)field;
+      MultiCheckboxField msf = (MultiCheckboxField)field;
       return msf.render(value.toString());
     }
     throw new RuntimeException(

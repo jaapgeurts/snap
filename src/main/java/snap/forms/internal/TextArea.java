@@ -45,6 +45,13 @@ public class TextArea extends FormBase
         label, mAnnotation.id(), mField.getName(), cols, rows, value);
 
   }
+  
+  @Override
+  public String toString()
+  {
+    return "TextArea [" + mField.getName() + "]";
+  }
+
 
   private snap.forms.annotations.TextArea mAnnotation;
 }

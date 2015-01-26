@@ -12,9 +12,11 @@ public class CheckBoxField extends FormBase
   {
     super(form, field);
     mAnnotation = annotation;
-    if (!field.getType().equals(Boolean.class) && !field.getType().equals(boolean.class))
-      throw new IllegalArgumentException("CheckBoxFields must be of type Boolean or boolean");
-    
+    if (!field.getType().equals(Boolean.class)
+        && !field.getType().equals(boolean.class))
+      throw new IllegalArgumentException(
+          "CheckBoxFields must be of type Boolean or boolean");
+
     mLabel = mAnnotation.label();
     mCssClass = mAnnotation.cssClass();
   }
@@ -100,6 +102,12 @@ public class CheckBoxField extends FormBase
       log.debug(message, e);
       throw new RuntimeException(message, e);
     }
+  }
+
+  @Override
+  public String toString()
+  {
+    return "CheckBoxField [" + mField.getName() + "]";
   }
 
   private snap.forms.annotations.CheckBoxField mAnnotation;

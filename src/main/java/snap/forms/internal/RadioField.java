@@ -101,6 +101,13 @@ public class RadioField extends FormBase
       }
     }
   }
+  
+  @Override
+  public String toString()
+  {
+    return "RadioField [" + mField.getName() + "]";
+  }
+
 
   private snap.forms.annotations.RadioField mAnnotation;
 

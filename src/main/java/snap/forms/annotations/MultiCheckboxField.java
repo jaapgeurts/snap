@@ -7,13 +7,8 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
-public @interface MultiSelectField
+public @interface MultiCheckboxField
 {
-  public enum MultiSelectType {
-    CHECKBOX, LIST
-  };
-
-  public MultiSelectType type() default MultiSelectType.CHECKBOX;
 
   public String id() default "";
 

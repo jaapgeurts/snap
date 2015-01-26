@@ -35,6 +35,13 @@ public class PasswordField extends FormBase
         "%1$s<input type=\"password\" id=\"%2$s\" name=\"%3$s\"/>\n", label,
         mAnnotation.id(), mField.getName());
   }
+  
+  @Override
+  public String toString()
+  {
+    return "PasswordField [" + mField.getName() + "]";
+  }
+
 
   private snap.forms.annotations.PasswordField mAnnotation;
 }
