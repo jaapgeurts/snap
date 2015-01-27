@@ -23,5 +23,5 @@ public interface User
    * @param role
    * @return
    */
-  public boolean hasRight(String right);
+  public boolean hasPermission(String right);
 }

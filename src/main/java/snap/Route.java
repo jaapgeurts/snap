@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 import snap.annotations.HttpGet;
 import snap.annotations.HttpPost;
 import snap.annotations.LoginRequired;
+import snap.annotations.PermissionRequired;
 import snap.annotations.RoleRequired;
 import snap.http.HttpMethod;
 import snap.http.RequestContext;
@@ -128,6 +129,22 @@ public class Route
             r -> user.hasRole(r.role()));
 
         if (!hasRole)
+          throw new AuthorizationException("Not allowed to access URL: "
+              + context.getRequest().getPathInfo() + ". User not Authorized");
+      }
+      if (actionMethod.isAnnotationPresent(PermissionRequired.class))
+      {
+        User user = context.getAuthenticatedUser();
+        if (user == null)
+          throw new AuthenticationException("Not allowed to access URL: "
+              + context.getRequest().getPathInfo() + ". User not Authenticated");
+
+        // TODO: consider anyMatch vs allMatch
+        PermissionRequired[] rights = actionMethod
+            .getAnnotationsByType(PermissionRequired.class);
+        boolean hasRight = Arrays.stream(rights).anyMatch(
+            r -> user.hasPermission(r.permission()));
+        if (!hasRight)
           throw new AuthorizationException("Not allowed to access URL: "
               + context.getRequest().getPathInfo() + ". User not Authorized");
       }
