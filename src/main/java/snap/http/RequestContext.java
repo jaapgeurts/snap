@@ -217,6 +217,7 @@ public class RequestContext
     {
       session.removeAttribute(SNAP_AUTHENTICATED_USER);
       session.removeAttribute(SNAP_CSRF_TOKEN);
+      session.invalidate();
     }
     else
     {

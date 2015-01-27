@@ -112,7 +112,7 @@ public class StaticRoute extends Route
   {
     return mDirectory;
   }
-
+    
   private String getExtension(String fileName)
   {
     int pos = fileName.lastIndexOf(".");
