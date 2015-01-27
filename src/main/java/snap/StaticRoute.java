@@ -36,6 +36,14 @@ public class StaticRoute extends Route
   @Override
   public RequestResult handleRoute(RequestContext context) throws IOException
   {
+
+    RouteListener r = getRouteListener();
+    if (r != null)
+    {
+      RequestResult res = r.onBeforeRoute(context);
+      if (res != null)
+        return res;
+    }
     // Fetch the actual file and serve it directly
     Pattern p = Pattern.compile(mPath);
     Matcher m = p.matcher(context.getRequest().getPathInfo());
@@ -90,6 +98,10 @@ public class StaticRoute extends Route
       log.error("Error serving file", e);
       throw e;
     }
+
+    if (r != null)
+      r.onAfterRoute(context);
+
     return NullView.INSTANCE;
   }
 
@@ -112,7 +124,7 @@ public class StaticRoute extends Route
   {
     return mDirectory;
   }
-    
+
   private String getExtension(String fileName)
   {
     int pos = fileName.lastIndexOf(".");

@@ -9,6 +9,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 import org.jcodings.specific.UTF8Encoding;
@@ -88,6 +90,12 @@ public class Route
     RequestResult result = null;
     if (actionMethod != null)
     {
+      if (mRouteListener != null)
+      {
+        RequestResult r = mRouteListener.onBeforeRoute(context);
+        if (r != null)
+          return r;
+      }
       // Check all annotations
       switch(context.getMethod())
       {
@@ -175,7 +183,7 @@ public class Route
         if (result == null)
           throw new SnapException("Controller " + mController + "::"
               + mMethodName + " returned null. Expected RequestResult");
-        return result;
+
       }
       catch (InvocationTargetException e)
       {
@@ -203,6 +211,12 @@ public class Route
             + result.getClass().getCanonicalName();
         throw new SnapException(message, e);
       }
+
+      if (mRouteListener != null)
+      {
+        mRouteListener.onAfterRoute(context);
+      }
+      return result;
     }
     else
     {
@@ -221,7 +235,17 @@ public class Route
   {
     return getLink(null, params);
   }
-  
+
+  public void setRouteListener(RouteListener listener)
+  {
+    mRouteListener = listener;
+  }
+
+  public RouteListener getRouteListener()
+  {
+    return mRouteListener;
+  }
+
   public String getLink(Map<String, String> getParams, Object[] params)
   {
     StringBuilder builder = new StringBuilder();
@@ -416,6 +440,7 @@ public class Route
   private String mController;
   protected HttpMethod mHttpMethod;
   private String mMethodName;
+  private RouteListener mRouteListener;
 
   private boolean mIsControllerInterface;
   protected Regex mRegex;
