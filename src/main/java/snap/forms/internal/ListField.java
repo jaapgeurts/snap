@@ -42,7 +42,29 @@ public class ListField extends FormBase
     if (mAnnotation.type() == ListType.SINGLE_LIST
         || mAnnotation.type() == ListType.DROPDOWN_LIST)
     {
-      super.setFieldValue(values);
+      try
+      {
+        if (mField.getType().equals(String.class))
+          super.setFieldValue(values);
+        else if (mField.getType().equals(Integer.class))
+          mField.set(mForm, Integer.valueOf(values[0]));
+        else if (mField.getType().equals(Long.class))
+          mField.set(mForm, Long.valueOf(values[0]));
+        else
+          throw new RuntimeException(
+              "Only field types of String, Long and Integer are supported");
+      }
+      catch (NumberFormatException nfe)
+      {
+        log.warn("Possible hacking attempt! Submitted field value \""
+            + values[0] + "\" can't be converted to numeric type.", nfe);
+      }
+      catch (IllegalArgumentException | IllegalAccessException e)
+      {
+        String message = "Can't access field: " + mField.getName();
+        log.debug(message, e);
+        throw new RuntimeException(message, e);
+      }
       return;
     }
 
@@ -191,7 +213,7 @@ public class ListField extends FormBase
     catch (NumberFormatException nfe)
     {
       log.warn("Possible hacking attempt! Submitted field value \"" + value
-          + "\" can't be converted to numeric type");
+          + "\" can't be converted to numeric type", nfe);
     }
   }
 
