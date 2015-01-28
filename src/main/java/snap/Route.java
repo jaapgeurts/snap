@@ -372,6 +372,9 @@ public class Route
         return null;
       }
     }
+    
+    // Thread safety is off, don't create new controller instances
+    // This means that controllers shouldn't keep state
 
     if (mControllerRef == null || mControllerRef.get() == null)
     {

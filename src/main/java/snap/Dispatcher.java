@@ -65,6 +65,9 @@ public class Dispatcher extends HttpServlet
     }
 
     mWebApplication.init(config);
+
+    // cache the field here so we don't have to do a lookup each time
+    mRequestListener = mWebApplication.getRequestListener();
   }
 
   /* forward all requests to a single point of entry */
@@ -131,7 +134,7 @@ public class Dispatcher extends HttpServlet
     String path = request.getPathInfo();
     if (path == null || "".equals(path))
     {
-      String message = "the url-pattern section for this servlet in web.xml should be '/*'";
+      String message = "The url-pattern section for this servlet in web.xml should be '/*'";
       log.error(message);
       throw new ServletException(message);
     }
@@ -148,10 +151,17 @@ public class Dispatcher extends HttpServlet
       context.setRoute(route);
 
       context.addParameters(route.getParameters(path));
+
+      if (mRequestListener != null)
+        mRequestListener.onBeforeRequest(context);
+
       // Ask the controller to process the request
       requestResult = route.handleRoute(context);
       // Process the returned result of the controller.
       requestResult.handleResult(context);
+
+      if (mRequestListener != null)
+        mRequestListener.onAfterRequest(context);
 
     }
     catch (MissingCsrfToken mct)
@@ -248,5 +258,6 @@ public class Dispatcher extends HttpServlet
 
   private Router mRouter;
   private WebApplication mWebApplication;
+  private RequestListener mRequestListener;
 
 }

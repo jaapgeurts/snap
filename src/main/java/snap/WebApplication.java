@@ -91,9 +91,26 @@ public abstract class WebApplication
     return mServletContext;
   }
 
+  /**
+   * Setup a listener for request pre post processing hooks. You must set this
+   * listiner in the Init() call. Setting it after Init() has no effect.
+   * 
+   * @param listener
+   */
+  public void setRequestListener(RequestListener listener)
+  {
+    mRequestListener = listener;
+  }
+
+  public RequestListener getRequestListener()
+  {
+    return mRequestListener;
+  }
+
   private RythmEngine mEngine;
   private ServletContext mServletContext;
 
   private static WebApplication mWebApplication = null;
+  private RequestListener mRequestListener;
 
 }

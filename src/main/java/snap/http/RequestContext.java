@@ -203,7 +203,8 @@ public class RequestContext
 
   /**
    * Puts the authenticated user in the session under the attribute:
-   * 'Snap.AuthorizedUser' Use in combination with @LoginRequired.
+   * 'Snap.AuthorizedUser' Use in combination with @LoginRequired. This method
+   * should be called only once per session
    * 
    * @param user
    *          The user to store in the session. set to null to remove the user
