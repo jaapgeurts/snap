@@ -9,8 +9,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
 import java.util.regex.Pattern;
 
 import org.jcodings.specific.UTF8Encoding;
