@@ -25,9 +25,11 @@ public class ListField extends FormBase
     }
     else
     {
-      if (!field.getType().equals(String.class))
+      if (!(field.getType().equals(String.class)
+          || field.getType().equals(Integer.class) || field.getType().equals(
+          Long.class)))
         throw new IllegalArgumentException(
-            "DropDown and Single ListField must be of type String");
+            "DropDown and Single ListField must be of type String, Integer or Long");
     }
 
     mLabel = mAnnotation.label();
