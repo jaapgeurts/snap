@@ -9,6 +9,8 @@ import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
@@ -34,7 +36,8 @@ public class StaticRoute extends Route
   }
 
   @Override
-  public RequestResult handleRoute(RequestContext context) throws IOException
+  public RequestResult handleRoute(RequestContext context) throws IOException,
+      ServletException
   {
 
     RouteListener r = getRouteListener();
@@ -44,6 +47,13 @@ public class StaticRoute extends Route
       if (res != null)
         return res;
     }
+    /*
+     This results in a recursion loop.
+        RequestDispatcher dispatcher = context.getRequest().getRequestDispatcher(
+            context.getRequest().getPathInfo());
+        dispatcher.forward(context.getRequest(), context.getResponse());
+    */
+
     // Fetch the actual file and serve it directly
     Pattern p = Pattern.compile(mPath);
     Matcher m = p.matcher(context.getRequest().getPathInfo());
@@ -64,16 +74,15 @@ public class StaticRoute extends Route
       f = new File(realPath);
     }
 
-    // TODO: if possible forward serving the file to the Servlet container
-
-    BufferedInputStream in;
-    BufferedOutputStream out;
+    BufferedInputStream in = null;
+    BufferedOutputStream out = null;
     try
     {
       HttpServletResponse response = context.getResponse();
 
       response.setContentType(getMimeType(extension));
       response.setStatus(HttpServletResponse.SC_OK);
+      response.setContentLengthLong(f.length());
 
       in = new BufferedInputStream(new FileInputStream(f));
       out = new BufferedOutputStream(response.getOutputStream());
@@ -84,8 +93,6 @@ public class StaticRoute extends Route
         out.write(buffer, 0, len);
         len = in.read(buffer);
       }
-      out.flush();
-      in.close();
     }
     catch (FileNotFoundException fnfe)
     {
@@ -97,6 +104,21 @@ public class StaticRoute extends Route
     {
       log.error("Error serving file", e);
       throw e;
+    }
+    finally
+    {
+      try
+      {
+        if (out != null)
+          out.flush();
+        if (in != null)
+          in.close();
+      }
+      catch (IOException ioe)
+      {
+        // report this IOException but still serve the file
+        log.warn("Error flushing output or closing input.", ioe);
+      }
     }
 
     if (r != null)
