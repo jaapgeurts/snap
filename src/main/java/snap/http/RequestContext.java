@@ -2,6 +2,8 @@ package snap.http;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.security.SecureRandom;
 import java.util.HashMap;
 import java.util.Map;
@@ -281,4 +283,19 @@ public class RequestContext
   private User mAuthenticatedUser;
   private Router mRouter;
 
+  public String getRequestURI()
+  {
+    String uri = mServletRequest.getRequestURI();
+    try
+    {
+      return URLDecoder.decode(uri, "UTF-8");
+    }
+    catch (UnsupportedEncodingException e)
+    {
+      log.error("JVM Doesn't support UTF8", e);
+    }
+
+    // if we can't decode it, then just return it.
+    return uri;
+  }
 }

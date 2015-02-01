@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
@@ -28,8 +29,10 @@ import snap.views.NullView;
 
 public class StaticRoute extends Route
 {
-  private static final int TRANSFER_BUFFER_SIZE = 2048;
+  private static final int TRANSFER_BUFFER_SIZE = 10240;
   final Logger log = LoggerFactory.getLogger(StaticRoute.class);
+  final SimpleDateFormat mHttpDateFormat = new SimpleDateFormat(
+      "EEE, dd MMM yyyy HH:mm:ss z", Locale.US);
 
   public StaticRoute(String contextPath, String path, String alias,
       String directory)
@@ -43,8 +46,16 @@ public class StaticRoute extends Route
 
   @Override
   public RequestResult handleRoute(RequestContext context) throws IOException,
-      ServletException
+      ServletException, HttpMethodException
   {
+
+    // TODO: add gzip compression & ranges
+
+    if (context.getMethod() != HttpMethod.GET
+        && context.getMethod() != HttpMethod.HEAD)
+      throw new HttpMethodException(
+          context.getMethod().toString()
+              + " method is not allowed for static routes. Only GET & HEAD are allowed");
 
     RouteListener r = getRouteListener();
     if (r != null)
@@ -56,7 +67,7 @@ public class StaticRoute extends Route
 
     // Fetch the actual file and serve it directly
     Pattern p = Pattern.compile(mPath);
-    Matcher m = p.matcher(context.getRequest().getRequestURI());
+    Matcher m = p.matcher(context.getRequestURI());
     String fileName = m.replaceAll("");
 
     // Get a File object pointing to the correct file.
@@ -71,11 +82,9 @@ public class StaticRoute extends Route
     if (modifiedSince != null)
     {
       // TODO: change date to LocalDateTime
-      SimpleDateFormat format = new SimpleDateFormat(
-          "EEE, dd MMM yyyy HH:mm:ss zzz");
       try
       {
-        long cachedFileDate = format.parse(modifiedSince).getTime();
+        long cachedFileDate = mHttpDateFormat.parse(modifiedSince).getTime();
         long fileDateLong = 1000 * (file.lastModified() / 1000);
 
         if (fileDateLong <= cachedFileDate)
@@ -83,10 +92,12 @@ public class StaticRoute extends Route
       }
       catch (ParseException e)
       {
-        log.warn("Can't parse If-Modified-Since header. Sending file anyway", e);
+        log.warn(
+            "Can't parse If-Modified-Since date field. Sending file anyway.", e);
       }
     }
 
+    String contentDisposition = "inline";
     if (fileIsNewerThanRequested)
     {
       // Set the headers.
@@ -97,16 +108,27 @@ public class StaticRoute extends Route
 
       HttpServletResponse response = context.getResponse();
 
+      if (mimetype.startsWith("text")) // assume all text is served as UTF-8
+      {
+        mimetype += "; charset=UTF-8";
+      }
+      else if (mimetype.startsWith("image"))
+      {
+        String accept = context.getRequest().getHeader("Accept");
+        contentDisposition = accept != null && accepts(accept, mimetype) ? "inline"
+            : "attachment";
+      }
       // TODO: change date to LocalDateTime
       response.setContentType(mimetype);
-      SimpleDateFormat dateFormat = new SimpleDateFormat(
-          "EEE, dd MMM yyyy HH:mm:ss z", Locale.US);
-      dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
+      mHttpDateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
       Date fileDate = new Date(file.lastModified());
-      response.setHeader("Last-Modified", dateFormat.format(fileDate));
       response.setStatus(HttpServletResponse.SC_OK);
       response.setContentLengthLong(file.length());
+      response.setHeader("Last-Modified", mHttpDateFormat.format(fileDate));
+      response.setHeader("Content-Disposition", contentDisposition
+          + ";filename=\"" + file.getName() + "\"");
 
+      response.setBufferSize(TRANSFER_BUFFER_SIZE);
       // Transfer the data.
       transferData(file, response.getOutputStream());
     }
@@ -204,8 +226,7 @@ public class StaticRoute extends Route
     String canonicalPath = file.getCanonicalPath();
 
     // check if the path is inside the directory path
-    if (!permittedPath
-        .equals(canonicalPath.substring(0, permittedPath.length())))
+    if (!canonicalPath.startsWith(permittedPath))
     {
       log.warn("Requested file " + file.getPath()
           + " is not under permitted folder: " + permittedPath);
@@ -226,7 +247,25 @@ public class StaticRoute extends Route
       log.info(message);
       throw new ResourceNotFoundException(message);
     }
+
+    if (!file.canRead())
+    {
+      String message = "File can't be read: " + file.getAbsolutePath();
+      log.info(message);
+      throw new ResourceNotFoundException(message);
+    }
+
     return file;
+  }
+
+  // TODO: rewrite this code
+  private static boolean accepts(String acceptHeader, String toAccept)
+  {
+    String[] acceptValues = acceptHeader.split("\\s*(,|;)\\s*");
+    Arrays.sort(acceptValues);
+    return Arrays.binarySearch(acceptValues, toAccept) > -1
+        || Arrays.binarySearch(acceptValues, toAccept.replaceAll("/.*$", "/*")) > -1
+        || Arrays.binarySearch(acceptValues, "*/*") > -1;
   }
 
   @Override
