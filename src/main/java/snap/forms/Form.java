@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,6 +12,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.servlet.ServletException;
+import javax.servlet.http.Part;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
@@ -159,7 +161,12 @@ public class Form
         FileField ff = (FileField)entry.getValue();
         try
         {
-          ff.setFieldValue(context.getRequest().getPart(entry.getKey()));
+          Collection<Part> parts = context.getRequest().getParts();
+          for (Part p : parts)
+          {
+            if (p.getName().equals(entry.getKey()))
+              ff.setFieldValue(p);
+          }
         }
         catch (IOException | ServletException e)
         {
@@ -182,13 +189,25 @@ public class Form
 
     String token = context.getParam("csrf_token");
     if (token == null)
-      throw new MissingCsrfToken("Csrf Token not found for form: "
+      // attempt to get the token from the HTTP header X-CSRFToken
+      token = context.getRequest().getHeader("X-CSRFToken");
+
+    if (token == null)
+    {
+      String message = "Csrf Token not found for form: "
           + this.getClass().getCanonicalName()
-          + ". Did you forget to include it with @csrf_token()");
+          + ". Did you forget to include it with @csrf_token()";
+
+      log.debug(message);
+      throw new MissingCsrfToken(message);
+    }
 
     if (!token.equals(context.getCsrfToken()))
-      throw new InvalidCsrfToken(
-          "The token submitted did not match the expected token value.");
+    {
+      String message = "The token submitted did not match the expected token value.";
+      log.debug(message);
+      throw new InvalidCsrfToken(message);
+    }
   }
 
   /**

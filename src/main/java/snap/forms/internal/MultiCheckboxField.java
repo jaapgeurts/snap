@@ -16,7 +16,7 @@ public class MultiCheckboxField extends FormBase
   {
     super(form, field);
     mAnnotation = annotation;
-    if (!field.getType().equals(Set.class))
+    if (!Set.class.isAssignableFrom(field.getType()))
       throw new IllegalArgumentException(
           "MultiCheckboxFields must be of type Set<String>, Set<Long>, Set<Integer> or Set<ListOption>");
 
@@ -199,13 +199,12 @@ public class MultiCheckboxField extends FormBase
           "Can't access field: " + mAnnotation.options(), e);
     }
   }
-  
+
   @Override
   public String toString()
   {
     return "MultiCheckBoxField [" + mField.getName() + "]";
   }
-
 
   private snap.forms.annotations.MultiCheckboxField mAnnotation;
 

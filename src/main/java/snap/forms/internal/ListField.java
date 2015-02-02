@@ -19,7 +19,7 @@ public class ListField extends FormBase
     mAnnotation = annotation;
     if (mAnnotation.type() == ListType.MULTI_LIST)
     {
-      if (!field.getType().equals(Set.class))
+      if (!Set.class.isAssignableFrom(field.getType()))
         throw new IllegalArgumentException(
             "MultiList ListField must be of type Set<?>");
     }
