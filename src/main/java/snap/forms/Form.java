@@ -39,7 +39,7 @@ import snap.http.RequestContext;
 public class Form
 {
 
-  final Logger log = LoggerFactory.getLogger(Form.class);
+  final static Logger log = LoggerFactory.getLogger(Form.class);
 
   public Form()
   {
@@ -142,8 +142,8 @@ public class Form
     if (context == null)
       return;
 
-    // throw exception if token is not present
-    checkCsrfToken(context);
+    // throws exception if token is not present
+    doCheckCsrfToken(context);
 
     Map<String, String[]> params = context.getParams();
 
@@ -181,11 +181,14 @@ public class Form
     }
   }
 
-  private void checkCsrfToken(RequestContext context)
+  public static boolean validateCsrfToken(RequestContext context)
   {
     // if the user is not logged in do nothing.
     if (context.getAuthenticatedUser() == null)
-      return;
+    {
+      log.debug("User not logged in. Not checking Csrf token");
+      return false;
+    }
 
     String token = context.getParam("csrf_token");
     if (token == null)
@@ -193,20 +196,37 @@ public class Form
       token = context.getRequest().getHeader("X-CSRFToken");
 
     if (token == null)
+      throw new MissingCsrfTokenException(
+          "Token not found in parameters or CSRFToken header.");
+
+    if (!token.equals(context.getCsrfToken()))
+      throw new InvalidCsrfTokenException(
+          "The submitted csrf token value did not match the expected value.");
+
+    return true;
+  }
+
+  private boolean doCheckCsrfToken(RequestContext context)
+  {
+
+    try
+    {
+      return validateCsrfToken(context);
+    }
+    catch (MissingCsrfTokenException mcte)
     {
       String message = "Csrf Token not found for form: "
           + this.getClass().getCanonicalName()
           + ". Did you forget to include it with @csrf_token()";
 
-      log.debug(message);
-      throw new MissingCsrfToken(message);
+      log.debug(message, mcte);
+      throw mcte;
     }
-
-    if (!token.equals(context.getCsrfToken()))
+    catch (InvalidCsrfTokenException icte)
     {
-      String message = "The token submitted did not match the expected token value.";
-      log.debug(message);
-      throw new InvalidCsrfToken(message);
+      String message = "Token value invalid";
+      log.debug(message, icte);
+      throw icte;
     }
   }
 

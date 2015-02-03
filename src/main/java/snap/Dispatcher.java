@@ -12,8 +12,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import snap.forms.InvalidCsrfToken;
-import snap.forms.MissingCsrfToken;
+import snap.forms.InvalidCsrfTokenException;
+import snap.forms.MissingCsrfTokenException;
 import snap.http.HttpError;
 import snap.http.HttpMethod;
 import snap.http.RequestContext;
@@ -164,12 +164,12 @@ public class Dispatcher extends HttpServlet
         mRequestListener.onAfterRequest(context);
 
     }
-    catch (MissingCsrfToken mct)
+    catch (MissingCsrfTokenException mct)
     {
       errorResult = new HttpError(HttpServletResponse.SC_BAD_REQUEST,
           "CsrfToken missing", mct);
     }
-    catch (InvalidCsrfToken ict)
+    catch (InvalidCsrfTokenException ict)
     {
       errorResult = new HttpError(HttpServletResponse.SC_BAD_REQUEST,
           "CsrfToken invalid", ict);
@@ -196,17 +196,27 @@ public class Dispatcher extends HttpServlet
     }
     catch (AuthenticationException uae)
     {
-      // redirect to redirect URL
-      log.debug("User not logged in, redirecting: {}", uae.getMessage());
-      String url = Settings.redirectUrl;
-      String query = request.getQueryString();
-      String next;
-      if (query != null)
-        next = path + "?" + query;
+      // TODO: check if user wants redirects
+      if (context.getRoute().isRedirectEnabled())
+      {
+        // redirect to redirect URL
+        log.debug("User not logged in, redirecting: {}", uae.getMessage());
+        String url = Settings.redirectUrl;
+        String query = request.getQueryString();
+        String next;
+        if (query != null)
+          next = path + "?" + query;
+        else
+          next = path;
+        // encode the path
+        response
+            .sendRedirect(url + "?next=" + URLEncoder.encode(next, "UTF-8"));
+      }
       else
-        next = path;
-      // encode the path
-      response.sendRedirect(url + "?next=" + URLEncoder.encode(next, "UTF-8"));
+      {
+        errorResult = new HttpError(HttpServletResponse.SC_UNAUTHORIZED,
+            "You are not authenticated");
+      }
     }
     catch (SnapException se)
     {

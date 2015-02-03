@@ -57,6 +57,7 @@ public class HttpError implements RequestResult
       r.setStatus(mErrorCode);
       r.setContentType("text/html; charset=UTF-8");
       r.setCharacterEncoding("UTF-8");
+      r.setHeader("WWW-Authenticate", "Basic realm=\"snap\"");
 
       String s = WebApplication.getInstance().getRenderEngine()
           .render(template, map);

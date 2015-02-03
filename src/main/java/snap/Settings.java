@@ -22,6 +22,8 @@ public class Settings
 
   public static String rootPath;
 
+  public static boolean redirectEnabled;
+
   static
   {
     try
@@ -38,9 +40,13 @@ public class Settings
 
         webAppClass = p.getProperty("snap.applicationclass");
 
-        t = p.getProperty("snap.login.redirecturl");
+        t = p.getProperty("snap.login.redirect.url");
         if (t != null)
           redirectUrl = new String(t);
+
+        t = p.getProperty("snap.login.redirect");
+        if (t != null)
+          redirectEnabled = Boolean.parseBoolean(t);
 
         t = p.getProperty("snap.site.rooturl");
         if (t != null)

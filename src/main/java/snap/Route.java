@@ -20,6 +20,7 @@ import org.joni.Region;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import snap.annotations.LoginRedirect;
 import snap.annotations.HttpGet;
 import snap.annotations.HttpPost;
 import snap.annotations.LoginRequired;
@@ -84,6 +85,7 @@ public class Route
 
   public RequestResult handleRoute(RequestContext context) throws Throwable
   {
+    // get the method to call (either as interface or reflective name)
     Method actionMethod = getMethod();
     RequestResult result = null;
     if (actionMethod != null)
@@ -110,6 +112,7 @@ public class Route
                 "Action method  "
                     + actionMethod.getName()
                     + " doesn't accept Http POST method. Annotate your method with '@HttpPost'");
+          // TODO: check if the csrf-header value is available.
           break;
         default:
           // do nothing, there is nothing to check here.
@@ -370,7 +373,7 @@ public class Route
         return null;
       }
     }
-    
+
     // Thread safety is off, don't create new controller instances
     // This means that controllers shouldn't keep state
 
@@ -403,8 +406,7 @@ public class Route
         Object controller = getController();
         if (controller == null)
           return null;
-        m = getController().getClass().getMethod(mMethodName,
-            RequestContext.class);
+        m = controller.getClass().getMethod(mMethodName, RequestContext.class);
         mMethodRef = new SoftReference<Method>(m);
       }
       catch (NoSuchMethodException | SecurityException e)
@@ -414,6 +416,16 @@ public class Route
       }
     }
     return mMethodRef.get();
+  }
+
+  public boolean isRedirectEnabled()
+  {
+    LoginRedirect[] ar = getMethod().getAnnotationsByType(
+        LoginRedirect.class);
+    if (ar.length == 0)
+      return Settings.redirectEnabled;
+    return ar[0].enabled();
+
   }
 
   public HttpMethod getHttpMethod()

@@ -68,6 +68,8 @@ public abstract class WebApplication
       Throwable exception) throws IOException
   {
     HttpServletResponse response = context.getResponse();
+    if (errorCode == HttpServletResponse.SC_UNAUTHORIZED)
+      response.setHeader("WWW-Authenticate", "Basic realm=\"snap\"");
     if (exception == null)
       response.sendError(errorCode);
     else
