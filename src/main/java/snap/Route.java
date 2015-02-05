@@ -21,11 +21,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import snap.annotations.LoginRedirect;
-import snap.annotations.HttpGet;
-import snap.annotations.HttpPost;
 import snap.annotations.LoginRequired;
 import snap.annotations.PermissionRequired;
 import snap.annotations.RoleRequired;
+import snap.annotations.RouteOptions;
 import snap.http.HttpMethod;
 import snap.http.RequestContext;
 import snap.http.RequestResult;
@@ -38,20 +37,19 @@ public class Route
   {
   }
 
-  public Route(String contextPath, String alias, String path)
+  public Route(String contextPath, String alias, String url)
   {
     mContextPath = contextPath;
-    mPath = path;
+    mPath = url;
     mAlias = alias;
-    byte[] re = path.getBytes();
+    byte[] re = url.getBytes();
     mRegex = new Regex(re, 0, re.length, Option.NONE, UTF8Encoding.INSTANCE);
   }
 
-  public Route(String contextPath, HttpMethod method, String path,
-      String alias, String objectMethodPath)
+  public Route(String contextPath, String url, String alias,
+      String objectMethodPath)
   {
-    this(contextPath, alias, path);
-    mHttpMethod = method;
+    this(contextPath, alias, url);
     String[] parts = objectMethodPath.split("::");
     mController = parts[0];
     if (parts.length == 2)
@@ -67,16 +65,64 @@ public class Route
       mIsControllerInterface = true;
     }
 
+    // fetch allowed methods from annotations
+
+    Method m = getMethod();
+    if (m != null)
+    {
+      RouteOptions annotation = m.getAnnotation(RouteOptions.class);
+      if (annotation != null)
+      {
+        mHttpMethods = annotation.methods();
+        if (mHttpMethods.length == 0)
+          throw new SnapException(
+              "You must specify at least 1 HttpMethod in the route options");
+      }
+      else
+        throw new SnapException(
+            "RouteOptions annotation not present on controller action");
+    }
   }
 
-  // TODO: store parameters immediately
-  public boolean match(HttpMethod method, String path)
+  /**
+   * Returns true if the urlPath matches this route's rule and method
+   * 
+   * @param method
+   * @param urlPath
+   * @return
+   */
+  public boolean match(HttpMethod method, String urlPath)
   {
-    if (mHttpMethod != method)
+    boolean found = false;
+    for (HttpMethod m : mHttpMethods)
+    {
+      if (m == method)
+      {
+        found = true;
+        break;
+      }
+    }
+    if (!found)
       return false;
 
     boolean success = false;
-    byte[] p = path.getBytes();
+    byte[] p = urlPath.getBytes();
+    Matcher m = mRegex.matcher(p);
+    success = m.search(0, p.length, Option.DEFAULT) != -1;
+
+    return success;
+  }
+
+  /**
+   * Returns true if the urlPath matches this route's rule
+   * 
+   * @param urlPath
+   * @return
+   */
+  public boolean match(String urlPath)
+  {
+    boolean success = false;
+    byte[] p = urlPath.getBytes();
     Matcher m = mRegex.matcher(p);
     success = m.search(0, p.length, Option.DEFAULT) != -1;
 
@@ -85,6 +131,7 @@ public class Route
 
   public RequestResult handleRoute(RequestContext context) throws Throwable
   {
+
     // get the method to call (either as interface or reflective name)
     Method actionMethod = getMethod();
     RequestResult result = null;
@@ -96,28 +143,7 @@ public class Route
         if (r != null)
           return r;
       }
-      // Check all annotations
-      switch(context.getMethod())
-      {
-        case GET:
-          if (!actionMethod.isAnnotationPresent(HttpGet.class))
-            throw new HttpMethodException(
-                "Action method "
-                    + actionMethod.getName()
-                    + " doesn't accept Http GET method. Annotate your method with '@HttGet'");
-          break;
-        case POST:
-          if (!actionMethod.isAnnotationPresent(HttpPost.class))
-            throw new HttpMethodException(
-                "Action method  "
-                    + actionMethod.getName()
-                    + " doesn't accept Http POST method. Annotate your method with '@HttpPost'");
-          // TODO: check if the csrf-header value is available.
-          break;
-        default:
-          // do nothing, there is nothing to check here.
-          break;
-      }
+
       if (actionMethod.isAnnotationPresent(LoginRequired.class))
       {
         // TODO: think about this, because it requires session and not stateless
@@ -322,12 +348,12 @@ public class Route
       return mContextPath + builder.toString();
   }
 
-  public Map<String, String[]> getParameters(String path)
+  public Map<String, String> getParameters(String path)
   {
     if (path == null || "".equals(path))
       return null;
 
-    HashMap<String, String[]> map = new HashMap<String, String[]>();
+    HashMap<String, String> map = new HashMap<>();
     byte[] p = path.getBytes();
     Matcher m = mRegex.matcher(p);
     int result = m.search(0, p.length, Option.CAPTURE_GROUP);
@@ -350,7 +376,7 @@ public class Route
         int end = region.end[number];
         String value = new String(p, start, end - start,
             UTF8Encoding.INSTANCE.getCharset());
-        map.put(name, new String[] { value });
+        map.put(name, value);
       }
     }
     return map;
@@ -420,17 +446,16 @@ public class Route
 
   public boolean isRedirectEnabled()
   {
-    LoginRedirect[] ar = getMethod().getAnnotationsByType(
-        LoginRedirect.class);
-    if (ar.length == 0)
+    LoginRedirect lr = getMethod().getAnnotation(LoginRedirect.class);
+    if (lr == null)
       return Settings.redirectEnabled;
-    return ar[0].enabled();
+    return lr.enabled();
 
   }
 
-  public HttpMethod getHttpMethod()
+  public HttpMethod[] getHttpMethods()
   {
-    return mHttpMethod;
+    return mHttpMethods;
   }
 
   public String getAlias()
@@ -451,7 +476,7 @@ public class Route
   protected String mContextPath;
   private String mAlias;
   private String mController;
-  protected HttpMethod mHttpMethod;
+  protected HttpMethod[] mHttpMethods;
   private String mMethodName;
   private RouteListener mRouteListener;
 

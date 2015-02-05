@@ -45,53 +45,36 @@ public class Router
       while (in.ready())
       {
         String line = in.readLine();
+        // comment line: skip it.
         if (line.charAt(0) == '#')
           continue;
+
         String[] parts = line.split("\\s+");
 
         String alias = parts[2];
         Route route = null;
-        if ("STATIC".equals(parts[0]))
+
+        if ("ACTION".equals(parts[0]))
+        {
+          try
+          {
+            route = new Route(mContextPath, parts[1], alias, parts[3]);
+            mRouteList.add(route);
+            mRouteMap.put(alias, route);
+          }
+          catch (SnapException e)
+          {
+            log.warn("Error creating route " + alias);
+            log.warn(e.getMessage());
+          }
+        }
+        else if ("STATIC".equals(parts[0]))
         {
           route = new StaticRoute(mContextPath, parts[1], parts[2], parts[3]);
           mRouteList.add(route);
           mRouteMap.put(alias, route);
         }
-        else
-        {
-          String[] methods = parts[0].split("\\,");
-          if (methods != null && methods.length > 0 && methods[0].length() > 0
-              && methods[0].charAt(0) == '*')
-          {
-            // for wildcard methods add a route for all methods
-            // TODO: consider using a special Route named WildcardRoute
-            // Or a route that can handle more than one method
-            for (HttpMethod m : HttpMethod.values())
-            {
-              route = new Route(mContextPath, m, parts[1], alias, parts[3]);
-              mRouteList.add(route);
-              mRouteMap.put(alias, route);
-            }
-          }
-          else
-          {
-            for (String methodName : methods)
-            {
-              try
-              {
-                route = new Route(mContextPath, HttpMethod.valueOf(methodName),
-                    parts[1], alias, parts[3]);
-                mRouteList.add(route);
-                mRouteMap.put(alias, route);
-              }
-              catch (IllegalArgumentException iae)
-              {
-                log.error("Wrong method name \"" + methodName
-                    + "\" for route: " + line);
-              }
-            }
-          }
-        }
+
         i++;
       }
       in.close();
@@ -112,16 +95,32 @@ public class Router
    * @return
    * @throws RouteNotFoundException
    *           when the method and path don't match any route rules
+   * @throws HttpMethodException
+   *           when a rule was found but with an incorrect http method
    */
   public Route findRouteForPath(HttpMethod method, String path)
   {
-    for (Route route : mRouteList)
+    Route route = null;
+    for (Route r : mRouteList)
     {
-      if (route.match(method, path))
-        return route;
+      if (r.match(path))
+      {
+        route = r;
+        break;
+      }
     }
-    throw new RouteNotFoundException("Can't find route for Method: "
-        + method.toString() + " path: " + path);
+    if (route == null)
+      throw new RouteNotFoundException("Can't find route for Method: "
+          + method.toString() + " path: " + path);
+
+    HttpMethod[] methods = route.getHttpMethods();
+    for (HttpMethod m : methods)
+      if (method == m)
+        return route;
+
+    throw new HttpMethodException("Route " + route.getAlias()
+        + " matches path " + path + ", but has incorrect method "
+        + method.toString());
   }
 
   public String siteUrl()

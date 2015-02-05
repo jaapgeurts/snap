@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.security.SecureRandom;
-import java.util.HashMap;
 import java.util.Map;
 
 import javax.servlet.http.Cookie;
@@ -19,7 +18,6 @@ import org.slf4j.LoggerFactory;
 import snap.Route;
 import snap.Router;
 import snap.User;
-
 import com.alibaba.fastjson.JSONObject;
 
 public class RequestContext
@@ -33,8 +31,6 @@ public class RequestContext
   public RequestContext(HttpMethod method, HttpServletRequest servletRequest,
       HttpServletResponse servletResponse)
   {
-    mParams = new HashMap<String, String[]>();
-    mParams.putAll(servletRequest.getParameterMap());
     mServletRequest = servletRequest;
     mServletResponse = servletResponse;
     mMethod = method;
@@ -52,21 +48,35 @@ public class RequestContext
 
   }
 
-  public Map<String, String[]> getParams()
+  public Map<String, String[]> getParamsPostGet()
   {
-    return mParams;
+    return mServletRequest.getParameterMap();
   }
 
   /**
-   * Return variable with name. implicitly returns first value in the list
+   * Return post or get variable identified by name
    * 
    * @param name
    * @return returns null when parameter is not available.
    */
-  public String getParam(String name)
+  public String getParamPostGet(String name)
   {
-    return getParam(name, 0);
+    return mServletRequest.getParameter(name);
   }
+
+  /**
+   * Returns a variable from the decoded URL identified by name
+   * 
+   * @param name
+   * @return
+   */
+  public String getParamUrl(String name)
+  {
+    return mUrlParams.get(name);
+  }
+
+  // TODO: add method that returns a param by position so that the user
+  // is not force to specify variable names
 
   /**
    * Returns a list of all cookies sent with this request Forwards the request
@@ -88,6 +98,8 @@ public class RequestContext
    */
   public Cookie getCookie(String name)
   {
+    // TODO: put cookies in a map or sort the cookie array and use binary search
+    // for speed.
     Cookie[] cookies = mServletRequest.getCookies();
     if (cookies == null)
       return null;
@@ -111,50 +123,9 @@ public class RequestContext
     mServletResponse.addCookie(cookie);
   }
 
-  /**
-   * Return variable with name and in position pos of the list
-   * 
-   * @param name
-   *          the name of the variable
-   * @param pos
-   *          index of the value in the parameter list
-   * @return Returns null when parameter is not available
-   */
-
-  public String getParam(String name, int pos)
-  {
-    String[] list = mParams.get(name);
-    if (list != null)
-      return list[pos];
-    return null;
-  }
-
   public HttpMethod getMethod()
   {
     return mMethod;
-  }
-
-  void addParameter(String key, String value)
-  {
-    String[] values = mParams.get(key);
-    if (values == null)
-    {
-      mParams.put(key, new String[] { value });
-    }
-    else
-    {
-      values = new String[values.length + 1];
-      values[values.length - 1] = value;
-      mParams.put(key, values);
-    }
-  }
-
-  public void addParameters(Map<String, String[]> params)
-  {
-    if (params == null)
-      return;
-    // TODO: check for existing parameters
-    mParams.putAll(params);
   }
 
   public Route getRoute()
@@ -165,6 +136,9 @@ public class RequestContext
   public void setRoute(Route route)
   {
     mRoute = route;
+    // set the parameters
+    mUrlParams = route.getParameters(getRequestURI());
+
   }
 
   public Router getRouter()
@@ -273,7 +247,7 @@ public class RequestContext
     return sb.toString();
   }
 
-  private final Map<String, String[]> mParams;
+  private Map<String, String> mUrlParams;
 
   private HttpServletRequest mServletRequest;
   private HttpServletResponse mServletResponse;

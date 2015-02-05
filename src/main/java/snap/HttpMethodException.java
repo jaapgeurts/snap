@@ -1,6 +1,6 @@
 package snap;
 
-public class HttpMethodException extends Exception
+public class HttpMethodException extends RuntimeException
 {
   public HttpMethodException(String message)
   {

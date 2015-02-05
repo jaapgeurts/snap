@@ -145,7 +145,7 @@ public class Form
     // throws exception if token is not present
     doCheckCsrfToken(context);
 
-    Map<String, String[]> params = context.getParams();
+    Map<String, String[]> params = context.getParamsPostGet();
 
     // for all fields find parameters in the request and assign
 
@@ -190,7 +190,7 @@ public class Form
       return false;
     }
 
-    String token = context.getParam("csrf_token");
+    String token = context.getParamPostGet("csrf_token");
     if (token == null)
       // attempt to get the token from the HTTP header X-CSRFToken
       token = context.getRequest().getHeader("X-CSRFToken");

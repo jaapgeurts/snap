@@ -40,8 +40,8 @@ public class StaticRoute extends Route
     super(contextPath, alias, path);
     // TODO: merge the matching into the super class
     mDirectoryPrefix = directory;
-    // Only allow GET method for static media
-    mHttpMethod = HttpMethod.GET;
+    // Only allow GET, HEAD method for static media
+    mHttpMethods = new HttpMethod[] { HttpMethod.GET, HttpMethod.HEAD };
   }
 
   @Override
@@ -50,12 +50,6 @@ public class StaticRoute extends Route
   {
 
     // TODO: add gzip compression & ranges
-
-    if (context.getMethod() != HttpMethod.GET
-        && context.getMethod() != HttpMethod.HEAD)
-      throw new HttpMethodException(
-          context.getMethod().toString()
-              + " method is not allowed for static routes. Only GET & HEAD are allowed");
 
     RouteListener r = getRouteListener();
     if (r != null)

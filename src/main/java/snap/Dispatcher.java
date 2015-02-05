@@ -28,14 +28,6 @@ public class Dispatcher extends HttpServlet
   {
   }
 
-  // public Dispatcher(String webappClass) throws InstantiationException,
-  // IllegalAccessException, ClassNotFoundException
-  // {
-  // mWebAppClass = webappClass;
-  // mWebApplication =
-  // (WebApplication)Class.forName(mWebAppClass).newInstance();
-  // }
-
   @Override
   public void init(ServletConfig config) throws ServletException
   {
@@ -148,9 +140,8 @@ public class Dispatcher extends HttpServlet
     {
 
       Route route = mRouter.findRouteForPath(method, path);
+      
       context.setRoute(route);
-
-      context.addParameters(route.getParameters(path));
 
       if (mRequestListener != null)
         mRequestListener.onBeforeRequest(context);
