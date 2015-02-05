@@ -187,7 +187,7 @@ public class Dispatcher extends HttpServlet
     }
     catch (AuthenticationException uae)
     {
-      // TODO: check if user wants redirects
+      // check if user wants redirects
       if (context.getRoute().isRedirectEnabled())
       {
         // redirect to redirect URL

@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import snap.Route;
 import snap.Router;
 import snap.User;
+
 import com.alibaba.fastjson.JSONObject;
 
 public class RequestContext
@@ -27,6 +28,9 @@ public class RequestContext
 
   private static final String SNAP_AUTHENTICATED_USER = "Snap.AuthenticatedUser";
   private static final String SNAP_CSRF_TOKEN = "Snap.CsrfToken";
+  private static final int SESSION_COOKIE_EXPIRY = -1;
+
+  public static final String SNAP_CSRF_COOKIE_NAME = "csrf_token";
 
   public RequestContext(HttpMethod method, HttpServletRequest servletRequest,
       HttpServletResponse servletResponse)
@@ -190,16 +194,27 @@ public class RequestContext
   public void setAuthenticatedUser(User user)
   {
     HttpSession session = mServletRequest.getSession();
+
     if (user == null)
     {
       session.removeAttribute(SNAP_AUTHENTICATED_USER);
       session.removeAttribute(SNAP_CSRF_TOKEN);
       session.invalidate();
+      Cookie cookie = new Cookie(SNAP_CSRF_COOKIE_NAME, getServerCsrfToken());
+      // cookie.setDomain("snappix.thaloi.com");
+      cookie.setMaxAge(0); // expire now
+      cookie.setPath("/");
+      addCookie(cookie);
     }
     else
     {
       session.setAttribute(SNAP_AUTHENTICATED_USER, user);
       session.setAttribute(SNAP_CSRF_TOKEN, generateCsrfToken());
+      Cookie cookie = new Cookie(SNAP_CSRF_COOKIE_NAME, getServerCsrfToken());
+      // cookie.setDomain("snappix.thaloi.com");
+      cookie.setMaxAge(SESSION_COOKIE_EXPIRY);
+      cookie.setPath("/");
+      addCookie(cookie);
     }
     mAuthenticatedUser = user;
   }
@@ -209,7 +224,7 @@ public class RequestContext
    * 
    * @return
    */
-  public String getCsrfToken()
+  public String getServerCsrfToken()
   {
     HttpSession session = mServletRequest.getSession();
     if (session.getAttribute(SNAP_CSRF_TOKEN) != null)

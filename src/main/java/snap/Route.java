@@ -11,6 +11,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import javax.servlet.http.Cookie;
+
 import org.jcodings.specific.UTF8Encoding;
 import org.joni.Matcher;
 import org.joni.NameEntry;
@@ -251,6 +253,7 @@ public class Route
       {
         mRouteListener.onAfterRoute(context);
       }
+
       return result;
     }
     else
@@ -491,21 +494,24 @@ public class Route
 
     String token = context.getParamPostGet("csrf_token");
     if (token == null)
+    {
       // attempt to get the token from the HTTP header X-CSRFToken
       token = context.getRequest().getHeader("X-CSRFToken");
-
-    if (token == null)
-    {
-      String message = "Csrf Token not found"
-          + this.getClass().getCanonicalName()
-          + ". Did you forget to include it with @csrf_token()";
-
-      log.warn("Possible hacking attempt! " + message);
-      throw new MissingCsrfTokenException(
-          "Token not found in parameters or X-CSRFToken header.");
+      if (token == null)
+      {
+        Cookie cookie = context.getCookie(RequestContext.SNAP_CSRF_COOKIE_NAME);
+        token = cookie.getValue();
+        if (token == null)
+        {
+          String message = "Csrf Token not found. Did you forget to include it with @csrf_token()";
+          log.warn("Possible hacking attempt! " + message);
+          throw new MissingCsrfTokenException(
+              "Token not found in Cookie, X-CSRFToken header or Get/Post parameters.");
+        }
+      }
     }
 
-    if (!token.equals(context.getCsrfToken()))
+    if (!token.equals(context.getServerCsrfToken()))
     {
       String message = "The submitted csrf token value did not match the expected value.";
       log.warn("Possible hacking attempt! " + message);

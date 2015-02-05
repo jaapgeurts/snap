@@ -37,7 +37,7 @@ public class TemplateView extends View
     mContext.put("router", context.getRouter());
 
     // add csrf_token if the user is logged in
-    String tokenValue = context.getCsrfToken();
+    String tokenValue = context.getServerCsrfToken();
     if (tokenValue != null)
       mContext.put("csrf_token_value", tokenValue);
 
