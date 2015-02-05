@@ -25,6 +25,7 @@ import snap.annotations.LoginRequired;
 import snap.annotations.PermissionRequired;
 import snap.annotations.RoleRequired;
 import snap.annotations.RouteOptions;
+import snap.forms.MissingCsrfTokenException;
 import snap.http.HttpMethod;
 import snap.http.RequestContext;
 import snap.http.RequestResult;
@@ -142,6 +143,13 @@ public class Route
         RequestResult r = mRouteListener.onBeforeRoute(context);
         if (r != null)
           return r;
+      }
+
+      // check CSRF
+      if (context.getMethod() == HttpMethod.POST
+          || context.getMethod() == HttpMethod.PUT)
+      {
+        validateCsrfToken(context);
       }
 
       if (actionMethod.isAnnotationPresent(LoginRequired.class))
@@ -382,6 +390,34 @@ public class Route
     return map;
   }
 
+  public boolean isRedirectEnabled()
+  {
+    LoginRedirect lr = getMethod().getAnnotation(LoginRedirect.class);
+    if (lr == null)
+      return Settings.redirectEnabled;
+    return lr.enabled();
+
+  }
+
+  public HttpMethod[] getHttpMethods()
+  {
+    return mHttpMethods;
+  }
+
+  public String getAlias()
+  {
+    return mAlias;
+  }
+
+  @Override
+  public String toString()
+  {
+    String s = "handleRequest()";
+    if (mMethodName != null)
+      s = mMethodName;
+    return "Alias: " + mAlias + ", Path: " + mPath + ", Endpoint: " + s;
+  }
+
   private Object getController()
   {
     // If the app is threadsafe then create a new instance
@@ -444,32 +480,39 @@ public class Route
     return mMethodRef.get();
   }
 
-  public boolean isRedirectEnabled()
+  private boolean validateCsrfToken(RequestContext context)
   {
-    LoginRedirect lr = getMethod().getAnnotation(LoginRedirect.class);
-    if (lr == null)
-      return Settings.redirectEnabled;
-    return lr.enabled();
+    // if the user is not logged in do nothing.
+    if (context.getAuthenticatedUser() == null)
+    {
+      log.debug("User not logged in. Not checking Csrf token");
+      return false;
+    }
 
-  }
+    String token = context.getParamPostGet("csrf_token");
+    if (token == null)
+      // attempt to get the token from the HTTP header X-CSRFToken
+      token = context.getRequest().getHeader("X-CSRFToken");
 
-  public HttpMethod[] getHttpMethods()
-  {
-    return mHttpMethods;
-  }
+    if (token == null)
+    {
+      String message = "Csrf Token not found"
+          + this.getClass().getCanonicalName()
+          + ". Did you forget to include it with @csrf_token()";
 
-  public String getAlias()
-  {
-    return mAlias;
-  }
+      log.warn("Possible hacking attempt! " + message);
+      throw new MissingCsrfTokenException(
+          "Token not found in parameters or X-CSRFToken header.");
+    }
 
-  @Override
-  public String toString()
-  {
-    String s = "handleRequest()";
-    if (mMethodName != null)
-      s = mMethodName;
-    return "Alias: " + mAlias + ", Path: " + mPath + ", Endpoint: " + s;
+    if (!token.equals(context.getCsrfToken()))
+    {
+      String message = "The submitted csrf token value did not match the expected value.";
+      log.warn("Possible hacking attempt! " + message);
+      throw new InvalidCsrfTokenException(message);
+    }
+
+    return true;
   }
 
   protected String mPath;

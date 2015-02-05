@@ -142,9 +142,6 @@ public class Form
     if (context == null)
       return;
 
-    // throws exception if token is not present
-    doCheckCsrfToken(context);
-
     Map<String, String[]> params = context.getParamsPostGet();
 
     // for all fields find parameters in the request and assign
@@ -178,55 +175,6 @@ public class Form
       {
         ((FormBase)entry.getValue()).setFieldValue(params.get(entry.getKey()));
       }
-    }
-  }
-
-  public static boolean validateCsrfToken(RequestContext context)
-  {
-    // if the user is not logged in do nothing.
-    if (context.getAuthenticatedUser() == null)
-    {
-      log.debug("User not logged in. Not checking Csrf token");
-      return false;
-    }
-
-    String token = context.getParamPostGet("csrf_token");
-    if (token == null)
-      // attempt to get the token from the HTTP header X-CSRFToken
-      token = context.getRequest().getHeader("X-CSRFToken");
-
-    if (token == null)
-      throw new MissingCsrfTokenException(
-          "Token not found in parameters or CSRFToken header.");
-
-    if (!token.equals(context.getCsrfToken()))
-      throw new InvalidCsrfTokenException(
-          "The submitted csrf token value did not match the expected value.");
-
-    return true;
-  }
-
-  private boolean doCheckCsrfToken(RequestContext context)
-  {
-
-    try
-    {
-      return validateCsrfToken(context);
-    }
-    catch (MissingCsrfTokenException mcte)
-    {
-      String message = "Csrf Token not found for form: "
-          + this.getClass().getCanonicalName()
-          + ". Did you forget to include it with @csrf_token()";
-
-      log.debug(message, mcte);
-      throw mcte;
-    }
-    catch (InvalidCsrfTokenException icte)
-    {
-      String message = "Token value invalid";
-      log.debug(message, icte);
-      throw icte;
     }
   }
 

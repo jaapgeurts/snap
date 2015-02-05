@@ -1,4 +1,4 @@
-package snap.forms;
+package snap;
 
 public class InvalidCsrfTokenException extends RuntimeException
 {

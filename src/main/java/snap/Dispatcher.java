@@ -3,6 +3,7 @@ package snap;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URLEncoder;
+
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -12,7 +13,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import snap.forms.InvalidCsrfTokenException;
 import snap.forms.MissingCsrfTokenException;
 import snap.http.HttpError;
 import snap.http.HttpMethod;
