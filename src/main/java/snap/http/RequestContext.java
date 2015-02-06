@@ -116,6 +116,15 @@ public class RequestContext
     return null;
   }
 
+  public String getCookieValue(String name)
+  {
+    Cookie cookie = getCookie(name);
+    if (cookie == null)
+      return null;
+
+    return cookie.getValue();
+  }
+
   /**
    * Forwards the cookie adding request to HttpServeletResponse
    * 
