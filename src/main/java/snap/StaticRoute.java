@@ -7,12 +7,13 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.Locale;
-import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -31,7 +32,7 @@ public class StaticRoute extends Route
 {
   private static final int TRANSFER_BUFFER_SIZE = 10240;
   final Logger log = LoggerFactory.getLogger(StaticRoute.class);
-  final SimpleDateFormat mHttpDateFormat = new SimpleDateFormat(
+  final DateTimeFormatter mHttpDateFormat = DateTimeFormatter.ofPattern(
       "EEE, dd MMM yyyy HH:mm:ss z", Locale.US);
 
   public StaticRoute(String contextPath, String path, String alias,
@@ -72,22 +73,24 @@ public class StaticRoute extends Route
     // only send the file a newer version is available.
     boolean fileIsNewerThanRequested = true; // by default send the file
     // this may happen the modified since header data parsing fails
+    ZonedDateTime fileDate = ZonedDateTime.ofInstant(
+        Instant.ofEpochSecond(file.lastModified()), ZoneId.systemDefault());
     String modifiedSince = context.getRequest().getHeader("If-Modified-Since");
     if (modifiedSince != null)
     {
-      // TODO: change date to LocalDateTime
       try
       {
-        long cachedFileDate = mHttpDateFormat.parse(modifiedSince).getTime();
-        long fileDateLong = 1000 * (file.lastModified() / 1000);
+        ZonedDateTime cachedFileDate = ZonedDateTime.parse(modifiedSince,
+            mHttpDateFormat);
 
-        if (fileDateLong <= cachedFileDate)
+        // the file is older so don't send it (by default always send) 
+        if (fileDate.isBefore(cachedFileDate))
           fileIsNewerThanRequested = false;
       }
-      catch (ParseException e)
+      catch (DateTimeParseException | NumberFormatException e)
       {
-        log.warn(
-            "Can't parse If-Modified-Since date field. Sending file anyway.", e);
+        log.warn("Can't parse If-Modified-Since date: \"" + modifiedSince
+            + "\" Sending file anyway.", e);
       }
     }
 
@@ -112,10 +115,8 @@ public class StaticRoute extends Route
         contentDisposition = accept != null && accepts(accept, mimetype) ? "inline"
             : "attachment";
       }
-      // TODO: change date to LocalDateTime
       response.setContentType(mimetype);
-      mHttpDateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
-      Date fileDate = new Date(file.lastModified());
+
       response.setStatus(HttpServletResponse.SC_OK);
       response.setContentLengthLong(file.length());
       response.setHeader("Last-Modified", mHttpDateFormat.format(fileDate));

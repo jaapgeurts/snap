@@ -19,7 +19,6 @@ dependencies {
              'org.jruby.joni:joni:2.1.4',
              'org.slf4j:slf4j-api:1.7.7',
              'javax.validation:validation-api:1.1.0.Final',
-             'javax.el:javax.el-api:2.2.4',
              'javax.mail:javax.mail-api:1.5.2'
     runtime  'org.slf4j:slf4j-log4j12:1.7.7',
              'log4j:log4j:1.2.17'
