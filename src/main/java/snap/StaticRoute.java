@@ -7,11 +7,11 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.time.DateTimeException;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 import java.util.Arrays;
 import java.util.Locale;
 import java.util.regex.Matcher;
@@ -73,8 +73,7 @@ public class StaticRoute extends Route
     // only send the file a newer version is available.
     boolean fileIsNewerThanRequested = true; // by default send the file
     // this may happen the modified since header data parsing fails
-    ZonedDateTime fileDate = ZonedDateTime.ofInstant(
-        Instant.ofEpochSecond(file.lastModified()), ZoneId.systemDefault());
+    Instant fileLastModified = Instant.ofEpochSecond(file.lastModified());
     String modifiedSince = context.getRequest().getHeader("If-Modified-Since");
     if (modifiedSince != null)
     {
@@ -82,12 +81,15 @@ public class StaticRoute extends Route
       {
         ZonedDateTime cachedFileDate = ZonedDateTime.parse(modifiedSince,
             mHttpDateFormat);
+        // reset the file time to the same timezone as the cachedFileDate
+        ZonedDateTime zdt = ZonedDateTime.ofInstant(fileLastModified,
+            cachedFileDate.getZone());
 
-        // the file is older so don't send it (by default always send) 
-        if (fileDate.isBefore(cachedFileDate))
+        // the file is older so don't send it (by default always send)
+        if (!zdt.isAfter(cachedFileDate))
           fileIsNewerThanRequested = false;
       }
-      catch (DateTimeParseException | NumberFormatException e)
+      catch (DateTimeException | NumberFormatException e)
       {
         log.warn("Can't parse If-Modified-Since date: \"" + modifiedSince
             + "\" Sending file anyway.", e);
@@ -119,7 +121,8 @@ public class StaticRoute extends Route
 
       response.setStatus(HttpServletResponse.SC_OK);
       response.setContentLengthLong(file.length());
-      response.setHeader("Last-Modified", mHttpDateFormat.format(fileDate));
+      response.setHeader("Last-Modified", mHttpDateFormat.format(ZonedDateTime
+          .ofInstant(fileLastModified, ZoneId.of("GMT"))));
       response.setHeader("Content-Disposition", contentDisposition
           + ";filename=\"" + file.getName() + "\"");
 
