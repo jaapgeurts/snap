@@ -4,7 +4,7 @@ import java.lang.reflect.Field;
 
 import snap.forms.Form;
 
-public class SubmitButton extends FormBase
+public class SubmitButton extends FormFieldBase
 {
 
   public SubmitButton(Form form, Field field,

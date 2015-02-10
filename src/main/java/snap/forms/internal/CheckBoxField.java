@@ -4,7 +4,7 @@ import java.lang.reflect.Field;
 
 import snap.forms.Form;
 
-public class CheckBoxField extends FormBase
+public class CheckBoxField extends FormFieldBase
 {
 
   public CheckBoxField(Form form, Field field,

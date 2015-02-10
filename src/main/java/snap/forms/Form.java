@@ -21,7 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import snap.forms.internal.FileField;
-import snap.forms.internal.FormBase;
+import snap.forms.internal.FormFieldBase;
 import snap.forms.internal.MultiCheckboxField;
 import snap.http.RequestContext;
 
@@ -173,7 +173,7 @@ public class Form
       }
       else
       {
-        ((FormBase)entry.getValue()).setFieldValue(params.get(entry.getKey()));
+        ((FormFieldBase)entry.getValue()).setFieldValue(params.get(entry.getKey()));
       }
     }
   }

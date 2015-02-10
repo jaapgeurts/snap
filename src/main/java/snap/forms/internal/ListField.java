@@ -9,7 +9,7 @@ import snap.forms.Form;
 import snap.forms.ListOption;
 import snap.forms.annotations.ListField.ListType;
 
-public class ListField extends FormBase
+public class ListField extends FormFieldBase
 {
 
   public ListField(Form form, Field field,

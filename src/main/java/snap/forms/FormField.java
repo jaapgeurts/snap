@@ -15,5 +15,8 @@ public interface FormField
   public String getLabel();
   public void setCssClass(String cssClass);
   public String getCssClass();
+  
+  public void addAttribute(String attrib, String value);
+  public String getAttribute(String attrib);
 
 }

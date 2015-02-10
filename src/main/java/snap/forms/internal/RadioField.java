@@ -4,7 +4,7 @@ import java.lang.reflect.Field;
 
 import snap.forms.Form;
 
-public class RadioField extends FormBase
+public class RadioField extends FormFieldBase
 {
 
   public RadioField(Form form, Field field,

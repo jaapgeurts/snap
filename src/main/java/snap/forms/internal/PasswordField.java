@@ -4,7 +4,7 @@ import java.lang.reflect.Field;
 
 import snap.forms.Form;
 
-public class PasswordField extends FormBase
+public class PasswordField extends FormFieldBase
 {
 
   public PasswordField(Form form, Field field,

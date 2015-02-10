@@ -8,7 +8,7 @@ import java.util.Set;
 import snap.forms.Form;
 import snap.forms.ListOption;
 
-public class MultiCheckboxField extends FormBase
+public class MultiCheckboxField extends FormFieldBase
 {
 
   public MultiCheckboxField(Form form, Field field,

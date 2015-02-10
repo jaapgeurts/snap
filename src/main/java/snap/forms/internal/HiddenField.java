@@ -4,7 +4,7 @@ import java.lang.reflect.Field;
 
 import snap.forms.Form;
 
-public class HiddenField extends FormBase
+public class HiddenField extends FormFieldBase
 {
 
   public HiddenField(Form form, Field field,

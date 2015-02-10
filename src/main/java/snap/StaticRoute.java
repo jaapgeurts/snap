@@ -40,7 +40,7 @@ public class StaticRoute extends Route
   {
     super(contextPath, alias, path);
     // TODO: merge the matching into the super class
-    mDirectoryPrefix = directory;
+    mLocation = directory;
     // Only allow GET, HEAD method for static media
     mHttpMethods = new HttpMethod[] { HttpMethod.GET, HttpMethod.HEAD };
   }
@@ -197,19 +197,29 @@ public class StaticRoute extends Route
     File file = null;
     String permittedPath;
 
+    String path = context.getRequest().getServletContext()
+        .getRealPath(mLocation);
+    if (path != null)
+    {
+      file = new File(path);
+      if (file != null && file.isFile())
+        // the static route is a link to a direct file
+        return file;
+    }
     // Static Routes can point to files relative to the servlet root folder or
     // an absolute path prepended by a path specified in the routes.conf
-    String computedPath = mDirectoryPrefix + "/" + fileName;
+    String computedPath = mLocation + "/" + fileName;
     File staticLocation = new File(computedPath);
+    // If the location is specified as absolute then fetch it there
     if (staticLocation.isAbsolute())
     {
       // route points to absolute path.
       file = new File(computedPath);
-      permittedPath = mDirectoryPrefix;
+      permittedPath = mLocation;
     }
     else
     {
-      // Convert a path on the webroot to a file on the filesystem path.
+      // Convert a location on the webroot to a path on the filesystem.
       String actualPath = context.getRequest().getServletContext()
           .getRealPath(computedPath);
       if (actualPath == null)
@@ -219,7 +229,7 @@ public class StaticRoute extends Route
       }
       file = new File(actualPath);
       permittedPath = new File(context.getRequest().getServletContext()
-          .getRealPath(mDirectoryPrefix)).getCanonicalPath();
+          .getRealPath(mLocation)).getCanonicalPath();
     }
     String canonicalPath = file.getCanonicalPath();
 
@@ -283,8 +293,8 @@ public class StaticRoute extends Route
 
   public String getDirectory()
   {
-    return mDirectoryPrefix;
+    return mLocation;
   }
 
-  private String mDirectoryPrefix;
+  private String mLocation;
 }

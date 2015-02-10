@@ -239,7 +239,7 @@ public class RequestContext
     if (session.getAttribute(SNAP_CSRF_TOKEN) != null)
       return (String)session.getAttribute(SNAP_CSRF_TOKEN);
     else
-      log.info("User not logged in. Not returning CSRF Token");
+      log.debug("User not logged in. Not returning CSRF Token");
     return null;
   }
 

@@ -7,7 +7,7 @@ import javax.servlet.http.Part;
 
 import snap.forms.Form;
 
-public class FileField extends FormBase
+public class FileField extends FormFieldBase
 {
 
   public FileField(Form form, Field field,

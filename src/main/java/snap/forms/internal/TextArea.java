@@ -4,7 +4,7 @@ import java.lang.reflect.Field;
 
 import snap.forms.Form;
 
-public class TextArea extends FormBase
+public class TextArea extends FormFieldBase
 {
 
   public TextArea(Form form, Field field,

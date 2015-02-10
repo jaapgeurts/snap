@@ -1,6 +1,8 @@
 package snap.forms.internal;
 
 import java.lang.reflect.Field;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -8,16 +10,18 @@ import org.slf4j.LoggerFactory;
 import snap.forms.Form;
 import snap.forms.FormField;
 
-public abstract class FormBase implements FormField
+public abstract class FormFieldBase implements FormField
 {
-  final Logger log = LoggerFactory.getLogger(FormBase.class);
+  final Logger log = LoggerFactory.getLogger(FormFieldBase.class);
 
-  protected FormBase()
+  protected FormFieldBase()
   {
+    mAttributes = new HashMap<>();
   }
 
-  public FormBase(Form form, Field field)
+  public FormFieldBase(Form form, Field field)
   {
+    this();
     mField = field;
     mForm = form;
   }
@@ -121,12 +125,25 @@ public abstract class FormBase implements FormField
   {
     mCssClass = cssClass;;
   }
+  
+  @Override
+  public void addAttribute(String attrib, String value)
+  {
+    mAttributes.put(attrib,value);
+  }
+  
+  @Override
+  public String getAttribute(String attrib)
+  {
+    return mAttributes.get(attrib);
+  }
 
   protected String mLabel;
   protected String mCssClass;
   protected Field mField;
   protected Form mForm;
   private String mErrorText = null;
+  protected Map<String, String> mAttributes;
   protected boolean mVisible = true;
 
 }
