@@ -1,8 +1,9 @@
 package snap.forms.internal;
 
 import java.lang.reflect.Field;
-
+import java.util.List;
 import snap.forms.Form;
+import snap.forms.ListOption;
 
 public class RadioField extends FormFieldBase
 {
@@ -14,8 +15,9 @@ public class RadioField extends FormFieldBase
     mAnnotation = annotation;
     if (!field.getType().isEnum())
       throw new IllegalArgumentException("RadioFieldsmust be an enum");
-    
+
     mCssClass = mAnnotation.cssClass();
+
   }
 
   @Override
@@ -24,19 +26,19 @@ public class RadioField extends FormFieldBase
     if (!isVisible())
       return "";
 
+    getFormFields();
+
     StringBuilder b = new StringBuilder();
-    Object[] enumValues;
 
     Class<?> enumVal;
     enumVal = mField.getType();
-    enumValues = enumVal.getEnumConstants();
-    if (enumValues == null)
+    if (!enumVal.isEnum())
       throw new RuntimeException("RadioField works on Enums only!");
 
-    Object value;
+    String defaultValue;
     try
     {
-      value = mField.get(mForm);
+      defaultValue = ((Enum<?>)mField.get(mForm)).name();
     }
     catch (IllegalArgumentException | IllegalAccessException e)
     {
@@ -44,21 +46,30 @@ public class RadioField extends FormFieldBase
       log.debug(message, e);
       throw new RuntimeException(message, e);
     }
-    for (Object e : enumValues)
+    for (Object o : mOptions)
     {
-      // TODO:if type is Enum then create enum radio field else create
-      // normal radio field
+      String val, text;
+      if (o instanceof ListOption)
+      {
+        ListOption lo = (ListOption)o;
+        val = lo.getValue();
+        text = lo.getText();
+      }
+      else
+      {
+        val = text = o.toString();
+      }
 
-      if (e.equals(value))
+      if (val.equals(defaultValue))
         b.append(String
             .format(
-                "<input id=\"%3$s\" type=\"radio\" name=\"%1$s\" value=\"%2$s\" checked/>%2$s",
-                mField.getName(), e.toString(), mAnnotation.id()));
+                "<input id=\"%1$s\" type=\"radio\" name=\"%2$s\" value=\"%3$s\" checked/><label for=\"%1$s\"> %4$s</label>",
+                mAnnotation.id(), mField.getName(), val, text));
       else
         b.append(String
             .format(
-                "<input id=\"%3$s\" type=\"radio\" name=\"%1$s\" value=\"%2$s\"/>%2$s",
-                mField.getName(), e.toString(), mAnnotation.id()));
+                "<input id=\"%1$s\" type=\"radio\" name=\"%2$s\" value=\"%3$s\"/><label for=\"%1$s\"> %4$s</label>",
+                mAnnotation.id(), mField.getName(), val, text));
 
     }
     return b.toString();
@@ -101,14 +112,40 @@ public class RadioField extends FormFieldBase
       }
     }
   }
-  
+
+  private void getFormFields()
+  {
+
+    try
+    {
+      mOptionsField = mForm.getClass().getField(mAnnotation.options());
+    }
+    catch (NoSuchFieldException nsfe)
+    {
+      throw new RuntimeException("Options field \"" + mAnnotation.options()
+          + "\" not present in form", nsfe);
+    }
+
+    // Get the options and the values
+    try
+    {
+      mOptions = (List<?>)mOptionsField.get(mForm);
+    }
+    catch (IllegalArgumentException | IllegalAccessException e)
+    {
+      throw new RuntimeException(
+          "Can't access field: " + mAnnotation.options(), e);
+    }
+  }
+
   @Override
   public String toString()
   {
     return "RadioField { " + mField.getName() + " }";
   }
 
-
   private snap.forms.annotations.RadioField mAnnotation;
+  private List<?> mOptions;
+  private Field mOptionsField;
 
 }

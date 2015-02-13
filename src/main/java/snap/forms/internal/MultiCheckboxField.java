@@ -24,8 +24,8 @@ public class MultiCheckboxField extends FormFieldBase
   }
 
   /**
-   * Renders a multiselect item identified by it's value. Only works for
-   * checkboxes
+   * Renders a single multiselect item out of the options list identified by
+   * it's value.
    * 
    * @param value
    * @return
@@ -35,12 +35,11 @@ public class MultiCheckboxField extends FormFieldBase
     if (!isVisible())
       return "";
 
-    StringBuilder b = new StringBuilder();
-
     // Checkbox
     // Check if the field is present
     getFormFields();
 
+    StringBuilder b = new StringBuilder();
     // search all options
     for (Object o : mOptions)
     {
@@ -58,24 +57,44 @@ public class MultiCheckboxField extends FormFieldBase
 
       if (val.equals(value))
       {
-        // check type here.
-        if (mFieldValues.contains(val))
-          b.append(String
-              .format(
-                  "\t<input type=\"checkbox\" name=\"%1$s\" value=\"%2$s\" checked/>%3$s",
-                  mField.getName(), val, text));
-        else
-          b.append(String.format(
-              "\t<input type=\"checkbox\" name=\"%1$s\" value=\"%2$s\"/>%3$s",
-              mField.getName(), val, text));
+        b.append(doRender(o));
+        break;
       }
     }
     return b.toString();
   }
 
+  private String doRender(Object o)
+  {
+    String val, text = "";
+    if (o instanceof ListOption)
+    {
+      ListOption lo = (ListOption)o;
+      val = lo.getValue();
+      text = lo.getText();
+    }
+    else
+    {
+      val = o.toString();
+    }
+    // check type here.
+    if (mFieldValues.contains(val))
+      return String
+          .format(
+              "\t<input type=\"checkbox\" name=\"%1$s\" value=\"%2$s\" checked/>%3$s",
+              mField.getName(), val, text);
+    else
+      return String.format(
+          "\t<input type=\"checkbox\" name=\"%1$s\" value=\"%2$s\"/>%3$s",
+          mField.getName(), val, text);
+  }
+
   @Override
   public String render()
   {
+    if (!isVisible())
+      return "";
+
     StringBuilder b = new StringBuilder();
 
     // Checkbox
@@ -84,27 +103,8 @@ public class MultiCheckboxField extends FormFieldBase
 
     for (Object o : mOptions)
     {
-      String val, text;
-      if (o instanceof ListOption)
-      {
-        ListOption lo = (ListOption)o;
-        val = lo.getValue();
-        text = lo.getText();
-      }
-      else
-      {
-        val = text = o.toString();
-      }
-      // check type here.
-      if (mFieldValues.contains(val))
-        b.append(String
-            .format(
-                "\t<input type=\"checkbox\" name=\"%1$s\" value=\"%2$s\" checked/>%3$s",
-                mField.getName(), val, text));
-      else
-        b.append(String.format(
-            "\t<input type=\"checkbox\" name=\"%1$s\" value=\"%2$s\"/>%3$s",
-            mField.getName(), val, text));
+
+      b.append(doRender(o));
     }
     return b.toString();
   }
@@ -126,6 +126,8 @@ public class MultiCheckboxField extends FormFieldBase
     {
       if (mOptionFieldClass.isAssignableFrom(ListOption.class))
       {
+        // check if the value that was returns is actually in the possible
+        // listoptions
         if (mOptions.stream().anyMatch(
             obj -> ((ListOption)obj).getValue().equals(value)))
           addValueToFormFieldSet(value);
