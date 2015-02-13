@@ -63,12 +63,12 @@ public class RadioField extends FormFieldBase
       if (val.equals(defaultValue))
         b.append(String
             .format(
-                "<input id=\"%1$s\" type=\"radio\" name=\"%2$s\" value=\"%3$s\" checked/><label for=\"%1$s\"> %4$s</label>",
+                "<input id=\"%1$s-%3$s\" type=\"radio\" name=\"%2$s\" value=\"%3$s\" checked/><label for=\"%1$s\"> %4$s</label>",
                 mAnnotation.id(), mField.getName(), val, text));
       else
         b.append(String
             .format(
-                "<input id=\"%1$s\" type=\"radio\" name=\"%2$s\" value=\"%3$s\"/><label for=\"%1$s\"> %4$s</label>",
+                "<input id=\"%1$s-%3$s\" type=\"radio\" name=\"%2$s\" value=\"%3$s\"/><label for=\"%1$s\"> %4$s</label>",
                 mAnnotation.id(), mField.getName(), val, text));
 
     }

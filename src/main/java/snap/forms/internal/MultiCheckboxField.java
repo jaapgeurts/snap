@@ -43,12 +43,11 @@ public class MultiCheckboxField extends FormFieldBase
     // search all options
     for (Object o : mOptions)
     {
-      String val, text = "";
+      String val;
       if (o instanceof ListOption)
       {
         ListOption lo = (ListOption)o;
         val = lo.getValue();
-        text = lo.getText();
       }
       else
       {
@@ -81,12 +80,13 @@ public class MultiCheckboxField extends FormFieldBase
     if (mFieldValues.contains(val))
       return String
           .format(
-              "\t<input type=\"checkbox\" name=\"%1$s\" value=\"%2$s\" checked/>%3$s",
-              mField.getName(), val, text);
+              "\t<input id=\"%1$s-%4$s\" type=\"checkbox\" name=\"%2$s\" value=\"%3$s\" checked/>%4$s",
+              mAnnotation.id(), mField.getName(), val, text);
     else
-      return String.format(
-          "\t<input type=\"checkbox\" name=\"%1$s\" value=\"%2$s\"/>%3$s",
-          mField.getName(), val, text);
+      return String
+          .format(
+              "\t<input id=\"%1$s-%4$s\" type=\"checkbox\" name=\"%2$s\" value=\"%3$s\"/>%4$s",
+              mAnnotation.id(), mField.getName(), val, text);
   }
 
   @Override
