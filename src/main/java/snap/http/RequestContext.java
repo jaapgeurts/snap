@@ -175,22 +175,6 @@ public class RequestContext
     return mServletResponse;
   }
 
-  public User getAuthenticatedUser()
-  {
-    return WebApplication.getInstance().getUser(mAuthenticatedUser);
-  }
-
-  public HttpRedirect getRedirect(String alias, Object... params)
-  {
-    return getRouter().redirectForRoute(alias, params);
-  }
-
-  public HttpRedirect getRedirect(String alias, Map<String, String> getParams,
-      Object... params)
-  {
-    return getRouter().redirectForRoute(alias, getParams, params);
-  }
-
   /**
    * Puts the authenticated user in the session under the attribute:
    * 'Snap.AuthorizedUser' Use in combination with @LoginRequired. This method
@@ -227,6 +211,24 @@ public class RequestContext
       addCookie(cookie);
     }
     mAuthenticatedUser = userid;
+  }
+
+  public User getAuthenticatedUser()
+  {
+    if (mAuthenticatedUser == null)
+      return null;
+    return WebApplication.getInstance().getUser(mAuthenticatedUser);
+  }
+
+  public HttpRedirect getRedirect(String alias, Object... params)
+  {
+    return getRouter().redirectForRoute(alias, params);
+  }
+
+  public HttpRedirect getRedirect(String alias, Map<String, String> getParams,
+      Object... params)
+  {
+    return getRouter().redirectForRoute(alias, getParams, params);
   }
 
   /**
