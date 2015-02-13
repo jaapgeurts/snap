@@ -183,8 +183,8 @@ public class StaticRoute extends Route
       }
       catch (IOException ioe)
       {
-        // report this IOException but still serve the file
-        log.warn("Error flushing output or closing input.", ioe);
+        // This usually happens if the user closes the connection prematurely
+        log.info("User disconnected prematurely. " + ioe.getMessage());
       }
     }
 
