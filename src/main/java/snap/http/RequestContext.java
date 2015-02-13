@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import snap.Route;
 import snap.Router;
 import snap.User;
+import snap.WebApplication;
 
 import com.alibaba.fastjson.JSONObject;
 
@@ -39,7 +40,7 @@ public class RequestContext
     mServletResponse = servletResponse;
     mMethod = method;
 
-    mAuthenticatedUser = (User)mServletRequest.getSession().getAttribute(
+    mAuthenticatedUser = (Long)mServletRequest.getSession().getAttribute(
         SNAP_AUTHENTICATED_USER);
   }
 
@@ -176,7 +177,7 @@ public class RequestContext
 
   public User getAuthenticatedUser()
   {
-    return mAuthenticatedUser;
+    return WebApplication.getInstance().getUser(mAuthenticatedUser);
   }
 
   public HttpRedirect getRedirect(String alias, Object... params)
@@ -200,11 +201,11 @@ public class RequestContext
    *          from the session
    * 
    */
-  public void setAuthenticatedUser(User user)
+  public void setAuthenticatedUser(Long userid)
   {
     HttpSession session = mServletRequest.getSession();
 
-    if (user == null)
+    if (userid == null)
     {
       session.removeAttribute(SNAP_AUTHENTICATED_USER);
       session.removeAttribute(SNAP_CSRF_TOKEN);
@@ -217,7 +218,7 @@ public class RequestContext
     }
     else
     {
-      session.setAttribute(SNAP_AUTHENTICATED_USER, user);
+      session.setAttribute(SNAP_AUTHENTICATED_USER, userid);
       session.setAttribute(SNAP_CSRF_TOKEN, generateCsrfToken());
       Cookie cookie = new Cookie(SNAP_CSRF_COOKIE_NAME, getServerCsrfToken());
       // cookie.setDomain("snappix.thaloi.com");
@@ -225,7 +226,7 @@ public class RequestContext
       cookie.setPath("/");
       addCookie(cookie);
     }
-    mAuthenticatedUser = user;
+    mAuthenticatedUser = userid;
   }
 
   /**
@@ -278,7 +279,7 @@ public class RequestContext
 
   private HttpMethod mMethod;
   private Route mRoute;
-  private User mAuthenticatedUser;
+  private Long mAuthenticatedUser;
   private Router mRouter;
 
   public String getRequestURI()

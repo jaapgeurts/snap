@@ -78,6 +78,17 @@ public abstract class WebApplication
     return NullView.INSTANCE;
   }
 
+  /**
+   * Default user handling
+   * 
+   * @param userid
+   * @return
+   */
+  public User getUser(Long userid)
+  {
+    return null;
+  }
+
   public void destroy()
   {
 
