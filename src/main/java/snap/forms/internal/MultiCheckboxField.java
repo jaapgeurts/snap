@@ -203,7 +203,7 @@ public class MultiCheckboxField extends FormFieldBase
   @Override
   public String toString()
   {
-    return "MultiCheckBoxField [" + mField.getName() + "]";
+    return "MultiCheckBoxField { " + mField.getName() + " }";
   }
 
   private snap.forms.annotations.MultiCheckboxField mAnnotation;

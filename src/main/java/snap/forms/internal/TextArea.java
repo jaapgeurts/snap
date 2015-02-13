@@ -49,7 +49,7 @@ public class TextArea extends FormFieldBase
   @Override
   public String toString()
   {
-    return "TextArea [" + mField.getName() + "]";
+    return "TextArea { " + mField.getName() + " }";
   }
 
 

@@ -33,7 +33,7 @@ public class SubmitButton extends FormFieldBase
   @Override
   public String toString()
   {
-    return "SubmitButton [" + mField.getName() + "]";
+    return "SubmitButton { " + mField.getName() + " }";
   }
 
   private snap.forms.annotations.SubmitField mAnnotation;

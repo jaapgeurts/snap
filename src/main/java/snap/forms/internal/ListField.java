@@ -256,7 +256,7 @@ public class ListField extends FormFieldBase
   @Override
   public String toString()
   {
-    return "ListField [" + mField.getName() + "]";
+    return "ListField { " + mField.getName() + " }";
   }
 
   private snap.forms.annotations.ListField mAnnotation;

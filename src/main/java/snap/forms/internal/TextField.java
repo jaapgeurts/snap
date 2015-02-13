@@ -50,7 +50,7 @@ public class TextField extends FormFieldBase
   @Override
   public String toString()
   {
-    return "TextField [" + mField.getName() + "]";
+    return "TextField { " + mField.getName() + " }";
   }
 
   private snap.forms.annotations.TextField mAnnotation;

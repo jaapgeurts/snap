@@ -107,7 +107,7 @@ public class CheckBoxField extends FormFieldBase
   @Override
   public String toString()
   {
-    return "CheckBoxField [" + mField.getName() + "]";
+    return "CheckBoxField { " + mField.getName() + " }";
   }
 
   private snap.forms.annotations.CheckBoxField mAnnotation;

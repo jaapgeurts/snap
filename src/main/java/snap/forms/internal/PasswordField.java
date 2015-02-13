@@ -39,7 +39,7 @@ public class PasswordField extends FormFieldBase
   @Override
   public String toString()
   {
-    return "PasswordField [" + mField.getName() + "]";
+    return "PasswordField { " + mField.getName() + " }";
   }
 
 

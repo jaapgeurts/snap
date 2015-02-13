@@ -30,7 +30,7 @@ public class HiddenField extends FormFieldBase
   @Override
   public String toString()
   {
-    return "HiddenField [" + mField.getName() + "]";
+    return "HiddenField { " + mField.getName() + " }";
   }
 
 

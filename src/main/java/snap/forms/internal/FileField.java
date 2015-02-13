@@ -84,7 +84,7 @@ public class FileField extends FormFieldBase
   @Override
   public String toString()
   {
-    return "FileField [" + mField.getName() + "]";
+    return "FileField { " + mField.getName() + " }";
   }
 
   private snap.forms.annotations.FileField mAnnotation;

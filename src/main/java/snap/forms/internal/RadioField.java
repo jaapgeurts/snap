@@ -105,7 +105,7 @@ public class RadioField extends FormFieldBase
   @Override
   public String toString()
   {
-    return "RadioField [" + mField.getName() + "]";
+    return "RadioField { " + mField.getName() + " }";
   }
 
 
