@@ -2,6 +2,8 @@ package snap.forms.internal;
 
 import java.lang.reflect.Field;
 import java.util.List;
+
+import snap.SnapException;
 import snap.forms.Form;
 import snap.forms.ListOption;
 
@@ -30,49 +32,74 @@ public class RadioField extends FormFieldBase
 
     StringBuilder b = new StringBuilder();
 
-    Class<?> enumVal;
-    enumVal = mField.getType();
-    if (!enumVal.isEnum())
-      throw new RuntimeException("RadioField works on Enums only!");
+    String defaultValue = getDefaultValue();
 
-    String defaultValue;
-    try
-    {
-      defaultValue = ((Enum<?>)mField.get(mForm)).name();
-    }
-    catch (IllegalArgumentException | IllegalAccessException e)
-    {
-      String message = "Form field " + mField.getName() + " can't be accessed.";
-      log.debug(message, e);
-      throw new RuntimeException(message, e);
-    }
     for (Object o : mOptions)
     {
-      String val, text;
+      b.append(doRender(o, defaultValue));
+    }
+    return b.toString();
+  }
+
+  public String render(String value)
+  {
+    if (!isVisible())
+      return "";
+
+    getFormFields();
+
+    StringBuilder b = new StringBuilder();
+
+    String defaultValue = getDefaultValue();
+
+    // search all options
+    for (Object o : mOptions)
+    {
+      String val;
       if (o instanceof ListOption)
       {
         ListOption lo = (ListOption)o;
         val = lo.getValue();
-        text = lo.getText();
       }
       else
       {
-        val = text = o.toString();
+        val = o.toString();
       }
 
-      if (val.equals(defaultValue))
-        b.append(String
-            .format(
-                "<input id=\"%1$s-%3$s\" type=\"radio\" name=\"%2$s\" value=\"%3$s\" checked/><label for=\"%1$s\"> %4$s</label>",
-                mAnnotation.id(), mField.getName(), val, text));
-      else
-        b.append(String
-            .format(
-                "<input id=\"%1$s-%3$s\" type=\"radio\" name=\"%2$s\" value=\"%3$s\"/><label for=\"%1$s\"> %4$s</label>",
-                mAnnotation.id(), mField.getName(), val, text));
-
+      if (val.equals(value))
+      {
+        b.append(doRender(o, defaultValue));
+        break;
+      }
     }
     return b.toString();
+  }
+
+  private String doRender(Object o, String defaultValue)
+  {
+    String val, text;
+    if (o instanceof ListOption)
+    {
+      ListOption lo = (ListOption)o;
+      val = lo.getValue();
+      text = lo.getText();
+    }
+    else
+    {
+      val = text = o.toString();
+    }
+
+    if (val.equals(defaultValue))
+      return String
+          .format(
+              "<input id=\"%1$s-%3$s\" type=\"radio\" name=\"%2$s\" value=\"%3$s\" checked/><label for=\"%1$s\"> %4$s</label>",
+              mAnnotation.id(), mField.getName(), val, text);
+    else
+      return String
+          .format(
+              "<input id=\"%1$s-%3$s\" type=\"radio\" name=\"%2$s\" value=\"%3$s\"/><label for=\"%1$s\"> %4$s</label>",
+              mAnnotation.id(), mField.getName(), val, text);
+
   }
 
   @Override
@@ -136,6 +163,25 @@ public class RadioField extends FormFieldBase
       throw new RuntimeException(
           "Can't access field: " + mAnnotation.options(), e);
     }
+  }
+
+  private String getDefaultValue()
+  {
+    String defaultValue = null;
+    try
+    {
+      if (mField.get(mForm) == null)
+        throw new SnapException("Enum formfield: " + mField.getName()
+            + " can't be null and must be assigned a value.");
+      defaultValue = ((Enum<?>)mField.get(mForm)).name();
+    }
+    catch (IllegalArgumentException | IllegalAccessException e)
+    {
+      String message = "Form field " + mField.getName() + " can't be accessed.";
+      log.debug(message, e);
+      throw new SnapException(message, e);
+    }
+    return defaultValue;
   }
 
   @Override

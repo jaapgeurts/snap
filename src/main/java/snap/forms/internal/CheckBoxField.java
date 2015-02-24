@@ -2,6 +2,7 @@ package snap.forms.internal;
 
 import java.lang.reflect.Field;
 
+import snap.SnapException;
 import snap.forms.Form;
 
 public class CheckBoxField extends FormFieldBase
@@ -44,6 +45,9 @@ public class CheckBoxField extends FormFieldBase
     boolean val;
     try
     {
+      if (mField.get(mForm) == null)
+        throw new SnapException("Checkbox field: " + mField.getName()
+            + " can't be null.");
       val = (Boolean)mField.get(mForm);
     }
     catch (IllegalArgumentException | IllegalAccessException e)

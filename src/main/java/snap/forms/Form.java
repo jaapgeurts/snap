@@ -20,6 +20,7 @@ import javax.validation.Validator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import snap.forms.internal.RadioField;
 import snap.forms.internal.FileField;
 import snap.forms.internal.FormFieldBase;
 import snap.forms.internal.MultiCheckboxField;
@@ -173,7 +174,8 @@ public class Form
       }
       else
       {
-        ((FormFieldBase)entry.getValue()).setFieldValue(params.get(entry.getKey()));
+        ((FormFieldBase)entry.getValue()).setFieldValue(params.get(entry
+            .getKey()));
       }
     }
   }
@@ -272,7 +274,13 @@ public class Form
   public String renderField(String fieldName, Object value)
   {
     FormField field = mFieldMap.get(fieldName);
-    if (field instanceof MultiCheckboxField)
+    if (field instanceof RadioField)
+    {
+      RadioField rf = (RadioField)field;
+      return rf.render(value.toString());
+
+    }
+    else if (field instanceof MultiCheckboxField)
     {
       MultiCheckboxField msf = (MultiCheckboxField)field;
       return msf.render(value.toString());

@@ -23,6 +23,26 @@ public class MultiCheckboxField extends FormFieldBase
     mCssClass = mAnnotation.cssClass();
   }
 
+  @Override
+  public String render()
+  {
+    if (!isVisible())
+      return "";
+
+    StringBuilder b = new StringBuilder();
+
+    // Checkbox
+    // Check if the field is present
+    getFormFields();
+
+    for (Object o : mOptions)
+    {
+
+      b.append(doRender(o));
+    }
+    return b.toString();
+  }
+
   /**
    * Renders a single multiselect item out of the options list identified by
    * it's value.
@@ -34,11 +54,11 @@ public class MultiCheckboxField extends FormFieldBase
   {
     if (!isVisible())
       return "";
-
+  
     // Checkbox
     // Check if the field is present
     getFormFields();
-
+  
     StringBuilder b = new StringBuilder();
     // search all options
     for (Object o : mOptions)
@@ -53,7 +73,7 @@ public class MultiCheckboxField extends FormFieldBase
       {
         val = o.toString();
       }
-
+  
       if (val.equals(value))
       {
         b.append(doRender(o));
@@ -87,26 +107,6 @@ public class MultiCheckboxField extends FormFieldBase
           .format(
               "\t<input id=\"%1$s-%4$s\" type=\"checkbox\" name=\"%2$s\" value=\"%3$s\"/>%4$s",
               mAnnotation.id(), mField.getName(), val, text);
-  }
-
-  @Override
-  public String render()
-  {
-    if (!isVisible())
-      return "";
-
-    StringBuilder b = new StringBuilder();
-
-    // Checkbox
-    // Check if the field is present
-    getFormFields();
-
-    for (Object o : mOptions)
-    {
-
-      b.append(doRender(o));
-    }
-    return b.toString();
   }
 
   @Override
