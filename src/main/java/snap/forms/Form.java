@@ -20,6 +20,7 @@ import javax.validation.Validator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import snap.SnapException;
 import snap.forms.internal.RadioField;
 import snap.forms.internal.FileField;
 import snap.forms.internal.FormFieldBase;
@@ -221,27 +222,29 @@ public class Form
     }
     // TODO: render a CSRF token
     StringBuilder builder = new StringBuilder();
-    if (mFormError != null && !"".equals(mFormError))
-    {
-      builder.append("<p class=\"form-error\">");
-      builder.append(getFormError());
-      builder.append("</p>");
-    }
+    builder.append(renderErrors());
     builder.append(startTag);
     for (FormField field : mFieldList)
     {
       builder.append(rowOpenTag);
       builder.append(field.render());
       builder.append(rowCloseTag);
-      if (field.hasError())
-      {
-        builder.append("<p class=\"field-error\">");
-        builder.append(field.getError());
-        builder.append("</p>");
-      }
     }
     builder.append(endTag);
     return builder.toString();
+  }
+
+  /**
+   * Renders form errors with span tag
+   * 
+   * @return String with the errors
+   */
+  public String renderErrors()
+  {
+    if (mFormError != null && !"".equals(mFormError))
+      return String.format("<span class=\"form-error\">%1$s</span>",
+          getFormError());
+    return "";
   }
 
   /**
@@ -254,10 +257,10 @@ public class Form
   public String renderField(String fieldName)
   {
     FormField field = mFieldMap.get(fieldName);
-    if (field instanceof MultiCheckboxField)
+    if (field instanceof MultiCheckboxField || field instanceof RadioField)
     {
-      throw new RuntimeException(
-          "Field render requested for MultiSelectField, but wrong method called. Call: renderField(String fieldName, Object value) instead.");
+      throw new SnapException(
+          "Field render requested for MultiSelectField or RadioField, but wrong method called. Call: renderField(String fieldName, Object value) instead.");
     }
     return field.render();
   }
@@ -274,18 +277,19 @@ public class Form
   public String renderField(String fieldName, Object value)
   {
     FormField field = mFieldMap.get(fieldName);
+    if (field == null)
+      throw new SnapException("Rendering of non-existing field " + fieldName);
     if (field instanceof RadioField)
     {
       RadioField rf = (RadioField)field;
       return rf.render(value.toString());
-
     }
     else if (field instanceof MultiCheckboxField)
     {
       MultiCheckboxField msf = (MultiCheckboxField)field;
       return msf.render(value.toString());
     }
-    throw new RuntimeException(
+    throw new SnapException(
         "Field render requested on normal field but method called for MultiSelectField. Call renderField(String fieldName) instead.");
   }
 
@@ -294,9 +298,9 @@ public class Form
    * 
    * @param fieldName
    *          The name of the field you want to get
-   * @return The Form field
+   * @return The Form field or null if not found
    */
-  public FormField field(String fieldName)
+  public FormField getField(String fieldName)
   {
     return mFieldMap.get(fieldName);
   }
@@ -365,6 +369,45 @@ public class Form
     mFormError = formError;
   }
 
+  /**
+   * Set an error on a field. This is a shortcut to calling
+   * 
+   * <pre>
+   * getField(fieldName).setError(errorText)
+   * </pre>
+   * 
+   * @param fieldName
+   *          The name of the field
+   * @param errorText
+   *          The error text
+   */
+  public void setFieldError(String fieldName, String errorText)
+  {
+    FormField f = getField(fieldName);
+    if (f != null)
+      f.setError(errorText);
+  }
+
+  /**
+   * Clear the error on a field. This is a shortcut to calling
+   * 
+   * <pre>
+   * getField(fieldName).clearError()
+   * </pre>
+   * 
+   * @param fieldName
+   *          The name of the field
+   */
+  public void clearFieldError(String fieldName)
+  {
+    FormField f = getField(fieldName);
+    if (f != null)
+      f.clearError();
+  }
+
+  /**
+   * Clear all form and field errors
+   */
   public void clearAllErrors()
   {
     mFormError = null;

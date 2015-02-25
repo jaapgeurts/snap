@@ -219,6 +219,11 @@ public class RequestContext
       return null;
     return WebApplication.getInstance().getUser(mAuthenticatedUser);
   }
+  
+  public HttpRedirect getRedirectSelf(Object... params)
+  {
+    return getRoute().getRedirect(params);
+  }
 
   public HttpRedirect getRedirect(String alias, Object... params)
   {

@@ -29,6 +29,7 @@ import snap.annotations.RoleRequired;
 import snap.annotations.RouteOptions;
 import snap.forms.MissingCsrfTokenException;
 import snap.http.HttpMethod;
+import snap.http.HttpRedirect;
 import snap.http.RequestContext;
 import snap.http.RequestResult;
 
@@ -274,16 +275,6 @@ public class Route
     return getLink(null, params);
   }
 
-  public void setRouteListener(RouteListener listener)
-  {
-    mRouteListener = listener;
-  }
-
-  public RouteListener getRouteListener()
-  {
-    return mRouteListener;
-  }
-
   public String getLink(Map<String, String> getParams, Object[] params)
   {
     StringBuilder builder = new StringBuilder();
@@ -327,7 +318,7 @@ public class Route
         builder.append(mPath.substring(start, regExLength));
       }
     }
-
+  
     // add get params if available
     if (getParams != null)
     {
@@ -350,13 +341,28 @@ public class Route
       if (builder.length() >= 1)
         if (builder.charAt(builder.length() - 1) == '&')
           builder.deleteCharAt(builder.length() - 1);
-
+  
     }
-
+  
     if (mContextPath == null || "".equals(mContextPath))
       return builder.toString();
     else
       return mContextPath + builder.toString();
+  }
+
+  public void setRouteListener(RouteListener listener)
+  {
+    mRouteListener = listener;
+  }
+
+  public RouteListener getRouteListener()
+  {
+    return mRouteListener;
+  }
+
+  public HttpRedirect getRedirect(Object[] params)
+  {
+    return new HttpRedirect(getLink(params));
   }
 
   public Map<String, String> getParameters(String path)

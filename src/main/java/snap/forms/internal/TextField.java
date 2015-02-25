@@ -1,8 +1,6 @@
 package snap.forms.internal;
 
 import java.lang.reflect.Field;
-import java.util.Map;
-
 import snap.forms.Form;
 
 public class TextField extends FormFieldBase
@@ -25,26 +23,28 @@ public class TextField extends FormFieldBase
   {
     if (!isVisible())
       return "";
-    String label = "";
     String value = getFieldValue();
 
-    if (!"".equals(mLabel))
-      label = String.format("<label for=\"%1$s\">%2$s</label>",
-          mAnnotation.id(), mLabel);
+    StringBuilder sbuilder = new StringBuilder();
 
-    StringBuilder builder = new StringBuilder();
-    for (Map.Entry<String, String> entry : mAttributes.entrySet())
+    if (hasError())
     {
-      builder.append(entry.getKey());
-      builder.append("=\"");
-      builder.append(entry.getValue());
-      builder.append("\" ");
+      sbuilder.append("<span class=\"field-error\">");
+      sbuilder.append(getError());
+      sbuilder.append("</span>");
     }
-    return String
-        .format(
-            "%1$s\n<input type=\"text\" id=\"%2$s\" name=\"%3$s\" value=\"%4$s\" %5$s/>\n",
-            label, mAnnotation.id(), mField.getName(), value,
-            builder.toString());
+
+    if (!"".equals(mLabel))
+      sbuilder.append(String.format("<label for=\"%1$s\">%2$s</label>\n",
+          mAnnotation.id(), mLabel));
+
+    sbuilder
+        .append(String
+            .format(
+                "<input type=\"text\" id=\"%1$s\" name=\"%2$s\" value=\"%3$s\" %4$s/>\n",
+                mAnnotation.id(), mField.getName(), value, getHtmlAttributes()));
+
+    return sbuilder.toString();
   }
 
   @Override

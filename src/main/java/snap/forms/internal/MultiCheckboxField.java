@@ -37,7 +37,6 @@ public class MultiCheckboxField extends FormFieldBase
 
     for (Object o : mOptions)
     {
-
       b.append(doRender(o));
     }
     return b.toString();
@@ -54,11 +53,11 @@ public class MultiCheckboxField extends FormFieldBase
   {
     if (!isVisible())
       return "";
-  
+
     // Checkbox
     // Check if the field is present
     getFormFields();
-  
+
     StringBuilder b = new StringBuilder();
     // search all options
     for (Object o : mOptions)
@@ -73,7 +72,7 @@ public class MultiCheckboxField extends FormFieldBase
       {
         val = o.toString();
       }
-  
+
       if (val.equals(value))
       {
         b.append(doRender(o));
@@ -85,28 +84,31 @@ public class MultiCheckboxField extends FormFieldBase
 
   private String doRender(Object o)
   {
-    String val, text = "";
+    String val, text = "", htmlid;
     if (o instanceof ListOption)
     {
       ListOption lo = (ListOption)o;
       val = lo.getValue();
       text = lo.getText();
+      htmlid = text;
     }
     else
     {
       val = o.toString();
+      htmlid = val;
     }
+
     // check type here.
     if (mFieldValues.contains(val))
       return String
           .format(
-              "\t<input id=\"%1$s-%4$s\" type=\"checkbox\" name=\"%2$s\" value=\"%3$s\" checked/>%4$s",
-              mAnnotation.id(), mField.getName(), val, text);
+              "\t<input id=\"%1$s-%5$s\" type=\"checkbox\" name=\"%2$s\" value=\"%3$s\" checked/>%4$s",
+              mAnnotation.id(), mField.getName(), val, text, htmlid);
     else
       return String
           .format(
-              "\t<input id=\"%1$s-%4$s\" type=\"checkbox\" name=\"%2$s\" value=\"%3$s\"/>%4$s",
-              mAnnotation.id(), mField.getName(), val, text);
+              "\t<input id=\"%1$s-%5$s\" type=\"checkbox\" name=\"%2$s\" value=\"%3$s\"/>%4$s",
+              mAnnotation.id(), mField.getName(), val, text, htmlid);
   }
 
   @Override
@@ -126,7 +128,7 @@ public class MultiCheckboxField extends FormFieldBase
     {
       if (mOptionFieldClass.isAssignableFrom(ListOption.class))
       {
-        // check if the value that was returns is actually in the possible
+        // check if the value that was returned is actually in the possible
         // listoptions
         if (mOptions.stream().anyMatch(
             obj -> ((ListOption)obj).getValue().equals(value)))

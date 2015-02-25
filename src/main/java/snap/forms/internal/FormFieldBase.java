@@ -137,6 +137,19 @@ public abstract class FormFieldBase implements FormField
   {
     return mAttributes.get(attrib);
   }
+  
+  protected String getHtmlAttributes()
+  {
+    StringBuilder attribBuilder = new StringBuilder();
+    for (Map.Entry<String, String> entry : mAttributes.entrySet())
+    {
+      attribBuilder.append(entry.getKey());
+      attribBuilder.append("=\"");
+      attribBuilder.append(entry.getValue());
+      attribBuilder.append("\" ");
+    }
+    return attribBuilder.toString();
+  }
 
   protected String mLabel;
   protected String mCssClass;

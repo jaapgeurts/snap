@@ -51,6 +51,7 @@ public abstract class WebApplication
     mEngine.registerFastTag(new snap.rythm.DynamicRootLink());
     mEngine.registerFastTag(new snap.rythm.Csrf_Token());
     mEngine.registerFastTag(new snap.rythm.LinebreaksToParagraph());
+    mEngine.registerFastTag(new snap.rythm.FormErrors());
 
     // todo: investigate adding custom resource loader to solve loading Router
 
