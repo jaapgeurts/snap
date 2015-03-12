@@ -6,6 +6,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URLEncoder;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -159,8 +160,34 @@ public class Route
       {
         // TODO: think about this, because it requires session and not stateless
         if (context.getAuthenticatedUser() == null)
-          throw new AuthenticationException("Not allowed to access URL: "
-              + context.getRequest().getPathInfo() + ". User not Authenticated");
+        {
+          boolean isAuthenticated = false;
+          // attempt authenticate via Http Basic
+          try
+          {
+            String authToken = decodeAuthentication(context
+                .getHeader("Authorization"));
+            if (authToken != null)
+            {
+              int firstColonPos = authToken.indexOf(':');
+              String username = authToken.substring(0, firstColonPos);
+              String password = authToken.substring(firstColonPos + 1,
+                  authToken.length());
+
+              isAuthenticated = WebApplication.getInstance().authenticateUser(
+                  context, username, password);
+            }
+          }
+          catch (Exception e)
+          {
+            log.error("Error during Basic authentication", e);
+          }
+          if (!isAuthenticated)
+            throw new AuthenticationException("Not allowed to access URL: "
+                + context.getRequest().getPathInfo()
+                + ". User not Authenticated");
+
+        }
       }
       if (actionMethod.isAnnotationPresent(RoleRequired.class))
       {
@@ -265,6 +292,35 @@ public class Route
     }
   }
 
+  private String decodeAuthentication(String header)
+  {
+    if (header == null)
+      return null;
+
+    String[] parts = header.trim().split(" ");
+    if (parts == null || parts.length != 2)
+      return null;
+
+    // only basic supported now
+    if (!parts[0].trim().equals("Basic"))
+    {
+      log.info("Currently only Basic authentication is supported");
+      return null;
+    }
+
+    try
+    {
+      String credentials = new String(Base64.getDecoder().decode(
+          parts[1].trim()), "UTF-8");
+      return credentials;
+    }
+    catch (UnsupportedEncodingException e)
+    {
+      log.error("JVM Doesn't support UTF-8", e);
+    }
+    return null;
+  }
+
   public String getLink()
   {
     return getLink(null, null);
@@ -318,7 +374,7 @@ public class Route
         builder.append(mPath.substring(start, regExLength));
       }
     }
-  
+
     // add get params if available
     if (getParams != null)
     {
@@ -341,9 +397,9 @@ public class Route
       if (builder.length() >= 1)
         if (builder.charAt(builder.length() - 1) == '&')
           builder.deleteCharAt(builder.length() - 1);
-  
+
     }
-  
+
     if (mContextPath == null || "".equals(mContextPath))
       return builder.toString();
     else

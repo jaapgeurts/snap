@@ -40,8 +40,12 @@ public class RequestContext
     mServletResponse = servletResponse;
     mMethod = method;
 
-    mAuthenticatedUser = (Long)mServletRequest.getSession().getAttribute(
-        SNAP_AUTHENTICATED_USER);
+    mSession = mServletRequest.getSession(false);
+
+    if (mSession != null)
+    {
+      mAuthenticatedUser = (Long)mSession.getAttribute(SNAP_AUTHENTICATED_USER);
+    }
   }
 
   public JSONObject getContentAsJson() throws IOException
@@ -137,6 +141,11 @@ public class RequestContext
     mServletResponse.addCookie(cookie);
   }
 
+  public String getHeader(String header)
+  {
+    return mServletRequest.getHeader(header);
+  }
+
   public HttpMethod getMethod()
   {
     return mMethod;
@@ -187,30 +196,32 @@ public class RequestContext
    */
   public void setAuthenticatedUser(Long userid)
   {
-    HttpSession session = mServletRequest.getSession();
-
-    if (userid == null)
-    {
-      session.removeAttribute(SNAP_AUTHENTICATED_USER);
-      session.removeAttribute(SNAP_CSRF_TOKEN);
-      session.invalidate();
-      Cookie cookie = new Cookie(SNAP_CSRF_COOKIE_NAME, getServerCsrfToken());
-      // cookie.setDomain("snappix.thaloi.com");
-      cookie.setMaxAge(0); // expire now
-      cookie.setPath("/");
-      addCookie(cookie);
-    }
-    else
-    {
-      session.setAttribute(SNAP_AUTHENTICATED_USER, userid);
-      session.setAttribute(SNAP_CSRF_TOKEN, generateCsrfToken());
-      Cookie cookie = new Cookie(SNAP_CSRF_COOKIE_NAME, getServerCsrfToken());
-      // cookie.setDomain("snappix.thaloi.com");
-      cookie.setMaxAge(SESSION_COOKIE_EXPIRY);
-      cookie.setPath("/");
-      addCookie(cookie);
-    }
     mAuthenticatedUser = userid;
+    if (mSession != null)
+    {
+      if (userid == null)
+      {
+        mSession.removeAttribute(SNAP_AUTHENTICATED_USER);
+        mSession.removeAttribute(SNAP_CSRF_TOKEN);
+        mSession.invalidate();
+        Cookie cookie = new Cookie(SNAP_CSRF_COOKIE_NAME, getServerCsrfToken());
+        // cookie.setDomain("snappix.thaloi.com");
+        cookie.setMaxAge(0); // expire now
+        cookie.setPath("/");
+        addCookie(cookie);
+      }
+      else
+      {
+        mSession.setAttribute(SNAP_AUTHENTICATED_USER, userid);
+        mSession.setAttribute(SNAP_CSRF_TOKEN, generateCsrfToken());
+        Cookie cookie = new Cookie(SNAP_CSRF_COOKIE_NAME, getServerCsrfToken());
+        // cookie.setDomain("snappix.thaloi.com");
+        cookie.setMaxAge(SESSION_COOKIE_EXPIRY);
+        cookie.setPath("/");
+        addCookie(cookie);
+      }
+
+    }
   }
 
   public User getAuthenticatedUser()
@@ -219,7 +230,12 @@ public class RequestContext
       return null;
     return WebApplication.getInstance().getUser(mAuthenticatedUser);
   }
-  
+
+  public void startSession()
+  {
+    mServletRequest.getSession(true);
+  }
+
   public HttpRedirect getRedirectSelf(Object... params)
   {
     return getRoute().getRedirect(params);
@@ -288,6 +304,8 @@ public class RequestContext
   private Route mRoute;
   private Long mAuthenticatedUser;
   private Router mRouter;
+
+  private HttpSession mSession;
 
   public String getRequestURI()
   {

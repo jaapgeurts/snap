@@ -7,18 +7,16 @@ import javax.servlet.http.HttpServletResponse;
 
 import snap.http.RequestContext;
 
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.JSON;
 
 public class JsonView extends View
 {
 
-  public JsonView()
-  {
-    mJson = new JSONObject();
-  }
 
-  public JsonView(JSONObject root)
+  public JsonView(JSON root)
   {
+    if (root == null)
+      throw new NullPointerException("Argument \"root\" can't be NULL");
     mJson = root;
   }
 
@@ -32,11 +30,12 @@ public class JsonView extends View
     r.setCharacterEncoding("UTF-8");
 
     PrintWriter pw = r.getWriter();
-    pw.print(mJson.toJSONString());
+    if (mJson != null)
+      pw.print(mJson.toJSONString());
     // TODO: specify encoding too
 
   }
 
-  private JSONObject mJson;
+  private JSON mJson;
 
 }

@@ -80,7 +80,7 @@ public abstract class WebApplication
   }
 
   /**
-   * Default user handling
+   * Return the user object from your persistance store.
    * 
    * @param userid
    * @return
@@ -88,6 +88,22 @@ public abstract class WebApplication
   public User getUser(Long userid)
   {
     return null;
+  }
+
+  /**
+   * Authenticate the user with the credentials. Call setAuthenticatedUser() on
+   * context if authentication was successful and return true. False if
+   * authentication failed
+   * 
+   * @param context
+   * @param username
+   * @param password
+   * @return
+   */
+  public boolean authenticateUser(RequestContext context, String username,
+      String password)
+  {
+    return false;
   }
 
   public void destroy()
