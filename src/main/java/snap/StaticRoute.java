@@ -92,7 +92,7 @@ public class StaticRoute extends Route
       catch (DateTimeException | NumberFormatException e)
       {
         log.warn("Can't parse If-Modified-Since date: \"" + modifiedSince
-            + "\" Sending file anyway.", e);
+            + "\" Sending file anyway.");
       }
     }
 
