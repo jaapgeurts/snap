@@ -19,7 +19,7 @@ public abstract class WebApplication
 {
 
   final Logger log = LoggerFactory.getLogger(WebApplication.class);
-  
+
   public static WebApplication getInstance()
   {
     return mWebApplication;
@@ -81,8 +81,6 @@ public abstract class WebApplication
     }
     else
     {
-      // Log the error to the debug output
-      log.error("Uncaught exception",exception);
       if (Settings.debug)
         response.sendError(errorCode, exception.getMessage());
       else
