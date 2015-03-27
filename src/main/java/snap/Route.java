@@ -5,6 +5,7 @@ import java.lang.ref.SoftReference;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.HashMap;
@@ -308,17 +309,10 @@ public class Route
       return null;
     }
 
-    try
-    {
-      String credentials = new String(Base64.getDecoder().decode(
-          parts[1].trim()), "UTF-8");
-      return credentials;
-    }
-    catch (UnsupportedEncodingException e)
-    {
-      log.error("JVM Doesn't support UTF-8", e);
-    }
-    return null;
+    String credentials = new String(
+        Base64.getDecoder().decode(parts[1].trim()), StandardCharsets.UTF_8);
+    return credentials;
+
   }
 
   public String getLink()

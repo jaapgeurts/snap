@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -87,7 +87,7 @@ public class HttpError implements RequestResult
     StringBuilder builder = new StringBuilder();
     try
     {
-      br = new BufferedReader(new InputStreamReader(in, "UTF-8"));
+      br = new BufferedReader(new InputStreamReader(in,StandardCharsets.UTF_8));
 
       char[] buffer = new char[2048];
       int len;
@@ -98,12 +98,6 @@ public class HttpError implements RequestResult
         len = br.read(buffer);
       }
       return builder.toString();
-    }
-    catch (UnsupportedEncodingException e)
-    {
-      log.error("JVM doesn't support UTF-8 encoding: template: "
-          + ERROR_PAGE_NAME, e);
-      throw e;
     }
     catch (IOException e)
     {
