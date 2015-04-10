@@ -12,6 +12,7 @@ public class Settings
   final static Logger log = LoggerFactory.getLogger(Settings.class);
 
   public static String routesFile = "routes.conf";
+  public static String packagePrefix;
   public static String webAppClass = null;
   public static String redirectUrl = "/";
   public static String siteRootUrl = "http://localhost";
@@ -24,6 +25,7 @@ public class Settings
 
   public static boolean redirectEnabled;
 
+
   static
   {
     try
@@ -34,9 +36,13 @@ public class Settings
       try
       {
         p.load(in);
-        String t = p.getProperty("snap.routes");
+        String t = p.getProperty("snap.router.routes");
         if (t != null)
           routesFile = new String(t);
+        
+        t = p.getProperty("snap.router.packageprefix");
+        if (t!=null)
+          packagePrefix = new String(t);
 
         webAppClass = p.getProperty("snap.applicationclass");
 

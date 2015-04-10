@@ -56,6 +56,9 @@ public class Route
       String objectMethodPath)
   {
     this(contextPath, alias, url);
+    if (objectMethodPath.charAt(0) == '.')
+      objectMethodPath = Settings.packagePrefix + objectMethodPath;
+
     String[] parts = objectMethodPath.split("::");
     mController = parts[0];
     if (parts.length == 2)
