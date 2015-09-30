@@ -13,15 +13,17 @@ public interface User
    * Implement this if you support roles. return false otherwise;
    * 
    * @param role
-   * @return
+   *          The role to check
+   * @return true if the user has this role, false otherwise
    */
   public boolean hasRole(String role);
 
   /**
    * Implement this if you support user rights. Return false otherwise;
    * 
-   * @param role
-   * @return
+   * @param right
+   *          The right to check if the user has it.
+   * @return true, when the user has this right. false otherwise
    */
   public boolean hasPermission(String right);
 }

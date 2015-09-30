@@ -9,7 +9,6 @@ public interface RequestListener
    * 
    * @param context
    *          The Request Context.
-   * @return
    */
   public void onBeforeRequest(RequestContext context)
       throws AuthenticationException, AuthorizationException;
@@ -19,7 +18,6 @@ public interface RequestListener
    * 
    * @param context
    *          The Request Context.
-   * @return
    */
   public void onAfterRequest(RequestContext context);
 }

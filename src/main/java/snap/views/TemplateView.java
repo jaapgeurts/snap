@@ -14,16 +14,42 @@ import snap.User;
 import snap.WebApplication;
 import snap.http.RequestContext;
 
+/**
+ * This view renders an HTML template with data passed as parameters. This is
+ * the most commonly used View to return for a request. To use this view call
+ * its constructor with the name of a HTML template.
+ * 
+ * To pass pass data to the template you can add any object as a parameter to
+ * this view by calling addParameter().
+ * 
+ * @author Jaap Geurts
+ *
+ */
 public class TemplateView extends View
 {
   final Logger log = LoggerFactory.getLogger(TemplateView.class);
 
+  /**
+   * Constructor.
+   * 
+   * @param templateName
+   *          The filename of the template. The HTML template is relative to the
+   *          src/main/webapp folder.
+   */
   public TemplateView(String templateName)
   {
     mTemplateName = templateName;
     mContext = new HashMap<String, Object>();
   }
 
+  /**
+   * Adds a parameter to the template.
+   * 
+   * @param name
+   *          The name by which the parameter will be referenced in the template
+   * @param value
+   *          The object to pass.
+   */
   public void addParameter(String name, Object value)
   {
     mContext.put(name, value);

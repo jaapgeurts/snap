@@ -23,7 +23,6 @@ public interface RouteListener
    * 
    * @param context
    *          The Request Context.
-   * @return
    */
   public void onAfterRoute(RequestContext context);
 }

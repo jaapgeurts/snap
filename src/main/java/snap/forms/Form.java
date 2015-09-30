@@ -135,9 +135,7 @@ public class Form
    * select field, this method will check if the posted value matches one of the
    * values in the choice
    * 
-   * @param context
-   * @throws InvalidCsrtToken
-   *           or MissingCsrfToken when the token is invalid or missing
+   * @param context The context of the current request from which the params will be read
    */
   public void assignFieldValues(RequestContext context)
   {
@@ -350,9 +348,9 @@ public class Form
   }
 
   /**
-   * Sets the error of this form
+   * Returns the error of this form
    * 
-   * @return
+   * @return The error string.
    */
   public String getFormError()
   {
@@ -362,7 +360,7 @@ public class Form
   /**
    * Sets the error string of this form
    * 
-   * @param formError
+   * @param formError The error string
    */
   public void setFormError(String formError)
   {

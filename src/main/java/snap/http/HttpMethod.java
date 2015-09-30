@@ -1,5 +1,10 @@
 package snap.http;
 
+/**
+ * List of supported HTTP Methods
+ * @author Jaap Geurts
+ *
+ */
 public enum HttpMethod {
 
   GET,

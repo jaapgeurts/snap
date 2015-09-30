@@ -204,11 +204,10 @@ public class Mailer
   }
 
   /**
-   * Send messages stored previously. If you do not wish to receive error
-   * reports, set e1 to null
+   * Send a message.
    * 
-   * @param el
-   * @throws MessagingException
+   * @param msg The message to send.
+   * @throws MessagingException Thrown when the message can't be sent.
    */
   public void send(Message msg) throws MessagingException
   {

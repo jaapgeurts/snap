@@ -6,7 +6,7 @@ package snap.forms;
  * 
  * @author Jaap Geurts
  *
- * @param <T>
+ * @param <T> The type to use for this list option
  */
 public class GenericListOption<T> implements ListOption
 {

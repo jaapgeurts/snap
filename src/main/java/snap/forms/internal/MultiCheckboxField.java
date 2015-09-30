@@ -44,10 +44,10 @@ public class MultiCheckboxField extends FormFieldBase
 
   /**
    * Renders a single multiselect item out of the options list identified by
-   * it's value.
+   * its value.
    * 
-   * @param value
-   * @return
+   * @param value The value of the current option to render
+   * @return the HTML for this component
    */
   public String render(String value)
   {

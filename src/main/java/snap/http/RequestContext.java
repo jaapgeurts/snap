@@ -22,6 +22,15 @@ import snap.WebApplication;
 
 import com.alibaba.fastjson.JSONObject;
 
+/**
+ * This class represents information about the current HTTP request. Most
+ * applications will use this object to get access to the HTTP parameters, URL
+ * parameters, Cookies and the current Authenticated User. It contains the
+ * original HttpServletRequest and HttpServletResponse objects.
+ * 
+ * @author Jaap Geurts
+ *
+ */
 public class RequestContext
 {
 
@@ -33,6 +42,17 @@ public class RequestContext
 
   public static final String SNAP_CSRF_COOKIE_NAME = "csrf_token";
 
+  /**
+   * Construct a RequestContext. You should never need to construct this object,
+   * it is constructed by the Snap framework.
+   * 
+   * @param method
+   *          The HTTP Method of the request.
+   * @param servletRequest
+   *          The original servlet request
+   * @param servletResponse
+   *          The original servlet response
+   */
   public RequestContext(HttpMethod method, HttpServletRequest servletRequest,
       HttpServletResponse servletResponse)
   {
@@ -48,6 +68,13 @@ public class RequestContext
     }
   }
 
+  /**
+   * If the content sent to the server was in Json Format you can use this
+   * method to get a parsed Json object
+   * 
+   * @return The Json Object for the data
+   * @throws IOException
+   */
   public JSONObject getContentAsJson() throws IOException
   {
 
@@ -57,6 +84,15 @@ public class RequestContext
 
   }
 
+  /**
+   * Returns a Map of all parameters. GET and POST parameters are merged into
+   * the same dictionary.
+   * 
+   * WARNING: if you have a post parameter with the name name as a GET parameter
+   * you will only see one of them. This is a limitation of the Servlet spec
+   * 
+   * @return
+   */
   public Map<String, String[]> getParamsPostGet()
   {
     return mServletRequest.getParameterMap();
@@ -74,10 +110,11 @@ public class RequestContext
   }
 
   /**
-   * Returns a variable from the decoded URL identified by name
+   * Returns a variable from the decoded URL identified by name These are values
+   * that appear regex expression in the Route.
    * 
    * @param name
-   * @return
+   * @return Null if the parameter is not available
    */
   public String getParamUrl(String name)
   {
@@ -121,6 +158,13 @@ public class RequestContext
     return null;
   }
 
+  /**
+   * Get the string of the cookie by name
+   * 
+   * @param name
+   *          The name of the cookie
+   * @return The value or null or null if no cookie exists by that name
+   */
   public String getCookieValue(String name)
   {
     Cookie cookie = getCookie(name);
@@ -131,31 +175,53 @@ public class RequestContext
   }
 
   /**
-   * Forwards the cookie adding request to HttpServeletResponse
+   * Adds a cookie to HttpServeletResponse
    * 
    * @param cookie
-   *          The cookie to the response
+   *          The cookie to add to the response
    */
   public void addCookie(Cookie cookie)
   {
     mServletResponse.addCookie(cookie);
   }
 
+  /**
+   * Get the value for an HTTP Header.
+   * 
+   * @param header
+   *          the name of the header
+   * @return The value or null if header doesn't exist
+   */
   public String getHeader(String header)
   {
     return mServletRequest.getHeader(header);
   }
 
+  /**
+   * Gets the HTTP Method by which this request was called.
+   * 
+   * @return The method
+   */
   public HttpMethod getMethod()
   {
     return mMethod;
   }
 
+  /**
+   * Gets the route object that led to this request.
+   * 
+   * @return
+   */
   public Route getRoute()
   {
     return mRoute;
   }
 
+  /**
+   * Used by the framework. Sets the route object for this request
+   * 
+   * @param route
+   */
   public void setRoute(Route route)
   {
     mRoute = route;
@@ -164,21 +230,41 @@ public class RequestContext
 
   }
 
+  /**
+   * Get the Framework Router.
+   * 
+   * @return the Router
+   */
   public Router getRouter()
   {
     return mRouter;
   }
 
+  /**
+   * Sets the Framework Router
+   * 
+   * @param router
+   */
   public void setRouter(Router router)
   {
     mRouter = router;
   }
 
+  /**
+   * Gets the Original Servlet request
+   * 
+   * @return
+   */
   public HttpServletRequest getRequest()
   {
     return mServletRequest;
   }
 
+  /**
+   * Get the original servlet response
+   * 
+   * @return
+   */
   public HttpServletResponse getResponse()
   {
     return mServletResponse;
@@ -189,8 +275,8 @@ public class RequestContext
    * 'Snap.AuthorizedUser' Use in combination with @LoginRequired. This method
    * should be called only once per session
    * 
-   * @param user
-   *          The user to store in the session. set to null to remove the user
+   * @param userid
+   *          The userid to store in the session. set to null to remove the user
    *          from the session
    * 
    */
@@ -224,6 +310,11 @@ public class RequestContext
     }
   }
 
+  /**
+   * Gets the authenticed User if any.
+   * 
+   * @return The user or null if no user is authenticated
+   */
   public User getAuthenticatedUser()
   {
     if (mAuthenticatedUser == null)
@@ -231,21 +322,54 @@ public class RequestContext
     return WebApplication.getInstance().getUser(mAuthenticatedUser);
   }
 
+  /**
+   * Start a new session for this browser.
+   */
   public void startSession()
   {
     mServletRequest.getSession(true);
   }
 
+  /**
+   * Get a Redirect to the same route that this request was routed to.
+   * 
+   * @param params
+   *          The params to replace in the route URL
+   * @return the redirect object
+   */
   public HttpRedirect getRedirectSelf(Object... params)
   {
     return getRoute().getRedirect(params);
   }
 
+  /**
+   * Gets a Redirect object to the URL router using the alias name.
+   * 
+   * @param alias
+   *          the route identified by alias name
+   * @param params
+   *          the parameters to replace in the URL
+   * @return the redirect object
+   */
   public HttpRedirect getRedirect(String alias, Object... params)
   {
     return getRouter().redirectForRoute(alias, params);
   }
 
+  /**
+   * Same as getRedirect(String alias, Object... params) but also appends
+   * getParams as parameters to the end of the URL in the form of
+   * ?K1=V1&amp;K2=V2
+   * 
+   * @param alias
+   *          the route identified by alias name
+   * @param getParams
+   *          The dictionary of GET params
+   * @param params
+   *          the parameters to replace in the URL
+   * @return the redirect object
+   * 
+   */
   public HttpRedirect getRedirect(String alias, Map<String, String> getParams,
       Object... params)
   {
@@ -267,6 +391,9 @@ public class RequestContext
     return null;
   }
 
+  /**
+   * Resets the current CsrfToken in use
+   */
   public void resetCsrfToken()
   {
     HttpSession session = mServletRequest.getSession();
@@ -276,6 +403,11 @@ public class RequestContext
       log.warn("User not logged in. Not resetting CSRF Token");
   }
 
+  /**
+   * Generate a CsrfToken
+   * 
+   * @return the CsrfToken
+   */
   private String generateCsrfToken()
   {
     SecureRandom lSecureRandom = new SecureRandom();
@@ -285,6 +417,12 @@ public class RequestContext
     return byteToHex(bytes);
   }
 
+  /**
+   * Convert bytes to a string representation
+   * 
+   * @param array
+   * @return the String
+   */
   private String byteToHex(byte[] array)
   {
     StringBuffer sb = new StringBuffer();

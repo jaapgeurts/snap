@@ -251,7 +251,7 @@ public class StaticRoute extends Route
 
     if (file.isDirectory())
     {
-      String message = "Attempt to access directory: " + file.getAbsolutePath();
+      String message = "Attempt to access directory \"" + file.getAbsolutePath()+"\" as file.";
       log.info(message);
       throw new ResourceNotFoundException(message);
     }
