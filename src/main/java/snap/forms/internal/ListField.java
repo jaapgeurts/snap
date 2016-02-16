@@ -58,8 +58,8 @@ public class ListField extends FormFieldBase
       }
       catch (NumberFormatException nfe)
       {
-        log.warn("Possible hacking attempt! Submitted field value \""
-            + values[0] + "\" can't be converted to numeric type.", nfe);
+        log.warn("Possible hacking attempt! Submitted field value '"
+            + values[0] + "' can't be converted to numeric type.", nfe);
       }
       catch (IllegalArgumentException | IllegalAccessException e)
       {
@@ -87,8 +87,8 @@ public class ListField extends FormFieldBase
             obj -> ((ListOption)obj).getValue().equals(value)))
           addValueToFormFieldSet(value);
         else
-          log.warn("Possible hacking attempt! Submitted field value \"" + value
-              + "\" not found in options");
+          log.warn("Possible hacking attempt! Submitted field value '" + value
+              + "' not found in options");
       }
       else
       {
@@ -105,8 +105,8 @@ public class ListField extends FormFieldBase
         }))
           addValueToFormFieldSet(value);
         else
-          log.warn("Possible hacking attempt! Submitted field value \"" + value
-              + "\" not found in options");
+          log.warn("Possible hacking attempt! Submitted field value '" + value
+              + "' not found in options");
       }
     }
   }
@@ -120,7 +120,7 @@ public class ListField extends FormFieldBase
     StringBuilder b = new StringBuilder();
 
     if (!"".equals(mAnnotation.label()))
-      b.append(String.format("<label for=\"%1$s\">%2$s</label>",
+      b.append(String.format("<label for='%1$s'>%2$s</label>",
           mAnnotation.id(), mAnnotation.label()));
 
     switch(mAnnotation.type())
@@ -128,19 +128,19 @@ public class ListField extends FormFieldBase
       case MULTI_LIST:
         b.append(String
             .format(
-                "\n<select id=\"%1$s\" name=\"%2$s\" class=\"%3$s\" size=\"%4$s\" multiple>\n",
+                "\n<select id='%1$s' name='%2$s' class='%3$s' size='%4$s' multiple>\n",
                 mAnnotation.id(), mField.getName(), mAnnotation.cssClass(),
                 mAnnotation.size()));
         break;
       case DROPDOWN_LIST:
         b.append(String.format(
-            "\n<select id=\"%1$s\" name=\"%2$s\" class=\"%3$s\" >\n",
+            "\n<select id='%1$s' name='%2$s' class='%3$s' >\n",
             mAnnotation.id(), mField.getName(), mAnnotation.cssClass()));
         break;
       case SINGLE_LIST:
         b.append(String
             .format(
-                "\n<select id=\"%1$s\" name=\"%2$s\" class=\"%3$s\" size=\"%4$s\">\n",
+                "\n<select id='%1$s' name='%2$s' class='%3$s' size='%4$s'>\n",
                 mAnnotation.id(), mField.getName(), mAnnotation.cssClass(),
                 mAnnotation.size()));
     }
@@ -153,13 +153,13 @@ public class ListField extends FormFieldBase
     }
     catch (NoSuchFieldException nsfe)
     {
-      throw new RuntimeException("Options field \"" + mAnnotation.options()
-          + "\" not present in form", nsfe);
+      throw new RuntimeException("Options field '" + mAnnotation.options()
+          + "' not present in form", nsfe);
     }
 
     // Check the field type
-    String wrongTypeMessage = "Option field \"" + mAnnotation.options()
-        + "\" must be of type List<Object> or List<ListOption>";
+    String wrongTypeMessage = "Option field '" + mAnnotation.options()
+        + "' must be of type List<Object> or List<ListOption>";
     if (!optionsField.getType().isAssignableFrom(List.class))
       throw new RuntimeException(wrongTypeMessage);
 
@@ -189,9 +189,9 @@ public class ListField extends FormFieldBase
       }
       if (val.equals(getFieldValue()))
         b.append(String.format(
-            "\t<option selected value=\"%1$s\">%2$s</option>\n", val, text));
+            "\t<option selected value='%1$s'>%2$s</option>\n", val, text));
       else
-        b.append(String.format("\t<option value=\"%1$s\">%2$s</option>\n", val,
+        b.append(String.format("\t<option value='%1$s'>%2$s</option>\n", val,
             text));
     }
     b.append("</select>");
@@ -214,8 +214,8 @@ public class ListField extends FormFieldBase
     }
     catch (NumberFormatException nfe)
     {
-      log.warn("Possible hacking attempt! Submitted field value \"" + value
-          + "\" can't be converted to numeric type", nfe);
+      log.warn("Possible hacking attempt! Submitted field value '" + value
+          + "' can't be converted to numeric type", nfe);
     }
   }
 
@@ -228,8 +228,8 @@ public class ListField extends FormFieldBase
     }
     catch (NoSuchFieldException nsfe)
     {
-      throw new RuntimeException("Options field \"" + mAnnotation.options()
-          + "\" not present in form", nsfe);
+      throw new RuntimeException("Options field '" + mAnnotation.options()
+          + "' not present in form", nsfe);
     }
 
     // Get the options and the values

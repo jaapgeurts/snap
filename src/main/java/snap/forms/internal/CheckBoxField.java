@@ -33,7 +33,7 @@ public class CheckBoxField extends FormFieldBase
 
     if (!"".equals(mAnnotation.label()))
     {
-      labelPre = String.format("<label for=\"%1$s\">", mAnnotation.id());
+      labelPre = String.format("<label for='%1$s'>", mAnnotation.id());
       labelPost = String.format("%1$s</label>", mAnnotation.label());
     }
     if (!mField.getType().equals(Boolean.class)
@@ -60,12 +60,12 @@ public class CheckBoxField extends FormFieldBase
     if (val)
       return String
           .format(
-              "%1$s\n<input type=\"checkbox\" id=\"%2$s\" name=\"%3$s\" value=\"%3$s\" checked/>%4$s\n",
+              "%1$s\n<input type='checkbox' id='%2$s' name='%3$s' value='%3$s' checked/>%4$s\n",
               labelPre, mAnnotation.id(), mField.getName(), labelPost);
     else
       return String
           .format(
-              "%1$s\n<input type=\"checkbox\" id=\"%2$s\" name=\"%3$s\" value=\"%3$s\"/>%4$s\n",
+              "%1$s\n<input type='checkbox' id='%2$s' name='%3$s' value='%3$s'/>%4$s\n",
               labelPre, mAnnotation.id(), mField.getName(), labelPost);
 
   }
@@ -84,8 +84,8 @@ public class CheckBoxField extends FormFieldBase
       {
         if (values.length > 1)
         {
-          log.warn("Possible hacking attempt! Expected one value for field \""
-              + mField.getName() + "\" but found: " + values.length);
+          log.warn("Possible hacking attempt! Expected one value for field '"
+              + mField.getName() + "' but found: " + values.length);
         }
         if (values[0].equals(mField.getName()))
         {
@@ -93,9 +93,9 @@ public class CheckBoxField extends FormFieldBase
         }
         else
         {
-          log.warn("Possible hacking attempt! Expected value \""
-              + mField.getName() + "\" got value: \"" + values[0]
-              + "\" for Field: " + mField.getName());
+          log.warn("Possible hacking attempt! Expected value '"
+              + mField.getName() + "' got value: '" + values[0]
+              + "' for Field: " + mField.getName());
           mField.set(mForm, Boolean.FALSE);
         }
       }

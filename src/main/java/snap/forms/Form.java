@@ -135,7 +135,9 @@ public class Form
    * select field, this method will check if the posted value matches one of the
    * values in the choice
    * 
-   * @param context The context of the current request from which the params will be read
+   * @param context
+   *          The context of the current request from which the params will be
+   *          read
    */
   public void assignFieldValues(RequestContext context)
   {
@@ -205,16 +207,16 @@ public class Form
       if (t.equals("table"))
       {
         // set css class to the form name
-        startTag = "<table class=\"form-table\">";
+        startTag = "<table class='form-table'>";
         endTag = "</table>";
-        rowOpenTag = "<tr class=\"form-table-row\"><td class=\"form-table-cell\">";
+        rowOpenTag = "<tr class='form-table-row'><td class='form-table-cell'>";
         rowCloseTag = "</td></tr>";
       }
       else if (t.equals("div"))
       {
-        startTag = "<div class=\"form-div\">";
+        startTag = "<div class='form-div'>";
         endTag = "</div>";
-        rowOpenTag = "<div class=\"form-div-row\">";
+        rowOpenTag = "<div class='form-div-row'>";
         rowCloseTag = "</div>";
       }
     }
@@ -240,27 +242,9 @@ public class Form
   public String renderErrors()
   {
     if (mFormError != null && !"".equals(mFormError))
-      return String.format("<span class=\"form-error\">%1$s</span>",
+      return String.format("<span class='form-error'>%1$s</span>",
           getFormError());
     return "";
-  }
-
-  /**
-   * Renders a specific field as HTML. Also renders errors if any
-   * 
-   * @param fieldName
-   *          The field to be rendered
-   * @return The HTML string
-   */
-  public String renderField(String fieldName)
-  {
-    FormField field = mFieldMap.get(fieldName);
-    if (field instanceof MultiCheckboxField || field instanceof RadioField)
-    {
-      throw new SnapException(
-          "Field render requested for MultiSelectField or RadioField, but wrong method called. Call: renderField(String fieldName, Object value) instead.");
-    }
-    return field.render();
   }
 
   /**
@@ -268,27 +252,22 @@ public class Form
    * 
    * @param fieldName
    *          The field to render
-   * @param value
-   *          The value to use for the field
+   * @param attributes
+   *          Extra attributes for the field
    * @return The HTML string
    */
-  public String renderField(String fieldName, Object value)
+  public String renderField(String fieldName, Map<String, Object> attributes)
   {
     FormField field = mFieldMap.get(fieldName);
+
     if (field == null)
       throw new SnapException("Rendering of non-existing field " + fieldName);
-    if (field instanceof RadioField)
-    {
-      RadioField rf = (RadioField)field;
-      return rf.render(value.toString());
-    }
-    else if (field instanceof MultiCheckboxField)
-    {
-      MultiCheckboxField msf = (MultiCheckboxField)field;
-      return msf.render(value.toString());
-    }
-    throw new SnapException(
-        "Field render requested on normal field but method called for MultiSelectField. Call renderField(String fieldName) instead.");
+
+    // Merge in the attributes from the html template
+    field.mergeAttributes(attributes, false);
+
+    return field.render();
+
   }
 
   /**
@@ -360,7 +339,8 @@ public class Form
   /**
    * Sets the error string of this form
    * 
-   * @param formError The error string
+   * @param formError
+   *          The error string
    */
   public void setFormError(String formError)
   {

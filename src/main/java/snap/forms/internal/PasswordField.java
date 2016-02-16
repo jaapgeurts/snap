@@ -30,17 +30,17 @@ public class PasswordField extends FormFieldBase
 
     if (hasError())
     {
-      sbuilder.append("<span class=\"field-error\">");
+      sbuilder.append("<span class='field-error'>");
       sbuilder.append(getError());
       sbuilder.append("</span>");
     }
 
     if (!"".equals(mLabel))
-      sbuilder.append(String.format("<label for=\"%1$s\">%2$s</label>\n",
+      sbuilder.append(String.format("<label for='%1$s'>%2$s</label>\n",
           mAnnotation.id(), mLabel));
 
     sbuilder.append(String.format(
-        "<input type=\"password\" id=\"%1$s\" name=\"%2$s\" %3$s/>\n",
+        "<input type='password' id='%1$s' name='%2$s' %3$s/>\n",
         mAnnotation.id(), mField.getName(), getHtmlAttributes()));
 
     return sbuilder.toString();

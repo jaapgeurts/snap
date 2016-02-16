@@ -33,22 +33,22 @@ public class TextArea extends FormFieldBase
 
     if (hasError())
     {
-      sbuilder.append("<span class=\"field-error\">");
+      sbuilder.append("<span class='field-error'>");
       sbuilder.append(getError());
       sbuilder.append("</span>");
     }
 
     if (!"".equals(mAnnotation.label()))
-      sbuilder.append(String.format("<label for=\"%1$s\">%2$s</label>\n",
+      sbuilder.append(String.format("<label for='%1$s'>%2$s</label>\n",
           mAnnotation.id(), mAnnotation.label()));
 
     if (mAnnotation.cols() > 0)
-      cols = " cols=\"" + mAnnotation.cols() + "\" ";
+      cols = " cols='" + mAnnotation.cols() + "' ";
     if (mAnnotation.rows() > 0)
-      rows = " rows=\"" + mAnnotation.rows() + "\" ";
+      rows = " rows='" + mAnnotation.rows() + "' ";
 
     sbuilder.append(String.format(
-        "<textarea id=\"%1$s\" name=\"%2$s\"%3$s%4$s %6$s>%5$s</textarea>\n",
+        "<textarea id='%1$s' name='%2$s'%3$s%4$s %6$s>%5$s</textarea>\n",
         mAnnotation.id(), mField.getName(), cols, rows, value,
         getHtmlAttributes()));
 

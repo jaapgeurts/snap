@@ -2,6 +2,7 @@ package snap.forms.internal;
 
 import java.lang.reflect.Field;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import snap.SnapException;
 import snap.forms.Form;
@@ -30,50 +31,46 @@ public class RadioField extends FormFieldBase
 
     getFormFields();
 
-    StringBuilder b = new StringBuilder();
-
     String defaultValue = getDefaultValue();
 
-    for (Object o : mOptions)
-    {
-      b.append(doRender(o, defaultValue));
-    }
-    return b.toString();
+    return mOptions.stream().map(o -> doRender(o, defaultValue))
+        .collect(Collectors.joining());
+
   }
 
-  public String render(String value)
-  {
-    if (!isVisible())
-      return "";
-
-    getFormFields();
-
-    StringBuilder b = new StringBuilder();
-
-    String defaultValue = getDefaultValue();
-
-    // search all options
-    for (Object o : mOptions)
-    {
-      String val;
-      if (o instanceof ListOption)
-      {
-        ListOption lo = (ListOption)o;
-        val = lo.getValue();
-      }
-      else
-      {
-        val = o.toString();
-      }
-
-      if (val.equals(value))
-      {
-        b.append(doRender(o, defaultValue));
-        break;
-      }
-    }
-    return b.toString();
-  }
+  // public String render(String value)
+  // {
+  // if (!isVisible())
+  // return "";
+  //
+  // getFormFields();
+  //
+  // StringBuilder b = new StringBuilder();
+  //
+  // String defaultValue = getDefaultValue();
+  //
+  // // search all options
+  // for (Object o : mOptions)
+  // {
+  // String val;
+  // if (o instanceof ListOption)
+  // {
+  // ListOption lo = (ListOption)o;
+  // val = lo.getValue();
+  // }
+  // else
+  // {
+  // val = o.toString();
+  // }
+  //
+  // if (val.equals(value))
+  // {
+  // b.append(doRender(o, defaultValue));
+  // break;
+  // }
+  // }
+  // return b.toString();
+  // }
 
   private String doRender(Object o, String defaultValue)
   {
@@ -92,12 +89,12 @@ public class RadioField extends FormFieldBase
     if (val.equals(defaultValue))
       return String
           .format(
-              "<input id=\"%1$s-%3$s\" type=\"radio\" name=\"%2$s\" value=\"%3$s\" checked/><label for=\"%1$s\"> %4$s</label>",
+              "<input id='%1$s-%3$s' type='radio' name='%2$s' value='%3$s' checked/><label for='%1$s'> %4$s</label>",
               mAnnotation.id(), mField.getName(), val, text);
     else
       return String
           .format(
-              "<input id=\"%1$s-%3$s\" type=\"radio\" name=\"%2$s\" value=\"%3$s\"/><label for=\"%1$s\"> %4$s</label>",
+              "<input id='%1$s-%3$s' type='radio' name='%2$s' value='%3$s'/><label for='%1$s'> %4$s</label>",
               mAnnotation.id(), mField.getName(), val, text);
 
   }
@@ -111,15 +108,15 @@ public class RadioField extends FormFieldBase
     // Object[] enums = classField.getType().getEnumConstants();
     if (values == null)
     {
-      log.warn("Possible hacking attempt! Expected return value for Radio button field \""
-          + mField.getName() + "\" but found nothing");
+      log.warn("Possible hacking attempt! Expected return value for Radio button field '"
+          + mField.getName() + "' but found nothing");
     }
     else
     {
       if (values.length > 1)
       {
-        log.warn("Possible hacking attempt! Expected one value for field \""
-            + mField.getName() + "\" but found: " + values.length);
+        log.warn("Possible hacking attempt! Expected one value for field '"
+            + mField.getName() + "' but found: " + values.length);
       }
       try
       {
@@ -149,8 +146,8 @@ public class RadioField extends FormFieldBase
     }
     catch (NoSuchFieldException nsfe)
     {
-      throw new RuntimeException("Options field \"" + mAnnotation.options()
-          + "\" not present in form", nsfe);
+      throw new RuntimeException("Options field '" + mAnnotation.options()
+          + "' not present in form", nsfe);
     }
 
     // Get the options and the values

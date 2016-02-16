@@ -1,5 +1,7 @@
 package snap.forms;
 
+import java.util.Map;
+
 public interface FormField
 {
 
@@ -18,5 +20,7 @@ public interface FormField
   
   public void addAttribute(String attrib, String value);
   public String getAttribute(String attrib);
+  
+  public void mergeAttributes(Map<String, Object> in, boolean overwrite);
 
 }

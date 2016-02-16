@@ -37,16 +37,16 @@ public class FileField extends FormFieldBase
     String label = "";
 
     if (!"".equals(mAnnotation.label()))
-      label = String.format("<label for=\"%1$s\">%2$s</label>",
+      label = String.format("<label for='%1$s'>%2$s</label>",
           mAnnotation.id(), mAnnotation.label());
     if (mMultiple)
       return String
           .format(
-              "%1$s\n<input type=\"file\" id=\"%2$s\" name=\"%3$s\" multiple/>\n",
+              "%1$s\n<input type='file' id='%2$s' name='%3$s' multiple/>\n",
               label, mAnnotation.id(), mField.getName());
     else
       return String.format(
-          "%1$s\n<input type=\"file\" id=\"%2$s\" name=\"%3$s\"/>\n",
+          "%1$s\n<input type='file' id='%2$s' name='%3$s'/>\n",
           label, mAnnotation.id(), mField.getName());
 
   }

@@ -1,6 +1,8 @@
 package snap.forms.internal;
 
 import java.lang.reflect.Field;
+import java.util.Map;
+
 import snap.forms.Form;
 
 public class TextField extends FormFieldBase
@@ -29,19 +31,20 @@ public class TextField extends FormFieldBase
 
     if (hasError())
     {
-      sbuilder.append("<span class=\"field-error\">");
+      sbuilder.append("<span class='field-error'>");
       sbuilder.append(getError());
       sbuilder.append("</span>");
     }
 
     if (!"".equals(mLabel))
-      sbuilder.append(String.format("<label for=\"%1$s\">%2$s</label>\n",
+      sbuilder.append(String.format("<label for='%1$s'>%2$s</label>\n",
           mAnnotation.id(), mLabel));
 
+   
     sbuilder
         .append(String
             .format(
-                "<input type=\"text\" id=\"%1$s\" name=\"%2$s\" value=\"%3$s\" %4$s/>\n",
+                "<input type='text' id='%1$s' name='%2$s' value='%3$s' %4$s/>\n",
                 mAnnotation.id(), mField.getName(), value, getHtmlAttributes()));
 
     return sbuilder.toString();

@@ -3,6 +3,11 @@ package snap.forms.internal;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
+
+import javax.smartcardio.ATR;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,6 +24,12 @@ public abstract class FormFieldBase implements FormField
     mAttributes = new HashMap<>();
   }
 
+  /**
+   * Constructor
+   * 
+   * @param form
+   * @param field
+   */
   public FormFieldBase(Form form, Field field)
   {
     this();
@@ -60,8 +71,8 @@ public abstract class FormFieldBase implements FormField
       {
         if (values.length > 1)
         {
-          log.warn("Possible hacking attempt! Expected one value for field \""
-              + mField.getName() + "\" but found: " + values.length);
+          log.warn("Possible hacking attempt! Expected one value for field '"
+              + mField.getName() + "' but found: " + values.length);
         }
         mField.set(mForm, values[0]);
       }
@@ -113,7 +124,7 @@ public abstract class FormFieldBase implements FormField
   {
     mLabel = label;
   }
-  
+
   @Override
   public String getCssClass()
   {
@@ -123,32 +134,60 @@ public abstract class FormFieldBase implements FormField
   @Override
   public void setCssClass(String cssClass)
   {
-    mCssClass = cssClass;;
+    mCssClass = cssClass;
   }
-  
+
   @Override
   public void addAttribute(String attrib, String value)
   {
-    mAttributes.put(attrib,value);
+    mAttributes.put(attrib, value);
   }
-  
+
   @Override
   public String getAttribute(String attrib)
   {
     return mAttributes.get(attrib);
   }
-  
+
+  /**
+   * Merges the in attributes with the field attributes. The in attributes take
+   * priority over the field attributes
+   * 
+   * @param in
+   *          Map of key value pairs to merge.
+   * @param overwrite
+   *          Overwrite the values of in into the object attributes. Values for
+   *          the class attribute are concatenated by default
+   */
+  @Override
+  public void mergeAttributes(Map<String, Object> in, boolean overwrite)
+  {
+    for (Entry<String, Object> e : in.entrySet())
+    {
+      String key = e.getKey();
+      if (mAttributes.containsKey(key))
+      {
+        // If the key is class then append the new classes to the existing class
+        if ("class".equals(key))
+          mAttributes.put(key, mAttributes.get(key) + " "
+              + e.getValue().toString());
+        else if (overwrite)
+          mAttributes.put(key, e.getValue().toString());
+        // do nothing if overwrite is off
+      }
+      else
+      {
+        mAttributes.put(e.getKey(), e.getValue().toString());
+      }
+    }
+  }
+
   protected String getHtmlAttributes()
   {
-    StringBuilder attribBuilder = new StringBuilder();
-    for (Map.Entry<String, String> entry : mAttributes.entrySet())
-    {
-      attribBuilder.append(entry.getKey());
-      attribBuilder.append("=\"");
-      attribBuilder.append(entry.getValue());
-      attribBuilder.append("\" ");
-    }
-    return attribBuilder.toString();
+
+    return mAttributes.entrySet().stream()
+        .map(e -> e.getKey() + "='" + e.getValue() + "'")
+        .collect(Collectors.joining(" "));
   }
 
   protected String mLabel;

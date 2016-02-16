@@ -4,6 +4,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import snap.forms.Form;
 import snap.forms.ListOption;
@@ -29,58 +30,63 @@ public class MultiCheckboxField extends FormFieldBase
     if (!isVisible())
       return "";
 
-    StringBuilder b = new StringBuilder();
-
     // Checkbox
     // Check if the field is present
     getFormFields();
+    
+    return mOptions.stream().map(o -> doRender(o)).collect(Collectors.joining());
 
-    for (Object o : mOptions)
-    {
-      b.append(doRender(o));
-    }
-    return b.toString();
   }
 
-  /**
-   * Renders a single multiselect item out of the options list identified by
-   * its value.
-   * 
-   * @param value The value of the current option to render
-   * @return the HTML for this component
-   */
-  public String render(String value)
-  {
-    if (!isVisible())
-      return "";
-
-    // Checkbox
-    // Check if the field is present
-    getFormFields();
-
-    StringBuilder b = new StringBuilder();
-    // search all options
-    for (Object o : mOptions)
-    {
-      String val;
-      if (o instanceof ListOption)
-      {
-        ListOption lo = (ListOption)o;
-        val = lo.getValue();
-      }
-      else
-      {
-        val = o.toString();
-      }
-
-      if (val.equals(value))
-      {
-        b.append(doRender(o));
-        break;
-      }
-    }
-    return b.toString();
-  }
+  //
+  //
+  // MultiCheckboxField msf = (MultiCheckboxField)field;
+  // Object value = attributes.get("value");
+  // if (value == null)
+  // throw new SnapException(
+  // "Missing parameter 'value' for MultiCheckboxField");
+  // return msf.render(value.toString());
+  //
+  //
+  // /**
+  // * Renders a single multiselect item out of the options list identified by
+  // * its value.
+  // *
+  // * @param value The value of the current option to render
+  // * @return the HTML for this component
+  // */
+  // public String render(String value)
+  // {
+  // if (!isVisible())
+  // return "";
+  //
+  // // Checkbox
+  // // Check if the field is present
+  // getFormFields();
+  //
+  // StringBuilder b = new StringBuilder();
+  // // search all options
+  // for (Object o : mOptions)
+  // {
+  // String val;
+  // if (o instanceof ListOption)
+  // {
+  // ListOption lo = (ListOption)o;
+  // val = lo.getValue();
+  // }
+  // else
+  // {
+  // val = o.toString();
+  // }
+  //
+  // if (val.equals(value))
+  // {
+  // b.append(doRender(o));
+  // break;
+  // }
+  // }
+  // return b.toString();
+  // }
 
   private String doRender(Object o)
   {
@@ -102,12 +108,12 @@ public class MultiCheckboxField extends FormFieldBase
     if (mFieldValues.contains(val))
       return String
           .format(
-              "\t<input id=\"%1$s-%5$s\" type=\"checkbox\" name=\"%2$s\" value=\"%3$s\" checked/>%4$s",
+              "\t<input id='%1$s-%5$s' type='checkbox' name='%2$s' value='%3$s' checked/>%4$s",
               mAnnotation.id(), mField.getName(), val, text, htmlid);
     else
       return String
           .format(
-              "\t<input id=\"%1$s-%5$s\" type=\"checkbox\" name=\"%2$s\" value=\"%3$s\"/>%4$s",
+              "\t<input id='%1$s-%5$s' type='checkbox' name='%2$s' value='%3$s'/>%4$s",
               mAnnotation.id(), mField.getName(), val, text, htmlid);
   }
 
@@ -134,8 +140,8 @@ public class MultiCheckboxField extends FormFieldBase
             obj -> ((ListOption)obj).getValue().equals(value)))
           addValueToFormFieldSet(value);
         else
-          log.warn("Possible hacking attempt! Submitted field value \"" + value
-              + "\" not found in options");
+          log.warn("Possible hacking attempt! Submitted field value '" + value
+              + "' not found in options");
       }
       else
       {
@@ -143,8 +149,8 @@ public class MultiCheckboxField extends FormFieldBase
         if (mOptions.stream().anyMatch(obj -> obj.toString().equals(value)))
           addValueToFormFieldSet(value);
         else
-          log.warn("Possible hacking attempt! Submitted field value \"" + value
-              + "\" not found in options");
+          log.warn("Possible hacking attempt! Submitted field value '" + value
+              + "' not found in options");
       }
     }
   }
@@ -165,8 +171,8 @@ public class MultiCheckboxField extends FormFieldBase
     }
     catch (NumberFormatException nfe)
     {
-      log.warn("Possible hacking attempt! Submitted field value \"" + value
-          + "\" can't be converted to numeric type");
+      log.warn("Possible hacking attempt! Submitted field value '" + value
+          + "' can't be converted to numeric type");
     }
   }
 
@@ -179,8 +185,8 @@ public class MultiCheckboxField extends FormFieldBase
     }
     catch (NoSuchFieldException nsfe)
     {
-      throw new RuntimeException("Options field \"" + mAnnotation.options()
-          + "\" not present in form", nsfe);
+      throw new RuntimeException("Options field '" + mAnnotation.options()
+          + "' not present in form", nsfe);
     }
 
     // Get the options and the values
