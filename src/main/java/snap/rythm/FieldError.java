@@ -8,18 +8,18 @@ import org.slf4j.LoggerFactory;
 
 import snap.SnapException;
 
-public class Field extends JavaTagBase
+public class FieldError extends JavaTagBase
 {
-  final Logger log = LoggerFactory.getLogger(Field.class);
+  final Logger log = LoggerFactory.getLogger(FieldError.class);
 
-  public Field()
+  public FieldError()
   {
   }
 
   @Override
   public String __getName()
   {
-    return "field";
+    return "fielderror";
   }
 
   @Override
@@ -72,6 +72,6 @@ public class Field extends JavaTagBase
 
     }
 
-    p(form.renderField(name, paramMap));
+    p(form.renderFieldError(name, paramMap));
   }
 }

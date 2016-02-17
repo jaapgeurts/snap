@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.Part;
@@ -21,10 +22,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import snap.SnapException;
-import snap.forms.internal.RadioField;
 import snap.forms.internal.FileField;
 import snap.forms.internal.FormFieldBase;
-import snap.forms.internal.MultiCheckboxField;
 import snap.http.RequestContext;
 
 /**
@@ -271,6 +270,35 @@ public class Form
   }
 
   /**
+   * If the field has error information set it will return a rendered error html
+   * node. It will return the error enclosed in a SPAN element.
+   * 
+   * @param fieldName
+   *          The field name
+   * @param attributes
+   *          Additional attributes for the SPAN element
+   * @return
+   */
+  public String renderFieldError(String fieldName,
+      Map<String, Object> attributes)
+  {
+    FormField field = mFieldMap.get(fieldName);
+
+    if (field == null)
+      throw new SnapException("Rendering of non-existing field " + fieldName);
+
+    if (!field.hasError())
+      return "";
+
+    String attribs = attributes.entrySet().stream()
+        .map(e -> e.getKey() + "='" + e.getValue().toString() + "'")
+        .collect(Collectors.joining(" "));
+
+    return "<span " + attribs + ">" + field.getError() + "</span>";
+
+  }
+
+  /**
    * Returns a Field Subtype Object that represents the Annotated Form field.
    * 
    * @param fieldName
@@ -397,4 +425,5 @@ public class Form
   private Map<String, FormField> mFieldMap;
   private String mFormError = null;
   private String mFormName;
+
 }

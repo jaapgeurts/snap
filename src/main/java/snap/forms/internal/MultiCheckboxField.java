@@ -34,7 +34,7 @@ public class MultiCheckboxField extends FormFieldBase
     // Check if the field is present
     getFormFields();
     
-    return mOptions.stream().map(o -> doRender(o)).collect(Collectors.joining());
+    return mOptions.stream().map(o -> doRender(o)).collect(Collectors.joining("\n"));
 
   }
 

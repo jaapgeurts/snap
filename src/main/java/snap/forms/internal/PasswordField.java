@@ -28,13 +28,6 @@ public class PasswordField extends FormFieldBase
     // Ignore the value parameter:: never set passwords in HTML
     StringBuilder sbuilder = new StringBuilder();
 
-    if (hasError())
-    {
-      sbuilder.append("<span class='field-error'>");
-      sbuilder.append(getError());
-      sbuilder.append("</span>");
-    }
-
     if (!"".equals(mLabel))
       sbuilder.append(String.format("<label for='%1$s'>%2$s</label>\n",
           mAnnotation.id(), mLabel));

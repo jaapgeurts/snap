@@ -1,8 +1,6 @@
 package snap.forms.internal;
 
 import java.lang.reflect.Field;
-import java.util.Map;
-
 import snap.forms.Form;
 
 public class TextField extends FormFieldBase
@@ -28,13 +26,6 @@ public class TextField extends FormFieldBase
     String value = getFieldValue();
 
     StringBuilder sbuilder = new StringBuilder();
-
-    if (hasError())
-    {
-      sbuilder.append("<span class='field-error'>");
-      sbuilder.append(getError());
-      sbuilder.append("</span>");
-    }
 
     if (!"".equals(mLabel))
       sbuilder.append(String.format("<label for='%1$s'>%2$s</label>\n",

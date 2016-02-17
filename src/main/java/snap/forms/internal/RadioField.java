@@ -34,7 +34,7 @@ public class RadioField extends FormFieldBase
     String defaultValue = getDefaultValue();
 
     return mOptions.stream().map(o -> doRender(o, defaultValue))
-        .collect(Collectors.joining());
+        .collect(Collectors.joining("\n"));
 
   }
 

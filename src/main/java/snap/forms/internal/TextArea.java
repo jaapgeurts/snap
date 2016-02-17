@@ -31,13 +31,6 @@ public class TextArea extends FormFieldBase
 
     StringBuilder sbuilder = new StringBuilder();
 
-    if (hasError())
-    {
-      sbuilder.append("<span class='field-error'>");
-      sbuilder.append(getError());
-      sbuilder.append("</span>");
-    }
-
     if (!"".equals(mAnnotation.label()))
       sbuilder.append(String.format("<label for='%1$s'>%2$s</label>\n",
           mAnnotation.id(), mAnnotation.label()));
