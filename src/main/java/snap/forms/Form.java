@@ -355,6 +355,24 @@ public class Form
   }
 
   /**
+   * Returns true if the specified field has an error
+   * 
+   * @param fieldName
+   *          the field to query
+   * @return true of false
+   */
+  public boolean hasError(String fieldName)
+  {
+    FormField field = mFieldMap.get(fieldName);
+
+    if (field == null)
+      throw new SnapException("Field: " + fieldName
+          + " does not exist in Form: " + mFormName);
+
+    return field.hasError();
+  }
+
+  /**
    * Returns the error of this form
    * 
    * @return The error string.

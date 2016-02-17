@@ -51,6 +51,7 @@ public abstract class WebApplication
     // register snap custom tags
     mEngine.registerFastTag(new snap.rythm.Form());
     mEngine.registerFastTag(new snap.rythm.Field());
+    mEngine.registerFastTag(new snap.rythm.FieldError());
     mEngine.registerFastTag(new snap.rythm.DynamicRelativeLink());
     mEngine.registerFastTag(new snap.rythm.DynamicRootLink());
     mEngine.registerFastTag(new snap.rythm.Csrf_Token());
