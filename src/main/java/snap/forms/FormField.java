@@ -15,6 +15,7 @@ public interface FormField
   public boolean isVisible();
   public void setHtmlId(String htmlId);
   public String getHtmlId();
+  public String getHtmlId(String which);
   public void setLabel(String label);
   public String getLabel();
   public String getLabel(String which);

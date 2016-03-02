@@ -124,6 +124,16 @@ public abstract class FormFieldBase implements FormField
   }
 
   @Override
+  public String getHtmlId(String which)
+  {
+    if (which == null || "".equals(which))
+      return getHtmlId();
+
+    throw new SnapException(String.format(
+        "The field %1$s does not support HtmlID for values", mField.getName()));
+  }
+
+  @Override
   public String getLabel()
   {
     return mLabel;
@@ -132,7 +142,7 @@ public abstract class FormFieldBase implements FormField
   @Override
   public String getLabel(String which)
   {
-    if (which == null)
+    if (which == null || "".equals(which))
       return getLabel();
 
     throw new SnapException(String.format(

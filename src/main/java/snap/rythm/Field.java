@@ -59,10 +59,6 @@ public class Field extends JavaTagBase
             "@field missing form argument. Specify as first parameter or use the parameter name 'form'");
       form = (snap.forms.Form)o;
 
-      if (params.size() > 2)
-        log.warn("@field in form: '" + form.toString()
-            + "', positional parameter two and after ignored.");
-
       // second parameter (this is the field name)
       o = params.getByPosition(1);
       if (o == null)
@@ -74,6 +70,11 @@ public class Field extends JavaTagBase
       o = params.getByPosition(2);
       if (o != null)
         paramMap.put("which", o);
+
+      // ignore the rest of the parameters but inform the user
+      if (params.size() > 3)
+        log.warn("@field in form: '" + form.toString()
+            + "', positional parameter after three ignored.");
 
     }
 

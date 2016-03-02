@@ -68,6 +68,8 @@ public class RadioField extends FormFieldBase
   @Override
   public String getLabel(String which)
   {
+    getFormFields();
+    
     Optional<?> optional = mOptions.stream().filter(o -> isValue(o, which))
         .findFirst();
     if (!optional.isPresent())
@@ -87,6 +89,75 @@ public class RadioField extends FormFieldBase
       val = o.toString();
     }
     return val;
+  }
+
+  public String getHtmlId(String which)
+  {
+    getFormFields();
+    
+    Optional<?> optional = mOptions.stream().filter(o -> isValue(o, which))
+        .findFirst();
+    if (!optional.isPresent())
+      throw new SnapException(String.format(
+          "Can't get label for field for value %1$s of field %2$s", which,
+          mField.getName()));
+
+    String val;
+    Object o = optional.get();
+    if (o instanceof ListOption)
+    {
+      ListOption lo = (ListOption)o;
+      val = lo.getValue();
+    }
+    else
+    {
+      val = o.toString();
+    }
+    return mHtmlId + '-' + val;
+  }
+
+  @Override
+  public void setFieldValue(String[] values)
+  {
+    // TODO: handle other types as well.
+    // currently only enums supported
+    // handle enums and set the correct value
+    // Object[] enums = classField.getType().getEnumConstants();
+    if (values == null)
+    {
+      log.warn("Possible hacking attempt! Expected return value for Radio button field '"
+          + mField.getName() + "' but found nothing");
+    }
+    else
+    {
+      if (values.length > 1)
+      {
+        log.warn("Possible hacking attempt! Expected one value for field '"
+            + mField.getName() + "' but found: " + values.length);
+      }
+      try
+      {
+        mField.set(mForm,
+            Enum.valueOf((Class<Enum>)mField.getType(), values[0]));
+      }
+      catch (IllegalArgumentException iae)
+      {
+        log.warn("Possible hacking attempt! Expected legal value for enum: "
+            + mField.getType().getName() + " but found: " + values[0]);
+      }
+      catch (IllegalAccessException e)
+      {
+        String message = "Can't access field: " + mField.getName();
+        log.debug(message, e);
+        throw new SnapException(message, e);
+      }
+    }
+  }
+
+  @Override
+  public String toString()
+  {
+    return "RadioField { " + mField.getName() + " }";
   }
 
   private boolean isValue(Object o, String key)
@@ -131,44 +202,6 @@ public class RadioField extends FormFieldBase
 
   }
 
-  @Override
-  public void setFieldValue(String[] values)
-  {
-    // TODO: handle other types as well.
-    // currently only enums supported
-    // handle enums and set the correct value
-    // Object[] enums = classField.getType().getEnumConstants();
-    if (values == null)
-    {
-      log.warn("Possible hacking attempt! Expected return value for Radio button field '"
-          + mField.getName() + "' but found nothing");
-    }
-    else
-    {
-      if (values.length > 1)
-      {
-        log.warn("Possible hacking attempt! Expected one value for field '"
-            + mField.getName() + "' but found: " + values.length);
-      }
-      try
-      {
-        mField.set(mForm,
-            Enum.valueOf((Class<Enum>)mField.getType(), values[0]));
-      }
-      catch (IllegalArgumentException iae)
-      {
-        log.warn("Possible hacking attempt! Expected legal value for enum: "
-            + mField.getType().getName() + " but found: " + values[0]);
-      }
-      catch (IllegalAccessException e)
-      {
-        String message = "Can't access field: " + mField.getName();
-        log.debug(message, e);
-        throw new SnapException(message, e);
-      }
-    }
-  }
-
   private void getFormFields()
   {
 
@@ -210,12 +243,6 @@ public class RadioField extends FormFieldBase
       throw new SnapException(message, e);
     }
     return defaultValue;
-  }
-
-  @Override
-  public String toString()
-  {
-    return "RadioField { " + mField.getName() + " }";
   }
 
   private snap.forms.annotations.RadioField mAnnotation;
