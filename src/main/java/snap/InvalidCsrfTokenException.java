@@ -1,6 +1,6 @@
 package snap;
 
-public class InvalidCsrfTokenException extends RuntimeException
+public class InvalidCsrfTokenException extends SnapException
 {
   public InvalidCsrfTokenException(String message)
   {

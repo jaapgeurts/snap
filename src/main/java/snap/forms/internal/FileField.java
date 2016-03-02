@@ -5,6 +5,7 @@ import java.util.Set;
 
 import javax.servlet.http.Part;
 
+import snap.SnapException;
 import snap.forms.Form;
 
 public class FileField extends FormFieldBase
@@ -26,6 +27,7 @@ public class FileField extends FormFieldBase
 
     mLabel = mAnnotation.label();
     mCssClass = mAnnotation.cssClass();
+    mHtmlId = mAnnotation.id();
   }
 
   @Override
@@ -34,20 +36,13 @@ public class FileField extends FormFieldBase
     if (!isVisible())
       return "";
 
-    String label = "";
-
-    if (!"".equals(mAnnotation.label()))
-      label = String.format("<label for='%1$s'>%2$s</label>",
-          mAnnotation.id(), mAnnotation.label());
     if (mMultiple)
-      return String
-          .format(
-              "%1$s\n<input type='file' id='%2$s' name='%3$s' multiple/>\n",
-              label, mAnnotation.id(), mField.getName());
-    else
       return String.format(
-          "%1$s\n<input type='file' id='%2$s' name='%3$s'/>\n",
-          label, mAnnotation.id(), mField.getName());
+          "<input type='file' id='%1$s' name='%2$s' multiple %3$s/>\n",
+          mAnnotation.id(), mField.getName(), getHtmlAttributes());
+    else
+      return String.format("<input type='file' id='%1$s' name='%2$s' %3$s/>\n",
+          mAnnotation.id(), mField.getName(), getHtmlAttributes());
 
   }
 
@@ -71,13 +66,13 @@ public class FileField extends FormFieldBase
         set.add(part);
       }
       else
-        throw new RuntimeException("Filefield type must be Part or Set<Part>");
+        throw new SnapException("Filefield type must be Part or Set<Part>");
     }
     catch (IllegalArgumentException | IllegalAccessException e)
     {
       String message = "Can't access field: " + mField.getName();
       log.debug(message, e);
-      throw new RuntimeException(message, e);
+      throw new SnapException(message, e);
     }
   }
 

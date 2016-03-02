@@ -1,6 +1,6 @@
 package snap;
 
-public class AuthenticationException extends RuntimeException
+public class AuthenticationException extends SnapException
 {
 
   public AuthenticationException(String message)

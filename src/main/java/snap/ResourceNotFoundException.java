@@ -1,6 +1,6 @@
 package snap;
 
-public class ResourceNotFoundException extends RuntimeException
+public class ResourceNotFoundException extends SnapException
 {
   public ResourceNotFoundException(String message)
   {

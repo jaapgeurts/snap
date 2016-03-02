@@ -8,18 +8,18 @@ import org.slf4j.LoggerFactory;
 
 import snap.SnapException;
 
-public class Field extends JavaTagBase
+public class Label extends JavaTagBase
 {
-  final Logger log = LoggerFactory.getLogger(Field.class);
+  final Logger log = LoggerFactory.getLogger(Label.class);
 
-  public Field()
+  public Label()
   {
   }
 
   @Override
   public String __getName()
   {
-    return "field";
+    return "label";
   }
 
   @Override
@@ -36,14 +36,14 @@ public class Field extends JavaTagBase
       o = paramMap.get("form");
       if (o == null)
         throw new SnapException(
-            "@field missing 'form' argument. You must specify the form that contains the field");
+            "@label missing 'form' argument. You must specify the form that contains the field");
       form = (snap.forms.Form)o;
       paramMap.remove("form");
 
       o = paramMap.get("field");
       if (o == null)
         throw new SnapException(
-            "@field missing 'field' argument. You must specify the field in the form");
+            "@label missing 'field' argument. You must specify the field in the form");
       name = o.toString();
       paramMap.remove("field");
 
@@ -56,27 +56,22 @@ public class Field extends JavaTagBase
 
       if (o == null || !(o instanceof snap.forms.Form))
         throw new SnapException(
-            "@field missing form argument. Specify as first parameter or use the parameter name 'form'");
+            "@label missing form argument. Specify as first parameter or use the parameter name 'form'");
       form = (snap.forms.Form)o;
 
       if (params.size() > 2)
-        log.warn("@field in form: '" + form.toString()
+        log.warn("@label in form: '" + form.toString()
             + "', positional parameter two and after ignored.");
 
       // second parameter (this is the field name)
       o = params.getByPosition(1);
       if (o == null)
         throw new SnapException(
-            "@field missing name argument. Specify as second parameter or use the parameter name 'name'");
+            "@label missing name argument. Specify as second parameter or use the parameter name 'name'");
       name = o.toString();
 
-      // third parameter (this is the which name)
-      o = params.getByPosition(2);
-      if (o != null)
-        paramMap.put("which", o);
-
     }
-
-    p(form.renderField(name, paramMap));
+    
+    p(form.renderLabel(name, paramMap));
   }
 }

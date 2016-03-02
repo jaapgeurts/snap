@@ -270,6 +270,32 @@ public class Form
   }
 
   /**
+   * Renders a label for a specific field
+   * 
+   * @param fieldName
+   *          The field to render the label for
+   * @param attributes
+   *          Extra attributes to add to the label
+   * @return the HTML string
+   */
+  public String renderLabel(String fieldName, Map<String, Object> attributes)
+  {
+    FormField field = mFieldMap.get(fieldName);
+
+    if (field == null)
+      throw new SnapException("Rendering of label for non-existing field "
+          + fieldName);
+
+    String htmlId = field.getHtmlId();
+    String label = field.getLabel();
+
+    if (!"".equals(label))
+      return String.format("<label for='%1$s'>%2$s</label>\n", htmlId, label);
+
+    return field.render();
+  }
+
+  /**
    * If the field has error information set it will return a rendered error html
    * node. It will return the error enclosed in a SPAN element.
    * 

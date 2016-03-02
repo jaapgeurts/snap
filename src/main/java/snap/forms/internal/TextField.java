@@ -16,6 +16,7 @@ public class TextField extends FormFieldBase
 
     mLabel = mAnnotation.label();
     mCssClass = mAnnotation.cssClass();
+    mHtmlId = mAnnotation.id();
   }
 
   @Override
@@ -25,20 +26,10 @@ public class TextField extends FormFieldBase
       return "";
     String value = getFieldValue();
 
-    StringBuilder sbuilder = new StringBuilder();
+    return String.format(
+        "<input type='text' id='%1$s' name='%2$s' value='%3$s' %4$s/>\n",
+        mAnnotation.id(), mField.getName(), value, getHtmlAttributes());
 
-    if (!"".equals(mLabel))
-      sbuilder.append(String.format("<label for='%1$s'>%2$s</label>\n",
-          mAnnotation.id(), mLabel));
-
-   
-    sbuilder
-        .append(String
-            .format(
-                "<input type='text' id='%1$s' name='%2$s' value='%3$s' %4$s/>\n",
-                mAnnotation.id(), mField.getName(), value, getHtmlAttributes()));
-
-    return sbuilder.toString();
   }
 
   @Override

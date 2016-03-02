@@ -4,14 +4,12 @@ import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
-
-import javax.smartcardio.ATR;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import snap.SnapException;
 import snap.forms.Form;
 import snap.forms.FormField;
 
@@ -81,7 +79,7 @@ public abstract class FormFieldBase implements FormField
     {
       String message = "Can't access field: " + mField.getName();
       log.debug(message, e);
-      throw new RuntimeException(message, e);
+      throw new SnapException(message, e);
     }
   }
 
@@ -98,7 +96,7 @@ public abstract class FormFieldBase implements FormField
     catch (IllegalArgumentException | IllegalAccessException e)
     {
       log.debug("Can't access value of form field: " + mField.getName(), e);
-      throw new RuntimeException("Form field " + mField.getName()
+      throw new SnapException("Form field " + mField.getName()
           + " can't be accessed.", e);
     }
   }
@@ -114,9 +112,31 @@ public abstract class FormFieldBase implements FormField
   }
 
   @Override
+  public void setHtmlId(String htmlId)
+  {
+    mHtmlId = htmlId;
+  }
+
+  @Override
+  public String getHtmlId()
+  {
+    return mHtmlId;
+  }
+
+  @Override
   public String getLabel()
   {
     return mLabel;
+  }
+
+  @Override
+  public String getLabel(String which)
+  {
+    if (which == null)
+      return getLabel();
+
+    throw new SnapException(String.format(
+        "The field %1$s does not support labels for values", mField.getName()));
   }
 
   @Override
@@ -148,6 +168,12 @@ public abstract class FormFieldBase implements FormField
   {
     return mAttributes.get(attrib);
   }
+
+  @Override
+  public void removeAttribute(String attrib)
+  {
+    mAttributes.remove(attrib);
+  };
 
   /**
    * Merges the in attributes with the field attributes. The in attributes take
@@ -190,6 +216,7 @@ public abstract class FormFieldBase implements FormField
         .collect(Collectors.joining(" "));
   }
 
+  protected String mHtmlId;
   protected String mLabel;
   protected String mCssClass;
   protected Field mField;

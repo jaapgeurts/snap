@@ -20,6 +20,7 @@ public class CheckBoxField extends FormFieldBase
 
     mLabel = mAnnotation.label();
     mCssClass = mAnnotation.cssClass();
+    mHtmlId = mAnnotation.id();
   }
 
   @Override
@@ -28,20 +29,12 @@ public class CheckBoxField extends FormFieldBase
     if (!isVisible())
       return "";
 
-    String labelPre = "";
-    String labelPost = "";
-
-    if (!"".equals(mAnnotation.label()))
-    {
-      labelPre = String.format("<label for='%1$s'>", mAnnotation.id());
-      labelPost = String.format("%1$s</label>", mAnnotation.label());
-    }
     if (!mField.getType().equals(Boolean.class)
         && !mField.getType().equals(boolean.class))
-      throw new RuntimeException(
+      throw new SnapException(
           "CheckBoxField works on boolean primitives or Boolean classes only!)");
 
-    // values are alwayes auto boxed
+    // values are always auto boxed
     boolean val;
     try
     {
@@ -53,20 +46,19 @@ public class CheckBoxField extends FormFieldBase
     catch (IllegalArgumentException | IllegalAccessException e)
     {
       log.debug("Can't access value of form field: " + mField.getName(), e);
-      throw new RuntimeException("Form field " + mField.getName()
+      throw new SnapException("Form field " + mField.getName()
           + " can't be accessed.", e);
     }
 
     if (val)
       return String
           .format(
-              "%1$s\n<input type='checkbox' id='%2$s' name='%3$s' value='%3$s' checked/>%4$s\n",
-              labelPre, mAnnotation.id(), mField.getName(), labelPost);
+              "<input type='checkbox' id='%1$s' name='%2$s' value='%2$s' checked %3$s/>\n",
+              mAnnotation.id(), mField.getName(), getHtmlAttributes());
     else
-      return String
-          .format(
-              "%1$s\n<input type='checkbox' id='%2$s' name='%3$s' value='%3$s'/>%4$s\n",
-              labelPre, mAnnotation.id(), mField.getName(), labelPost);
+      return String.format(
+          "<input type='checkbox' id='%1$s' name='%2$s' value='%2$s' %3$s/>\n",
+          mAnnotation.id(), mField.getName(), getHtmlAttributes());
 
   }
 
@@ -104,7 +96,7 @@ public class CheckBoxField extends FormFieldBase
     {
       String message = "Can't access field: " + mField.getName();
       log.debug(message, e);
-      throw new RuntimeException(message, e);
+      throw new SnapException(message, e);
     }
   }
 

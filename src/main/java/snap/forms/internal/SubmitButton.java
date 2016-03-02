@@ -16,6 +16,7 @@ public class SubmitButton extends FormFieldBase
 
     mLabel = mAnnotation.label();
     mCssClass = mAnnotation.cssClass();
+    mHtmlId = mAnnotation.id();
   }
 
   @Override

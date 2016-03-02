@@ -17,6 +17,7 @@ public class PasswordField extends FormFieldBase
 
     mLabel = mAnnotation.label();
     mCssClass = mAnnotation.cssClass();
+    mHtmlId = mAnnotation.id();
   }
 
   @Override
@@ -26,17 +27,10 @@ public class PasswordField extends FormFieldBase
       return "";
 
     // Ignore the value parameter:: never set passwords in HTML
-    StringBuilder sbuilder = new StringBuilder();
 
-    if (!"".equals(mLabel))
-      sbuilder.append(String.format("<label for='%1$s'>%2$s</label>\n",
-          mAnnotation.id(), mLabel));
-
-    sbuilder.append(String.format(
+    return String.format(
         "<input type='password' id='%1$s' name='%2$s' %3$s/>\n",
-        mAnnotation.id(), mField.getName(), getHtmlAttributes()));
-
-    return sbuilder.toString();
+        mAnnotation.id(), mField.getName(), getHtmlAttributes());
   }
 
   @Override

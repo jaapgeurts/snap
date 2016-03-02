@@ -2,6 +2,7 @@ package snap.forms.internal;
 
 import java.lang.reflect.Field;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import snap.SnapException;
@@ -20,6 +21,7 @@ public class RadioField extends FormFieldBase
       throw new IllegalArgumentException("RadioFieldsmust be an enum");
 
     mCssClass = mAnnotation.cssClass();
+    mHtmlId = mAnnotation.id();
 
   }
 
@@ -33,69 +35,99 @@ public class RadioField extends FormFieldBase
 
     String defaultValue = getDefaultValue();
 
-    return mOptions.stream().map(o -> doRender(o, defaultValue))
-        .collect(Collectors.joining("\n"));
+    String which = getAttribute("which");
+    if (which != null)
+    {
+      removeAttribute("which");
+      // render just one
+      Optional<?> optional = mOptions.stream().filter(o -> isValue(o, which))
+          .findFirst();
+      if (!optional.isPresent())
+        throw new SnapException(String.format(
+            "Can't render field for value %1$s of field %2$s", which,
+            mField.getName()));
+      return doRender(optional.get(), defaultValue);
 
+    }
+    else
+    {
+      // render all
+      return mOptions.stream().map(o -> doRender(o, defaultValue))
+          .collect(Collectors.joining("\n"));
+    }
   }
 
-  // public String render(String value)
-  // {
-  // if (!isVisible())
-  // return "";
-  //
-  // getFormFields();
-  //
-  // StringBuilder b = new StringBuilder();
-  //
-  // String defaultValue = getDefaultValue();
-  //
-  // // search all options
-  // for (Object o : mOptions)
-  // {
-  // String val;
-  // if (o instanceof ListOption)
-  // {
-  // ListOption lo = (ListOption)o;
-  // val = lo.getValue();
-  // }
-  // else
-  // {
-  // val = o.toString();
-  // }
-  //
-  // if (val.equals(value))
-  // {
-  // b.append(doRender(o, defaultValue));
-  // break;
-  // }
-  // }
-  // return b.toString();
-  // }
-
-  private String doRender(Object o, String defaultValue)
+  /**
+   * Gets the HTML display label that should be used for this field. This method
+   * is used only in fields that hold multiple select values such as radios or
+   * lists
+   * 
+   * @param which
+   * @return
+   */
+  @Override
+  public String getLabel(String which)
   {
-    String val, text;
+    Optional<?> optional = mOptions.stream().filter(o -> isValue(o, which))
+        .findFirst();
+    if (!optional.isPresent())
+      throw new SnapException(String.format(
+          "Can't get label for field for value %1$s of field %2$s", which,
+          mField.getName()));
+
+    String val;
+    Object o = optional.get();
+    if (o instanceof ListOption)
+    {
+      ListOption lo = (ListOption)o;
+      val = lo.getText();
+    }
+    else
+    {
+      val = o.toString();
+    }
+    return val;
+  }
+
+  private boolean isValue(Object o, String key)
+  {
+
+    String val;
     if (o instanceof ListOption)
     {
       ListOption lo = (ListOption)o;
       val = lo.getValue();
-      text = lo.getText();
     }
     else
     {
-      val = text = o.toString();
+      val = o.toString();
+    }
+
+    return val.equals(key);
+  }
+
+  private String doRender(Object o, String defaultValue)
+  {
+    String val;
+    if (o instanceof ListOption)
+    {
+      ListOption lo = (ListOption)o;
+      val = lo.getValue();
+    }
+    else
+    {
+      val = o.toString();
     }
 
     if (val.equals(defaultValue))
       return String
           .format(
-              "<input id='%1$s-%3$s' type='radio' name='%2$s' value='%3$s' checked/><label for='%1$s'> %4$s</label>",
-              mAnnotation.id(), mField.getName(), val, text);
+              "<input id='%1$s-%3$s' type='radio' name='%2$s' value='%3$s' checked $4$s/>",
+              mAnnotation.id(), mField.getName(), val, getHtmlAttributes());
     else
-      return String
-          .format(
-              "<input id='%1$s-%3$s' type='radio' name='%2$s' value='%3$s'/><label for='%1$s'> %4$s</label>",
-              mAnnotation.id(), mField.getName(), val, text);
+      return String.format(
+          "<input id='%1$s-%3$s' type='radio' name='%2$s' value='%3$s' $4$s/>",
+          mAnnotation.id(), mField.getName(), val, getHtmlAttributes());
 
   }
 
@@ -132,7 +164,7 @@ public class RadioField extends FormFieldBase
       {
         String message = "Can't access field: " + mField.getName();
         log.debug(message, e);
-        throw new RuntimeException(message, e);
+        throw new SnapException(message, e);
       }
     }
   }
@@ -146,7 +178,7 @@ public class RadioField extends FormFieldBase
     }
     catch (NoSuchFieldException nsfe)
     {
-      throw new RuntimeException("Options field '" + mAnnotation.options()
+      throw new SnapException("Options field '" + mAnnotation.options()
           + "' not present in form", nsfe);
     }
 
@@ -157,8 +189,7 @@ public class RadioField extends FormFieldBase
     }
     catch (IllegalArgumentException | IllegalAccessException e)
     {
-      throw new RuntimeException(
-          "Can't access field: " + mAnnotation.options(), e);
+      throw new SnapException("Can't access field: " + mAnnotation.options(), e);
     }
   }
 
