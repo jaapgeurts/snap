@@ -3,7 +3,6 @@ package snap.forms.internal;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -36,6 +35,8 @@ public abstract class FormFieldBase implements FormField
   }
 
   public abstract String render();
+
+  public abstract String render(Map<String, String> attributes);
 
   public String getError()
   {
@@ -96,8 +97,8 @@ public abstract class FormFieldBase implements FormField
     catch (IllegalArgumentException | IllegalAccessException e)
     {
       log.debug("Can't access value of form field: " + mField.getName(), e);
-      throw new SnapException("Form field " + mField.getName()
-          + " can't be accessed.", e);
+      throw new SnapException(
+          "Form field " + mField.getName() + " can't be accessed.", e);
     }
   }
 
@@ -156,18 +157,6 @@ public abstract class FormFieldBase implements FormField
   }
 
   @Override
-  public String getCssClass()
-  {
-    return mCssClass;
-  }
-
-  @Override
-  public void setCssClass(String cssClass)
-  {
-    mCssClass = cssClass;
-  }
-
-  @Override
   public void addAttribute(String attrib, String value)
   {
     mAttributes.put(attrib, value);
@@ -185,50 +174,21 @@ public abstract class FormFieldBase implements FormField
     mAttributes.remove(attrib);
   };
 
-  /**
-   * Merges the in attributes with the field attributes. The in attributes take
-   * priority over the field attributes
-   * 
-   * @param in
-   *          Map of key value pairs to merge.
-   * @param overwrite
-   *          Overwrite the values of in into the object attributes. Values for
-   *          the class attribute are concatenated by default
-   */
   @Override
-  public void mergeAttributes(Map<String, Object> in, boolean overwrite)
+  public Map<String, String> getAttributes()
   {
-    for (Entry<String, Object> e : in.entrySet())
-    {
-      String key = e.getKey();
-      if (mAttributes.containsKey(key))
-      {
-        // If the key is class then append the new classes to the existing class
-        if ("class".equals(key))
-          mAttributes.put(key, mAttributes.get(key) + " "
-              + e.getValue().toString());
-        else if (overwrite)
-          mAttributes.put(key, e.getValue().toString());
-        // do nothing if overwrite is off
-      }
-      else
-      {
-        mAttributes.put(e.getKey(), e.getValue().toString());
-      }
-    }
+    return mAttributes;
   }
 
-  protected String getHtmlAttributes()
+  protected String attributesToString(Map<String, String> attribs)
   {
-
-    return mAttributes.entrySet().stream()
+    return attribs.entrySet().stream()
         .map(e -> e.getKey() + "='" + e.getValue() + "'")
         .collect(Collectors.joining(" "));
   }
 
   protected String mHtmlId;
   protected String mLabel;
-  protected String mCssClass;
   protected Field mField;
   protected Form mForm;
   private String mErrorText = null;

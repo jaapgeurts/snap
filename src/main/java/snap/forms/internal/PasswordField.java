@@ -1,6 +1,8 @@
 package snap.forms.internal;
 
 import java.lang.reflect.Field;
+import java.util.Map;
+
 import snap.forms.Form;
 
 public class PasswordField extends FormFieldBase
@@ -16,12 +18,18 @@ public class PasswordField extends FormFieldBase
           "PasswordFields must be of type String");
 
     mLabel = mAnnotation.label();
-    mCssClass = mAnnotation.cssClass();
+    addAttribute("class", mAnnotation.cssClass());
     mHtmlId = mAnnotation.id();
   }
 
   @Override
   public String render()
+  {
+    return render(getAttributes());
+  }
+  
+  @Override
+  public String render(Map<String, String> attributes)
   {
     if (!isVisible())
       return "";
@@ -30,7 +38,7 @@ public class PasswordField extends FormFieldBase
 
     return String.format(
         "<input type='password' id='%1$s' name='%2$s' %3$s/>\n",
-        mAnnotation.id(), mField.getName(), getHtmlAttributes());
+        mAnnotation.id(), mField.getName(), attributesToString(attributes));
   }
 
   @Override

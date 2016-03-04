@@ -174,8 +174,8 @@ public class Form
       }
       else
       {
-        ((FormFieldBase)entry.getValue()).setFieldValue(params.get(entry
-            .getKey()));
+        ((FormFieldBase)entry.getValue())
+            .setFieldValue(params.get(entry.getKey()));
       }
     }
   }
@@ -262,10 +262,30 @@ public class Form
     if (field == null)
       throw new SnapException("Rendering of non-existing field " + fieldName);
 
-    // Merge in the attributes from the html template
-    field.mergeAttributes(attributes, false);
+    Map<String, String> attribs = new HashMap<>();
+    attributes.entrySet().stream()
+        .forEach(e -> attribs.put(e.getKey(), e.getValue().toString()));
 
-    return field.render();
+    // Merge in the attributes from the html template
+    // the attributes from code take precedence
+    // except for class attributes, they get added
+    String classHtml = attribs.get("class");
+    String classCode = field.getAttribute("class");
+    String classMerged = null;
+
+    if (classHtml != null && classHtml.length() > 0)
+      classMerged = classHtml;
+    if (classCode != null && classCode.length() > 0)
+    {
+      if (classMerged != null && classMerged.length() > 0)
+        classMerged += " ";
+      classMerged += classCode;
+    }
+
+    attribs.putAll(field.getAttributes());
+    attribs.put("class", classMerged);
+
+    return field.render(attribs);
 
   }
 
@@ -283,16 +303,14 @@ public class Form
     FormField field = mFieldMap.get(fieldName);
 
     if (field == null)
-      throw new SnapException("Rendering of label for non-existing field "
-          + fieldName);
+      throw new SnapException(
+          "Rendering of label for non-existing field " + fieldName);
 
     String htmlId = field.getHtmlId();
     String label = field.getLabel();
 
-    if (!"".equals(label))
-      return String.format("<label for='%1$s'>%2$s</label>\n", htmlId, label);
+    return String.format("<label for='%1$s'>%2$s</label>\n", htmlId, label);
 
-    return field.render();
   }
 
   /**
@@ -320,7 +338,7 @@ public class Form
         .map(e -> e.getKey() + "='" + e.getValue().toString() + "'")
         .collect(Collectors.joining(" "));
 
-    return "<span " + attribs + ">" + field.getError() + "</span>";
+    return String.format("<span %1$s>%2$s</span>", attribs, field.getError());
 
   }
 
@@ -392,8 +410,8 @@ public class Form
     FormField field = mFieldMap.get(fieldName);
 
     if (field == null)
-      throw new SnapException("Field: " + fieldName
-          + " does not exist in Form: " + mFormName);
+      throw new SnapException(
+          "Field: " + fieldName + " does not exist in Form: " + mFormName);
 
     return field.hasError();
   }

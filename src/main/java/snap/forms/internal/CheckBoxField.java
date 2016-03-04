@@ -1,6 +1,7 @@
 package snap.forms.internal;
 
 import java.lang.reflect.Field;
+import java.util.Map;
 
 import snap.SnapException;
 import snap.forms.Form;
@@ -19,12 +20,18 @@ public class CheckBoxField extends FormFieldBase
           "CheckBoxFields must be of type Boolean or boolean");
 
     mLabel = mAnnotation.label();
-    mCssClass = mAnnotation.cssClass();
+    addAttribute("class", mAnnotation.cssClass());
     mHtmlId = mAnnotation.id();
   }
 
   @Override
   public String render()
+  {
+    return render(getAttributes());
+  }
+
+  @Override
+  public String render(Map<String, String> attributes)
   {
     if (!isVisible())
       return "";
@@ -39,26 +46,25 @@ public class CheckBoxField extends FormFieldBase
     try
     {
       if (mField.get(mForm) == null)
-        throw new SnapException("Checkbox field: " + mField.getName()
-            + " can't be null.");
+        throw new SnapException(
+            "Checkbox field: " + mField.getName() + " can't be null.");
       val = (Boolean)mField.get(mForm);
     }
     catch (IllegalArgumentException | IllegalAccessException e)
     {
       log.debug("Can't access value of form field: " + mField.getName(), e);
-      throw new SnapException("Form field " + mField.getName()
-          + " can't be accessed.", e);
+      throw new SnapException(
+          "Form field " + mField.getName() + " can't be accessed.", e);
     }
 
     if (val)
-      return String
-          .format(
-              "<input type='checkbox' id='%1$s' name='%2$s' value='%2$s' checked %3$s/>\n",
-              mAnnotation.id(), mField.getName(), getHtmlAttributes());
+      return String.format(
+          "<input type='checkbox' id='%1$s' name='%2$s' value='%2$s' checked %3$s/>\n",
+          mAnnotation.id(), mField.getName(), attributesToString(attributes));
     else
       return String.format(
           "<input type='checkbox' id='%1$s' name='%2$s' value='%2$s' %3$s/>\n",
-          mAnnotation.id(), mField.getName(), getHtmlAttributes());
+          mAnnotation.id(), mField.getName(), attributesToString(attributes));
 
   }
 

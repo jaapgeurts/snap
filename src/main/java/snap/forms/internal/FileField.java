@@ -1,6 +1,7 @@
 package snap.forms.internal;
 
 import java.lang.reflect.Field;
+import java.util.Map;
 import java.util.Set;
 
 import javax.servlet.http.Part;
@@ -26,12 +27,18 @@ public class FileField extends FormFieldBase
           "FileFields must be of type Part or Set<Part>");
 
     mLabel = mAnnotation.label();
-    mCssClass = mAnnotation.cssClass();
+    addAttribute("class", mAnnotation.cssClass());
     mHtmlId = mAnnotation.id();
   }
 
   @Override
   public String render()
+  {
+    return render(getAttributes());
+  }
+  
+  @Override
+  public String render(Map<String, String> attributes)
   {
     if (!isVisible())
       return "";
@@ -39,10 +46,10 @@ public class FileField extends FormFieldBase
     if (mMultiple)
       return String.format(
           "<input type='file' id='%1$s' name='%2$s' multiple %3$s/>\n",
-          mAnnotation.id(), mField.getName(), getHtmlAttributes());
+          mAnnotation.id(), mField.getName(),  attributesToString(attributes));
     else
       return String.format("<input type='file' id='%1$s' name='%2$s' %3$s/>\n",
-          mAnnotation.id(), mField.getName(), getHtmlAttributes());
+          mAnnotation.id(), mField.getName(), attributesToString(attributes));
 
   }
 

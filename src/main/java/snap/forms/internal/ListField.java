@@ -3,6 +3,7 @@ package snap.forms.internal;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import snap.SnapException;
@@ -27,14 +28,14 @@ public class ListField extends FormFieldBase
     else
     {
       if (!(field.getType().equals(String.class)
-          || field.getType().equals(Integer.class) || field.getType().equals(
-          Long.class)))
+          || field.getType().equals(Integer.class)
+          || field.getType().equals(Long.class)))
         throw new IllegalArgumentException(
             "DropDown and Single ListField must be of type String, Integer or Long");
     }
 
     mLabel = mAnnotation.label();
-    mCssClass = mAnnotation.cssClass();
+    addAttribute("class", mAnnotation.cssClass());
     mHtmlId = mAnnotation.id();
   }
 
@@ -60,8 +61,8 @@ public class ListField extends FormFieldBase
       }
       catch (NumberFormatException nfe)
       {
-        log.warn("Possible hacking attempt! Submitted field value '"
-            + values[0] + "' can't be converted to numeric type.", nfe);
+        log.warn("Possible hacking attempt! Submitted field value '" + values[0]
+            + "' can't be converted to numeric type.", nfe);
       }
       catch (IllegalArgumentException | IllegalAccessException e)
       {
@@ -85,8 +86,8 @@ public class ListField extends FormFieldBase
     {
       if (mOptionFieldClass.isAssignableFrom(ListOption.class))
       {
-        if (mOptions.stream().anyMatch(
-            obj -> ((ListOption)obj).getValue().equals(value)))
+        if (mOptions.stream()
+            .anyMatch(obj -> ((ListOption)obj).getValue().equals(value)))
           addValueToFormFieldSet(value);
         else
           log.warn("Possible hacking attempt! Submitted field value '" + value
@@ -116,6 +117,12 @@ public class ListField extends FormFieldBase
   @Override
   public String render()
   {
+    return render(getAttributes());
+  }
+
+  @Override
+  public String render(Map<String, String> attributes)
+  {
     if (!isVisible())
       return "";
 
@@ -124,23 +131,22 @@ public class ListField extends FormFieldBase
     switch(mAnnotation.type())
     {
       case MULTI_LIST:
-        b.append(String
-            .format(
-                "\n<select id='%1$s' name='%2$s' class='%3$s' size='%4$s' multiple %5$s>\n",
-                mAnnotation.id(), mField.getName(), mAnnotation.cssClass(),
-                mAnnotation.size(), getHtmlAttributes()));
+        b.append(String.format(
+            "\n<select id='%1$s' name='%2$s' class='%3$s' size='%4$s' multiple %5$s>\n",
+            mAnnotation.id(), mField.getName(), mAnnotation.cssClass(),
+            mAnnotation.size(), attributesToString(attributes)));
         break;
       case DROPDOWN_LIST:
         b.append(String.format(
             "\n<select id='%1$s' name='%2$s' class='%3$s' %4$s>\n",
             mAnnotation.id(), mField.getName(), mAnnotation.cssClass(),
-            getHtmlAttributes()));
+            attributesToString(attributes)));
         break;
       case SINGLE_LIST:
         b.append(String.format(
             "\n<select id='%1$s' name='%2$s' class='%3$s' size='%4$s' %5$s>\n",
             mAnnotation.id(), mField.getName(), mAnnotation.cssClass(),
-            mAnnotation.size(), getHtmlAttributes()));
+            mAnnotation.size(), attributesToString(attributes)));
     }
 
     // Check if the field is present
@@ -151,8 +157,9 @@ public class ListField extends FormFieldBase
     }
     catch (NoSuchFieldException nsfe)
     {
-      throw new SnapException("Options field '" + mAnnotation.options()
-          + "' not present in form", nsfe);
+      throw new SnapException(
+          "Options field '" + mAnnotation.options() + "' not present in form",
+          nsfe);
     }
 
     // Check the field type
@@ -168,7 +175,8 @@ public class ListField extends FormFieldBase
     }
     catch (IllegalArgumentException | IllegalAccessException e)
     {
-      throw new SnapException("Can't access field: " + mAnnotation.options(), e);
+      throw new SnapException("Can't access field: " + mAnnotation.options(),
+          e);
     }
 
     for (Object o : options)
@@ -188,8 +196,8 @@ public class ListField extends FormFieldBase
         b.append(String.format(
             "\t<option selected value='%1$s'>%2$s</option>\n", val, text));
       else
-        b.append(String.format("\t<option value='%1$s'>%2$s</option>\n", val,
-            text));
+        b.append(
+            String.format("\t<option value='%1$s'>%2$s</option>\n", val, text));
     }
     b.append("</select>");
     return b.toString();
@@ -225,8 +233,9 @@ public class ListField extends FormFieldBase
     }
     catch (NoSuchFieldException nsfe)
     {
-      throw new SnapException("Options field '" + mAnnotation.options()
-          + "' not present in form", nsfe);
+      throw new SnapException(
+          "Options field '" + mAnnotation.options() + "' not present in form",
+          nsfe);
     }
 
     // Get the options and the values
@@ -245,7 +254,8 @@ public class ListField extends FormFieldBase
     }
     catch (IllegalArgumentException | IllegalAccessException e)
     {
-      throw new SnapException("Can't access field: " + mAnnotation.options(), e);
+      throw new SnapException("Can't access field: " + mAnnotation.options(),
+          e);
     }
   }
 

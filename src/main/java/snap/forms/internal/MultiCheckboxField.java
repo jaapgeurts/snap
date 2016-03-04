@@ -3,6 +3,7 @@ package snap.forms.internal;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -23,12 +24,18 @@ public class MultiCheckboxField extends FormFieldBase
       throw new IllegalArgumentException(
           "MultiCheckboxFields must be of type Set<String>, Set<Long>, Set<Integer> or Set<ListOption>");
 
-    mCssClass = mAnnotation.cssClass();
+    addAttribute("class", mAnnotation.cssClass());
     mHtmlId = mAnnotation.id();
   }
 
   @Override
   public String render()
+  {
+    return render(getAttributes());
+  }
+
+  @Override
+  public String render(Map<String, String> attributes)
   {
     if (!isVisible())
       return "";
@@ -43,16 +50,16 @@ public class MultiCheckboxField extends FormFieldBase
       Optional<?> optional = mOptions.stream().filter(o -> isValue(o, which))
           .findFirst();
       if (optional.isPresent())
-        return doRender(optional.get());
+        return doRender(optional.get(), attributes);
       else
-        throw new SnapException(String.format(
-            "Can't render field for value %1$s of field %2$s", which,
-            mField.getName()));
+        throw new SnapException(
+            String.format("Can't render field for value %1$s of field %2$s",
+                which, mField.getName()));
     }
     else
     {
       // render all
-      return mOptions.stream().map(o -> doRender(o))
+      return mOptions.stream().map(o -> doRender(o, attributes))
           .collect(Collectors.joining("\n"));
     }
   }
@@ -74,7 +81,7 @@ public class MultiCheckboxField extends FormFieldBase
     return val.equals(key);
   }
 
-  private String doRender(Object o)
+  private String doRender(Object o, Map<String, String> attributes)
   {
     String val, text = "", htmlid;
     if (o instanceof ListOption)
@@ -92,17 +99,15 @@ public class MultiCheckboxField extends FormFieldBase
 
     // check type here.
     if (mFieldValues.contains(val))
-      return String
-          .format(
-              "\t<input id='%1$s-%5$s' type='checkbox' name='%2$s' value='%3$s' checked %4$s/>",
-              mAnnotation.id(), mField.getName(), val, text, htmlid,
-              getHtmlAttributes());
+      return String.format(
+          "\t<input id='%1$s-%5$s' type='checkbox' name='%2$s' value='%3$s' checked %4$s/>",
+          mAnnotation.id(), mField.getName(), val, text, htmlid,
+          attributesToString(attributes));
     else
-      return String
-          .format(
-              "\t<input id='%1$s-%5$s' type='checkbox' name='%2$s' value='%3$s' %4$s/>",
-              mAnnotation.id(), mField.getName(), val, text, htmlid,
-              getHtmlAttributes());
+      return String.format(
+          "\t<input id='%1$s-%5$s' type='checkbox' name='%2$s' value='%3$s' %4$s/>",
+          mAnnotation.id(), mField.getName(), val, text, htmlid,
+          attributesToString(attributes));
   }
 
   @Override
@@ -124,8 +129,8 @@ public class MultiCheckboxField extends FormFieldBase
       {
         // check if the value that was returned is actually in the possible
         // listoptions
-        if (mOptions.stream().anyMatch(
-            obj -> ((ListOption)obj).getValue().equals(value)))
+        if (mOptions.stream()
+            .anyMatch(obj -> ((ListOption)obj).getValue().equals(value)))
           addValueToFormFieldSet(value);
         else
           log.warn("Possible hacking attempt! Submitted field value '" + value
@@ -173,8 +178,9 @@ public class MultiCheckboxField extends FormFieldBase
     }
     catch (NoSuchFieldException nsfe)
     {
-      throw new SnapException("Options field '" + mAnnotation.options()
-          + "' not present in form", nsfe);
+      throw new SnapException(
+          "Options field '" + mAnnotation.options() + "' not present in form",
+          nsfe);
     }
 
     // Get the options and the values
@@ -193,7 +199,8 @@ public class MultiCheckboxField extends FormFieldBase
     }
     catch (IllegalArgumentException | IllegalAccessException e)
     {
-      throw new SnapException("Can't access field: " + mAnnotation.options(), e);
+      throw new SnapException("Can't access field: " + mAnnotation.options(),
+          e);
     }
   }
 

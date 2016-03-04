@@ -1,6 +1,8 @@
 package snap.forms.internal;
 
 import java.lang.reflect.Field;
+import java.util.Map;
+
 import snap.forms.Form;
 
 public class SubmitButton extends FormFieldBase
@@ -15,20 +17,25 @@ public class SubmitButton extends FormFieldBase
       throw new IllegalArgumentException("SubmitFields must be of type String");
 
     mLabel = mAnnotation.label();
-    mCssClass = mAnnotation.cssClass();
+    addAttribute("class", mAnnotation.cssClass());
     mHtmlId = mAnnotation.id();
   }
 
   @Override
   public String render()
   {
+    return render(getAttributes());
+  }
+
+  @Override
+  public String render(Map<String, String> attributes)
+  {
     if (!isVisible())
       return "";
 
-    return String
-        .format(
-            "<input type='submit' id='%1$s' name='%2$s' value='%3$s' %4$s/>",
-            mAnnotation.id(), mField.getName(), mLabel, getHtmlAttributes());
+    return String.format(
+        "<input type='submit' id='%1$s' name='%2$s' value='%3$s' %4$s/>",
+        mAnnotation.id(), mField.getName(), mLabel, attributesToString(attributes));
   }
 
   @Override

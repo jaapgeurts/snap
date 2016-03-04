@@ -2,6 +2,7 @@ package snap.forms.internal;
 
 import java.lang.reflect.Field;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -20,13 +21,19 @@ public class RadioField extends FormFieldBase
     if (!field.getType().isEnum())
       throw new IllegalArgumentException("RadioFieldsmust be an enum");
 
-    mCssClass = mAnnotation.cssClass();
+    addAttribute("class", mAnnotation.cssClass());
     mHtmlId = mAnnotation.id();
 
   }
 
   @Override
   public String render()
+  {
+    return render(getAttributes());
+  }
+
+  @Override
+  public String render(Map<String, String> attributes)
   {
     if (!isVisible())
       return "";
@@ -43,16 +50,16 @@ public class RadioField extends FormFieldBase
       Optional<?> optional = mOptions.stream().filter(o -> isValue(o, which))
           .findFirst();
       if (!optional.isPresent())
-        throw new SnapException(String.format(
-            "Can't render field for value %1$s of field %2$s", which,
-            mField.getName()));
-      return doRender(optional.get(), defaultValue);
+        throw new SnapException(
+            String.format("Can't render field for value %1$s of field %2$s",
+                which, mField.getName()));
+      return doRender(optional.get(), defaultValue, attributes);
 
     }
     else
     {
       // render all
-      return mOptions.stream().map(o -> doRender(o, defaultValue))
+      return mOptions.stream().map(o -> doRender(o, defaultValue, attributes))
           .collect(Collectors.joining("\n"));
     }
   }
@@ -69,7 +76,7 @@ public class RadioField extends FormFieldBase
   public String getLabel(String which)
   {
     getFormFields();
-    
+
     Optional<?> optional = mOptions.stream().filter(o -> isValue(o, which))
         .findFirst();
     if (!optional.isPresent())
@@ -94,7 +101,7 @@ public class RadioField extends FormFieldBase
   public String getHtmlId(String which)
   {
     getFormFields();
-    
+
     Optional<?> optional = mOptions.stream().filter(o -> isValue(o, which))
         .findFirst();
     if (!optional.isPresent())
@@ -125,8 +132,9 @@ public class RadioField extends FormFieldBase
     // Object[] enums = classField.getType().getEnumConstants();
     if (values == null)
     {
-      log.warn("Possible hacking attempt! Expected return value for Radio button field '"
-          + mField.getName() + "' but found nothing");
+      log.warn(
+          "Possible hacking attempt! Expected return value for Radio button field '"
+              + mField.getName() + "' but found nothing");
     }
     else
     {
@@ -177,7 +185,8 @@ public class RadioField extends FormFieldBase
     return val.equals(key);
   }
 
-  private String doRender(Object o, String defaultValue)
+  private String doRender(Object o, String defaultValue,
+      Map<String, String> attributes)
   {
     String val;
     if (o instanceof ListOption)
@@ -191,14 +200,15 @@ public class RadioField extends FormFieldBase
     }
 
     if (val.equals(defaultValue))
-      return String
-          .format(
-              "<input id='%1$s-%3$s' type='radio' name='%2$s' value='%3$s' checked $4$s/>",
-              mAnnotation.id(), mField.getName(), val, getHtmlAttributes());
+      return String.format(
+          "<input id='%1$s-%3$s' type='radio' name='%2$s' value='%3$s' checked $4$s/>",
+          mAnnotation.id(), mField.getName(), val,
+          attributesToString(attributes));
     else
       return String.format(
           "<input id='%1$s-%3$s' type='radio' name='%2$s' value='%3$s' $4$s/>",
-          mAnnotation.id(), mField.getName(), val, getHtmlAttributes());
+          mAnnotation.id(), mField.getName(), val,
+          attributesToString(attributes));
 
   }
 
@@ -211,8 +221,9 @@ public class RadioField extends FormFieldBase
     }
     catch (NoSuchFieldException nsfe)
     {
-      throw new SnapException("Options field '" + mAnnotation.options()
-          + "' not present in form", nsfe);
+      throw new SnapException(
+          "Options field '" + mAnnotation.options() + "' not present in form",
+          nsfe);
     }
 
     // Get the options and the values
@@ -222,7 +233,8 @@ public class RadioField extends FormFieldBase
     }
     catch (IllegalArgumentException | IllegalAccessException e)
     {
-      throw new SnapException("Can't access field: " + mAnnotation.options(), e);
+      throw new SnapException("Can't access field: " + mAnnotation.options(),
+          e);
     }
   }
 

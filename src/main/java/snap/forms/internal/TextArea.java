@@ -1,6 +1,8 @@
 package snap.forms.internal;
 
 import java.lang.reflect.Field;
+import java.util.Map;
+
 import snap.forms.Form;
 
 public class TextArea extends FormFieldBase
@@ -16,12 +18,18 @@ public class TextArea extends FormFieldBase
           "TextAreaFields must be of type String");
 
     mLabel = mAnnotation.label();
-    mCssClass = mAnnotation.cssClass();
+    addAttribute("class", mAnnotation.cssClass());
     mHtmlId = mAnnotation.id();
   }
 
   @Override
   public String render()
+  {
+    return render(getAttributes());
+  }
+
+  @Override
+  public String render(Map<String, String> attributes)
   {
     if (!isVisible())
       return "";
@@ -37,8 +45,7 @@ public class TextArea extends FormFieldBase
 
     return String.format(
         "<textarea id='%1$s' name='%2$s'%3$s%4$s %6$s>%5$s</textarea>\n",
-        mAnnotation.id(), mField.getName(), cols, rows, value,
-        getHtmlAttributes());
+        mAnnotation.id(), mField.getName(), cols, rows, value, attributesToString(attributes));
 
   }
 
