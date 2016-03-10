@@ -170,7 +170,8 @@ public abstract class FormFieldBase implements FormField
   @Override
   public void addAttribute(String attrib, String value)
   {
-    mAttributes.put(attrib, value);
+    if (!"".equals(value))
+      mAttributes.put(attrib, value);
   }
 
   @Override
