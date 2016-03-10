@@ -219,13 +219,16 @@ public class Form
         rowCloseTag = "</div>";
       }
     }
-    // TODO: render a CSRF token
+
+    // render all fields
     StringBuilder builder = new StringBuilder();
     builder.append(renderErrors());
     builder.append(startTag);
     for (FormField field : mFieldList)
     {
       builder.append(rowOpenTag);
+      builder.append(String.format("<label for='%1$s'>%2$s</label>",
+          field.getHtmlId(), field.getLabel()));
       builder.append(field.render());
       builder.append(rowCloseTag);
     }

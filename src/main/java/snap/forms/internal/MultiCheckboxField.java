@@ -42,8 +42,8 @@ public class MultiCheckboxField extends FormFieldBase
 
     getFormFields();
 
-    String which = getAttribute("which");
-    if (which != null && !"".equals("which"))
+    String which = attributes.get("which");
+    if (which != null)
     {
       removeAttribute("which");
       // render just one

@@ -42,7 +42,7 @@ public class RadioField extends FormFieldBase
 
     String defaultValue = getDefaultValue();
 
-    String which = getAttribute("which");
+    String which = attributes.get("which");
     if (which != null)
     {
       removeAttribute("which");
