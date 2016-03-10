@@ -132,21 +132,20 @@ public class ListField extends FormFieldBase
     {
       case MULTI_LIST:
         b.append(String.format(
-            "\n<select id='%1$s' name='%2$s' class='%3$s' size='%4$s' multiple %5$s>\n",
-            mAnnotation.id(), mField.getName(), mAnnotation.cssClass(),
-            mAnnotation.size(), attributesToString(attributes)));
+            "\n<select id='%1$s' name='%2$s' size='%3$s' multiple %4$s>\n",
+            mAnnotation.id(), mField.getName(), mAnnotation.size(),
+            attributesToString(attributes)));
         break;
       case DROPDOWN_LIST:
-        b.append(String.format(
-            "\n<select id='%1$s' name='%2$s' class='%3$s' %4$s>\n",
-            mAnnotation.id(), mField.getName(), mAnnotation.cssClass(),
+        b.append(String.format("\n<select id='%1$s' name='%2$s' %3$s>\n",
+            mAnnotation.id(), mField.getName(),
             attributesToString(attributes)));
         break;
       case SINGLE_LIST:
-        b.append(String.format(
-            "\n<select id='%1$s' name='%2$s' class='%3$s' size='%4$s' %5$s>\n",
-            mAnnotation.id(), mField.getName(), mAnnotation.cssClass(),
-            mAnnotation.size(), attributesToString(attributes)));
+        b.append(
+            String.format("\n<select id='%1$s' name='%2$s' size='%3$s' %4$s>\n",
+                mAnnotation.id(), mField.getName(), mAnnotation.size(),
+                attributesToString(attributes)));
     }
 
     // Check if the field is present

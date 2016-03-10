@@ -286,7 +286,8 @@ public class Form
     }
 
     attribs.putAll(field.getAttributes());
-    attribs.put("class", classMerged);
+    if (classMerged != null && classMerged.length() > 0)
+      attribs.put("class", classMerged);
 
     return field.render(attribs);
 

@@ -155,6 +155,17 @@ public abstract class FormFieldBase implements FormField
   {
     mLabel = label;
   }
+  
+  /**
+   * Returns all possible field values for this field
+   * 
+   * @return a list of strings
+   */
+  @Override
+  public String[] getOptions()
+  {
+    return new String[0];
+  }
 
   @Override
   public void addAttribute(String attrib, String value)

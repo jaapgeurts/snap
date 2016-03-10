@@ -45,7 +45,7 @@ public class RadioField extends FormFieldBase
     String which = attributes.get("which");
     if (which != null)
     {
-      removeAttribute("which");
+      attributes.remove("which");
       // render just one
       Optional<?> optional = mOptions.stream().filter(o -> isValue(o, which))
           .findFirst();
@@ -62,6 +62,22 @@ public class RadioField extends FormFieldBase
       return mOptions.stream().map(o -> doRender(o, defaultValue, attributes))
           .collect(Collectors.joining("\n"));
     }
+  }
+
+  /**
+   * Returns all possible field values for this field
+   * 
+   * @return a list of strings
+   */
+  @Override
+  public String[] getOptions()
+  {
+    getFormFields();
+    
+    return mOptions.stream().map(o -> {
+      return o instanceof ListOption ? ((ListOption)o).getValue() : o.toString();
+    }).collect(Collectors.toList()).toArray(new String[] {});
+
   }
 
   /**
@@ -201,12 +217,12 @@ public class RadioField extends FormFieldBase
 
     if (val.equals(defaultValue))
       return String.format(
-          "<input id='%1$s-%3$s' type='radio' name='%2$s' value='%3$s' checked $4$s/>",
+          "<input id='%1$s-%3$s' type='radio' name='%2$s' value='%3$s' checked %4$s/>",
           mAnnotation.id(), mField.getName(), val,
           attributesToString(attributes));
     else
       return String.format(
-          "<input id='%1$s-%3$s' type='radio' name='%2$s' value='%3$s' $4$s/>",
+          "<input id='%1$s-%3$s' type='radio' name='%2$s' value='%3$s' %4$s/>",
           mAnnotation.id(), mField.getName(), val,
           attributesToString(attributes));
 

@@ -45,7 +45,7 @@ public class MultiCheckboxField extends FormFieldBase
     String which = attributes.get("which");
     if (which != null)
     {
-      removeAttribute("which");
+      attributes.remove("which");
       // render just one
       Optional<?> optional = mOptions.stream().filter(o -> isValue(o, which))
           .findFirst();
@@ -62,6 +62,67 @@ public class MultiCheckboxField extends FormFieldBase
       return mOptions.stream().map(o -> doRender(o, attributes))
           .collect(Collectors.joining("\n"));
     }
+  }
+
+  /**
+   * Returns all possible field values for this field
+   * 
+   * @return a list of strings
+   */
+  @Override
+  public String[] getOptions()
+  {
+    getFormFields();
+
+    return mOptions.stream().map(o -> {
+      return o instanceof ListOption ? ((ListOption)o).getValue()
+          : o.toString();
+    }).collect(Collectors.toList()).toArray(new String[] {});
+
+  }
+
+  @Override
+  public void setFieldValue(String[] values)
+  {
+
+    getFormFields();
+    mFieldValues.clear();
+
+    if (values == null)
+      return;
+
+    if (mOptions == null)
+      throw new SnapException("Did you forget to set the Options variable");
+
+    for (String value : values)
+    {
+      if (mOptionFieldClass.isAssignableFrom(ListOption.class))
+      {
+        // check if the value that was returned is actually in the possible
+        // listoptions
+        if (mOptions.stream()
+            .anyMatch(obj -> ((ListOption)obj).getValue().equals(value)))
+          addValueToFormFieldSet(value);
+        else
+          log.warn("Possible hacking attempt! Submitted field value '" + value
+              + "' not found in options");
+      }
+      else
+      {
+        // content is another type of object
+        if (mOptions.stream().anyMatch(obj -> obj.toString().equals(value)))
+          addValueToFormFieldSet(value);
+        else
+          log.warn("Possible hacking attempt! Submitted field value '" + value
+              + "' not found in options");
+      }
+    }
+  }
+
+  @Override
+  public String toString()
+  {
+    return "MultiCheckBoxField { " + mField.getName() + " }";
   }
 
   private boolean isValue(Object o, String key)
@@ -108,44 +169,6 @@ public class MultiCheckboxField extends FormFieldBase
           "\t<input id='%1$s-%5$s' type='checkbox' name='%2$s' value='%3$s' %4$s/>",
           mAnnotation.id(), mField.getName(), val, text, htmlid,
           attributesToString(attributes));
-  }
-
-  @Override
-  public void setFieldValue(String[] values)
-  {
-
-    getFormFields();
-    mFieldValues.clear();
-
-    if (values == null)
-      return;
-
-    if (mOptions == null)
-      throw new SnapException("Did you forget to set the Options variable");
-
-    for (String value : values)
-    {
-      if (mOptionFieldClass.isAssignableFrom(ListOption.class))
-      {
-        // check if the value that was returned is actually in the possible
-        // listoptions
-        if (mOptions.stream()
-            .anyMatch(obj -> ((ListOption)obj).getValue().equals(value)))
-          addValueToFormFieldSet(value);
-        else
-          log.warn("Possible hacking attempt! Submitted field value '" + value
-              + "' not found in options");
-      }
-      else
-      {
-        // content is another type of object
-        if (mOptions.stream().anyMatch(obj -> obj.toString().equals(value)))
-          addValueToFormFieldSet(value);
-        else
-          log.warn("Possible hacking attempt! Submitted field value '" + value
-              + "' not found in options");
-      }
-    }
   }
 
   private void addValueToFormFieldSet(String value)
@@ -202,12 +225,6 @@ public class MultiCheckboxField extends FormFieldBase
       throw new SnapException("Can't access field: " + mAnnotation.options(),
           e);
     }
-  }
-
-  @Override
-  public String toString()
-  {
-    return "MultiCheckBoxField { " + mField.getName() + " }";
   }
 
   private snap.forms.annotations.MultiCheckboxField mAnnotation;
