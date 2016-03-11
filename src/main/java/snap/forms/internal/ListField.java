@@ -29,9 +29,9 @@ public class ListField extends FormFieldBase
     {
       if (!(field.getType().equals(String.class)
           || field.getType().equals(Integer.class)
-          || field.getType().equals(Long.class)))
+          || field.getType().equals(Long.class) || field.getType().isEnum()))
         throw new IllegalArgumentException(
-            "DropDown and Single ListField must be of type String, Integer or Long");
+            "DropDown and Single ListField must be of type String, Integer, Long or Enum");
     }
 
     mLabel = mAnnotation.label();
@@ -55,9 +55,12 @@ public class ListField extends FormFieldBase
           mField.set(mForm, Integer.valueOf(values[0]));
         else if (mField.getType().equals(Long.class))
           mField.set(mForm, Long.valueOf(values[0]));
+        else if (mField.getType().isEnum())
+          mField.set(mForm,
+              Enum.valueOf((Class<Enum>)mField.getType(), values[0]));
         else
           throw new SnapException(
-              "Only field types of String, Long and Integer are supported");
+              "Only field types of String, Long, Integer and Enums are supported");
       }
       catch (NumberFormatException nfe)
       {
@@ -72,6 +75,7 @@ public class ListField extends FormFieldBase
       }
       return;
     }
+    // TODO: still need to handle a multi-list
 
     getFormFields();
     mFieldValues.clear();
