@@ -3,6 +3,7 @@ package snap.forms.internal;
 import java.lang.reflect.Field;
 import java.util.Map;
 
+import snap.Helpers;
 import snap.forms.Form;
 
 public class TextField extends FormFieldBase
@@ -36,7 +37,7 @@ public class TextField extends FormFieldBase
 
     return String.format(
         "<input type='text' id='%1$s' name='%2$s' value='%3$s' %4$s/>\n",
-        mAnnotation.id(), mField.getName(), value, attributesToString(attributes));
+        mAnnotation.id(), mField.getName(), value, Helpers.attrToString(attributes));
 
   }
 

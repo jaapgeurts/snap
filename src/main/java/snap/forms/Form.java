@@ -21,6 +21,7 @@ import javax.validation.Validator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import snap.Helpers;
 import snap.SnapException;
 import snap.forms.internal.FileField;
 import snap.forms.internal.FormFieldBase;
@@ -227,8 +228,7 @@ public class Form
     for (FormField field : mFieldList)
     {
       builder.append(rowOpenTag);
-      builder.append(String.format("<label for='%1$s'>%2$s</label>",
-          field.getHtmlId(), field.getLabel()));
+      builder.append(renderLabel(field, new HashMap<String,Object>()));
       builder.append(field.render());
       builder.append(rowCloseTag);
     }
@@ -305,16 +305,28 @@ public class Form
   public String renderLabel(String fieldName, Map<String, Object> attributes)
   {
     FormField field = mFieldMap.get(fieldName);
+    return renderLabel(field, attributes);
+  }
 
+  public String renderLabel(FormField field, Map<String, Object> attributes)
+  {
     if (field == null)
       throw new SnapException(
-          "Rendering of label for non-existing field " + fieldName);
+          "Rendering of label for non-existing field");
 
     String htmlId = field.getHtmlId();
     String label = field.getLabel();
 
-    return String.format("<label for='%1$s'>%2$s</label>\n", htmlId, label);
+    if (label == null)
+      return "";
 
+    // Convert <string,object> map to <string,string> map
+    Map<String, String> attribs = new HashMap<>();
+    attributes.entrySet().stream()
+        .forEach(e -> attribs.put(e.getKey(), e.getValue().toString()));
+
+    return String.format("<label for='%1$s' %3%s>%2$s</label>\n", htmlId, label,
+        Helpers.attrToString(attribs));
   }
 
   /**

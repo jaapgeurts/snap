@@ -6,6 +6,7 @@ import java.util.Set;
 
 import javax.servlet.http.Part;
 
+import snap.Helpers;
 import snap.SnapException;
 import snap.forms.Form;
 
@@ -36,7 +37,7 @@ public class FileField extends FormFieldBase
   {
     return render(getAttributes());
   }
-  
+
   @Override
   public String render(Map<String, String> attributes)
   {
@@ -46,10 +47,10 @@ public class FileField extends FormFieldBase
     if (mMultiple)
       return String.format(
           "<input type='file' id='%1$s' name='%2$s' multiple %3$s/>\n",
-          mAnnotation.id(), mField.getName(),  attributesToString(attributes));
+          mAnnotation.id(), mField.getName(), Helpers.attrToString(attributes));
     else
       return String.format("<input type='file' id='%1$s' name='%2$s' %3$s/>\n",
-          mAnnotation.id(), mField.getName(), attributesToString(attributes));
+          mAnnotation.id(), mField.getName(), Helpers.attrToString(attributes));
 
   }
 

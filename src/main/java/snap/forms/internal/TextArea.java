@@ -3,6 +3,7 @@ package snap.forms.internal;
 import java.lang.reflect.Field;
 import java.util.Map;
 
+import snap.Helpers;
 import snap.forms.Form;
 
 public class TextArea extends FormFieldBase
@@ -45,7 +46,8 @@ public class TextArea extends FormFieldBase
 
     return String.format(
         "<textarea id='%1$s' name='%2$s'%3$s%4$s %6$s>%5$s</textarea>\n",
-        mAnnotation.id(), mField.getName(), cols, rows, value, attributesToString(attributes));
+        mAnnotation.id(), mField.getName(), cols, rows, value,
+        Helpers.attrToString(attributes));
 
   }
 

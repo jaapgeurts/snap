@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import snap.Helpers;
 import snap.SnapException;
 import snap.forms.Form;
 import snap.forms.ListOption;
@@ -138,18 +139,18 @@ public class ListField extends FormFieldBase
         b.append(String.format(
             "\n<select id='%1$s' name='%2$s' size='%3$s' multiple %4$s>\n",
             mAnnotation.id(), mField.getName(), mAnnotation.size(),
-            attributesToString(attributes)));
+            Helpers.attrToString(attributes)));
         break;
       case DROPDOWN_LIST:
         b.append(String.format("\n<select id='%1$s' name='%2$s' %3$s>\n",
             mAnnotation.id(), mField.getName(),
-            attributesToString(attributes)));
+            Helpers.attrToString(attributes)));
         break;
       case SINGLE_LIST:
         b.append(
             String.format("\n<select id='%1$s' name='%2$s' size='%3$s' %4$s>\n",
                 mAnnotation.id(), mField.getName(), mAnnotation.size(),
-                attributesToString(attributes)));
+                Helpers.attrToString(attributes)));
     }
 
     // Check if the field is present

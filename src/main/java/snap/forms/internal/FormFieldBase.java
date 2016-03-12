@@ -3,8 +3,6 @@ package snap.forms.internal;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -190,13 +188,6 @@ public abstract class FormFieldBase implements FormField
   public Map<String, String> getAttributes()
   {
     return mAttributes;
-  }
-
-  protected String attributesToString(Map<String, String> attribs)
-  {
-    return attribs.entrySet().stream()
-        .map(e -> e.getKey() + "='" + e.getValue() + "'")
-        .collect(Collectors.joining(" "));
   }
 
   protected String mHtmlId;

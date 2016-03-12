@@ -3,6 +3,7 @@ package snap.forms.internal;
 import java.lang.reflect.Field;
 import java.util.Map;
 
+import snap.Helpers;
 import snap.SnapException;
 import snap.forms.Form;
 
@@ -60,11 +61,11 @@ public class CheckBoxField extends FormFieldBase
     if (val)
       return String.format(
           "<input type='checkbox' id='%1$s' name='%2$s' value='%2$s' checked %3$s/>\n",
-          mAnnotation.id(), mField.getName(), attributesToString(attributes));
+          mAnnotation.id(), mField.getName(), Helpers.attrToString(attributes));
     else
       return String.format(
           "<input type='checkbox' id='%1$s' name='%2$s' value='%2$s' %3$s/>\n",
-          mAnnotation.id(), mField.getName(), attributesToString(attributes));
+          mAnnotation.id(), mField.getName(), Helpers.attrToString(attributes));
 
   }
 

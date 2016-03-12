@@ -8,6 +8,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import snap.Helpers;
 import snap.SnapException;
 import snap.forms.Form;
 import snap.forms.ListOption;
@@ -163,12 +164,12 @@ public class MultiCheckboxField extends FormFieldBase
       return String.format(
           "\t<input id='%1$s-%5$s' type='checkbox' name='%2$s' value='%3$s' checked %4$s/>",
           mAnnotation.id(), mField.getName(), val, text, htmlid,
-          attributesToString(attributes));
+          Helpers.attrToString(attributes));
     else
       return String.format(
           "\t<input id='%1$s-%5$s' type='checkbox' name='%2$s' value='%3$s' %4$s/>",
           mAnnotation.id(), mField.getName(), val, text, htmlid,
-          attributesToString(attributes));
+          Helpers.attrToString(attributes));
   }
 
   private void addValueToFormFieldSet(String value)

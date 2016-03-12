@@ -3,6 +3,7 @@ package snap.forms.internal;
 import java.lang.reflect.Field;
 import java.util.Map;
 
+import snap.Helpers;
 import snap.forms.Form;
 
 public class SubmitButton extends FormFieldBase
@@ -35,7 +36,8 @@ public class SubmitButton extends FormFieldBase
 
     return String.format(
         "<input type='submit' id='%1$s' name='%2$s' value='%3$s' %4$s/>",
-        mAnnotation.id(), mField.getName(), mLabel, attributesToString(attributes));
+        mAnnotation.id(), mField.getName(), mLabel,
+        Helpers.attrToString(attributes));
   }
 
   @Override

@@ -71,7 +71,7 @@ public class Label extends JavaTagBase
       name = o.toString();
 
     }
-    
+
     p(form.renderLabel(name, paramMap));
   }
 }
