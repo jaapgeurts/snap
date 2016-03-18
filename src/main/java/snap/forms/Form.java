@@ -325,7 +325,7 @@ public class Form
     attributes.entrySet().stream()
         .forEach(e -> attribs.put(e.getKey(), e.getValue().toString()));
 
-    return String.format("<label for='%1$s' %3%s>%2$s</label>\n", htmlId, label,
+    return String.format("<label for='%1$s' %3$s>%2$s</label>\n", htmlId, label,
         Helpers.attrToString(attribs));
   }
 
