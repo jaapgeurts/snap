@@ -45,10 +45,8 @@ public class LinebreaksToParagraph extends JavaTagBase
     {
       // check if any were passed by position
       Object o = params.getDefault();
-      if (o == null)
-        throw new SnapException(
-            "@toP() must have at least one anonymous string argument or 'text' argument");
-      s = (String)o.toString();
+      if (o != null)
+        s = (String)o.toString();
     }
     p("<p" + attribs + ">" + s.trim().replaceAll("[\\r|\\n]+", "</p><p"+attribs+">")
         + "</p>");
