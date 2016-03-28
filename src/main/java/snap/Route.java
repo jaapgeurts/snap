@@ -24,6 +24,7 @@ import org.joni.Region;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import snap.annotations.IgnoreLoginRequired;
 import snap.annotations.LoginRedirect;
 import snap.annotations.LoginRequired;
 import snap.annotations.PermissionRequired;
@@ -146,6 +147,7 @@ public class Route
     RequestResult result = null;
     if (actionMethod != null)
     {
+      Class<?> actionController = actionMethod.getDeclaringClass();
       if (mRouteListener != null)
       {
         RequestResult r = mRouteListener.onBeforeRoute(context);
@@ -160,7 +162,9 @@ public class Route
         validateCsrfToken(context);
       }
 
-      if (actionMethod.isAnnotationPresent(LoginRequired.class))
+      if ((actionController.isAnnotationPresent(LoginRedirect.class) && 
+          !actionMethod.isAnnotationPresent(IgnoreLoginRequired.class)) ||
+          actionMethod.isAnnotationPresent(LoginRequired.class))
       {
         // TODO: think about this, because it requires session and not stateless
         if (context.getAuthenticatedUser() == null)

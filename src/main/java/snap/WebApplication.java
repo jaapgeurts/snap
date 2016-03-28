@@ -1,6 +1,7 @@
 package snap;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Properties;
 
 import javax.servlet.ServletConfig;
@@ -124,11 +125,33 @@ public abstract class WebApplication
 
   }
 
+  /**
+   * Return the Web app properties
+   * 
+   * @return
+   */
+  public Properties getProperties()
+  {
+    Properties p = new Properties();
+    p.putAll(mWebAppProperties);
+    return p;
+  }
+
+  /**
+   * Returns the installed Rythm engine
+   * 
+   * @return
+   */
   public RythmEngine getRenderEngine()
   {
     return mEngine;
   }
 
+  /**
+   * Gets the application servlet context
+   * 
+   * @return
+   */
   public ServletContext getContext()
   {
     return mServletContext;
@@ -145,9 +168,56 @@ public abstract class WebApplication
     mRequestListener = listener;
   }
 
+  /**
+   * Returns the install request listener
+   * 
+   * @return
+   */
   public RequestListener getRequestListener()
   {
     return mRequestListener;
+  }
+
+  /**
+   * Reads the properties of the web app. By default names "webapp.properties"
+   * 
+   * @return
+   */
+  protected Properties readProperties()
+  {
+    return readProperties("webapp.properties");
+  }
+
+  /**
+   * Reads properties from the system path (ie. your resources in WEB-INF
+   * classes
+   * 
+   * @param filePath
+   * @return The properties
+   */
+  protected Properties readProperties(String filePath)
+  {
+    mWebAppProperties = null;
+    try
+    {
+      InputStream in = Thread.currentThread().getContextClassLoader()
+          .getResourceAsStream(filePath);
+      mWebAppProperties = new Properties();
+      try
+      {
+        mWebAppProperties.load(in);
+      }
+      finally
+      {
+        if (in != null)
+          in.close();
+      }
+    }
+    catch (IOException e)
+    {
+      log.warn("Can't read settings.", e);
+    }
+    return getProperties();
   }
 
   private RythmEngine mEngine;
@@ -155,5 +225,7 @@ public abstract class WebApplication
 
   private static WebApplication mWebApplication = null;
   private RequestListener mRequestListener;
+
+  private Properties mWebAppProperties = null;
 
 }

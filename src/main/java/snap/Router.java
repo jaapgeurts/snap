@@ -114,6 +114,7 @@ public class Router
           + method.toString() + " path: " + path);
 
     HttpMethod[] methods = route.getHttpMethods();
+    // TODO: sometimes methods == null
     for (HttpMethod m : methods)
       if (method == m)
         return route;
