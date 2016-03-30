@@ -60,7 +60,7 @@ public class HiddenField extends FormFieldBase
       if (mField.getType().equals(Boolean.class))
       {
         String val = values[0].trim().toLowerCase();
-        if ("".equals(val) || !"true".equals(val) || !"false".equals(val))
+        if ("".equals(val) || !("true".equals(val) || "false".equals(val)))
           throw new SnapException("Only 'true' or 'false' are valid for boolean hidden fields");
         
         mField.set(mForm, Boolean.valueOf(values[0]));
