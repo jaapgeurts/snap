@@ -12,7 +12,7 @@ public class FormErrors extends JavaTagBase
   @Override
   public String __getName()
   {
-    return "form_errors";
+    return "formerrors";
   }
 
   @Override
