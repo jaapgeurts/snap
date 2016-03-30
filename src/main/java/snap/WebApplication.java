@@ -130,7 +130,7 @@ public abstract class WebApplication
    * 
    * @return
    */
-  public Properties getProperties()
+  public static Properties getProperties()
   {
     Properties p = new Properties();
     p.putAll(mWebAppProperties);
@@ -226,6 +226,6 @@ public abstract class WebApplication
   private static WebApplication mWebApplication = null;
   private RequestListener mRequestListener;
 
-  private Properties mWebAppProperties = null;
+  private static Properties mWebAppProperties = null;
 
 }

@@ -114,7 +114,9 @@ public class Router
           + method.toString() + " path: " + path);
 
     HttpMethod[] methods = route.getHttpMethods();
-    // TODO: sometimes methods == null
+    if (methods == null)
+      throw new SnapException("Route has no methods to call");
+      
     for (HttpMethod m : methods)
       if (method == m)
         return route;

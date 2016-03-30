@@ -15,10 +15,9 @@ public class CheckBoxField extends FormFieldBase
   {
     super(form, field);
     mAnnotation = annotation;
-    if (!field.getType().equals(Boolean.class)
-        && !field.getType().equals(boolean.class))
+    if (!field.getType().equals(Boolean.class))
       throw new IllegalArgumentException(
-          "CheckBoxFields must be of type Boolean or boolean");
+          "CheckBoxFields must be of type Boolean");
 
     mLabel = mAnnotation.label();
     addAttribute("class", mAnnotation.cssClass());
@@ -75,29 +74,29 @@ public class CheckBoxField extends FormFieldBase
 
     try
     {
-      if (values == null)
+
+      if (values.length > 1)
       {
-        mField.set(mForm, Boolean.FALSE);
+        log.warn("Possible hacking attempt! Expected one value for field '"
+            + mField.getName() + "' but found: " + values.length);
+      }
+      
+      // Checkboxes only post values when they are checked.
+      // if they are not checked they are not posted back
+      // so always set it to false first.
+      mField.set(mForm,Boolean.FALSE);
+      if (values[0].equals(mField.getName()))
+      {
+        // And set it to true if we found the field. 
+        mField.set(mForm, Boolean.TRUE);
       }
       else
       {
-        if (values.length > 1)
-        {
-          log.warn("Possible hacking attempt! Expected one value for field '"
-              + mField.getName() + "' but found: " + values.length);
-        }
-        if (values[0].equals(mField.getName()))
-        {
-          mField.set(mForm, Boolean.TRUE);
-        }
-        else
-        {
-          log.warn("Possible hacking attempt! Expected value '"
-              + mField.getName() + "' got value: '" + values[0]
-              + "' for Field: " + mField.getName());
-          mField.set(mForm, Boolean.FALSE);
-        }
+        log.warn("Possible hacking attempt! Expected value '" + mField.getName()
+            + "' got value: '" + values[0] + "' for Field: "
+            + mField.getName());
       }
+
     }
     catch (IllegalArgumentException | IllegalAccessException e)
     {

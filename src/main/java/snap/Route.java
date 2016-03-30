@@ -11,8 +11,8 @@ import java.util.Base64;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Optional;
 import java.util.regex.Pattern;
-
 import javax.servlet.http.Cookie;
 
 import org.jcodings.specific.UTF8Encoding;
@@ -147,7 +147,7 @@ public class Route
     RequestResult result = null;
     if (actionMethod != null)
     {
-      Class<?> actionController = actionMethod.getDeclaringClass();
+      Class<?> controllerClass = actionMethod.getDeclaringClass();
       if (mRouteListener != null)
       {
         RequestResult r = mRouteListener.onBeforeRoute(context);
@@ -162,9 +162,9 @@ public class Route
         validateCsrfToken(context);
       }
 
-      if ((actionController.isAnnotationPresent(LoginRedirect.class) && 
-          !actionMethod.isAnnotationPresent(IgnoreLoginRequired.class)) ||
-          actionMethod.isAnnotationPresent(LoginRequired.class))
+      if ((controllerClass.isAnnotationPresent(LoginRequired.class)
+          && !actionMethod.isAnnotationPresent(IgnoreLoginRequired.class))
+          || actionMethod.isAnnotationPresent(LoginRequired.class))
       {
         // TODO: think about this, because it requires session and not stateless
         if (context.getAuthenticatedUser() == null)
@@ -173,8 +173,8 @@ public class Route
           // attempt authenticate via Http Basic
           try
           {
-            String authToken = decodeAuthentication(context
-                .getHeader("Authorization"));
+            String authToken = decodeAuthentication(
+                context.getHeader("Authorization"));
             if (authToken != null)
             {
               int firstColonPos = authToken.indexOf(':');
@@ -182,8 +182,8 @@ public class Route
               String password = authToken.substring(firstColonPos + 1,
                   authToken.length());
 
-              isAuthenticated = WebApplication.getInstance().authenticateUser(
-                  context, username, password);
+              isAuthenticated = WebApplication.getInstance()
+                  .authenticateUser(context, username, password);
             }
           }
           catch (Exception e)
@@ -201,13 +201,14 @@ public class Route
       {
         User user = context.getAuthenticatedUser();
         if (user == null)
-          throw new AuthenticationException("Not allowed to access URL: "
-              + context.getRequest().getPathInfo() + ". User not Authenticated");
+          throw new AuthenticationException(
+              "Not allowed to access URL: " + context.getRequest().getPathInfo()
+                  + ". User not Authenticated");
 
         RoleRequired[] roles = actionMethod
             .getAnnotationsByType(RoleRequired.class);
-        boolean hasRole = Arrays.stream(roles).anyMatch(
-            r -> user.hasRole(r.role()));
+        boolean hasRole = Arrays.stream(roles)
+            .anyMatch(r -> user.hasRole(r.role()));
 
         if (!hasRole)
           throw new AuthorizationException("Not allowed to access URL: "
@@ -217,14 +218,15 @@ public class Route
       {
         User user = context.getAuthenticatedUser();
         if (user == null)
-          throw new AuthenticationException("Not allowed to access URL: "
-              + context.getRequest().getPathInfo() + ". User not Authenticated");
+          throw new AuthenticationException(
+              "Not allowed to access URL: " + context.getRequest().getPathInfo()
+                  + ". User not Authenticated");
 
         // TODO: consider anyMatch vs allMatch
         PermissionRequired[] rights = actionMethod
             .getAnnotationsByType(PermissionRequired.class);
-        boolean hasRight = Arrays.stream(rights).anyMatch(
-            r -> user.hasPermission(r.permission()));
+        boolean hasRight = Arrays.stream(rights)
+            .anyMatch(r -> user.hasPermission(r.permission()));
         if (!hasRight)
           throw new AuthorizationException("Not allowed to access URL: "
               + context.getRequest().getPathInfo() + ". User not Authorized");
@@ -294,8 +296,8 @@ public class Route
     }
     else
     {
-      String message = "Controller or Method not found for route: "
-          + getAlias() + ". Specified: " + mController + "::" + mMethodName;
+      String message = "Controller or Method not found for route: " + getAlias()
+          + ". Specified: " + mController + "::" + mMethodName;
       throw new SnapException(message);
     }
   }
@@ -316,8 +318,8 @@ public class Route
       return null;
     }
 
-    String credentials = new String(
-        Base64.getDecoder().decode(parts[1].trim()), StandardCharsets.UTF_8);
+    String credentials = new String(Base64.getDecoder().decode(parts[1].trim()),
+        StandardCharsets.UTF_8);
     return credentials;
 
   }
@@ -443,8 +445,8 @@ public class Route
       while (entries.hasNext())
       {
         NameEntry entry = entries.next();
-        String name = new String(entry.name, entry.nameP, entry.nameEnd
-            - entry.nameP);
+        String name = new String(entry.name, entry.nameP,
+            entry.nameEnd - entry.nameP);
         int number = entry.getBackRefs()[0];
         int start = region.beg[number];
         int end = region.end[number];
@@ -529,17 +531,30 @@ public class Route
     if (mMethodRef == null || mMethodRef.get() == null)
     {
       Method m;
+      Object controller = getController();
+      if (controller == null)
+        return null;
+
       try
       {
-        Object controller = getController();
-        if (controller == null)
-          return null;
         m = controller.getClass().getMethod(mMethodName, RequestContext.class);
         mMethodRef = new SoftReference<Method>(m);
       }
       catch (NoSuchMethodException | SecurityException e)
       {
-        log.error("Can't get method for name: " + mMethodName, e);
+        Method[] methods = controller.getClass().getMethods();
+        Optional<Method> result = Arrays.stream(methods)
+            .filter(x -> x.getName().equals(mMethodName)).findFirst();
+        if (result.isPresent())
+          log.error("Route " + getAlias() + " has method " + mMethodName
+              + " in controller " + mController
+              + " but has wrong signature. Expected: " + mMethodName
+              + "(RequestContext); found: " + result.get().toGenericString(),
+              e);
+        else
+          log.error("Route " + getAlias() + " has no method " + mMethodName
+              + " in controller " + mController, e);
+
         return null;
       }
     }

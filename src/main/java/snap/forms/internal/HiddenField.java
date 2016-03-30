@@ -4,6 +4,7 @@ import java.lang.reflect.Field;
 import java.util.Map;
 
 import snap.Helpers;
+import snap.SnapException;
 import snap.forms.Form;
 
 public class HiddenField extends FormFieldBase
@@ -14,8 +15,12 @@ public class HiddenField extends FormFieldBase
   {
     super(form, field);
     mAnnotation = annotation;
-    if (!field.getType().equals(String.class))
-      throw new IllegalArgumentException("HiddenFields must be of type String");
+    if (!(field.getType().equals(String.class)
+        || field.getType().equals(Boolean.class)
+        || field.getType().equals(Integer.class)
+        || field.getType().equals(Long.class)))
+      throw new IllegalArgumentException(
+          "HiddenFields must be of type String, Boolean, Integer, Long");
 
     mHtmlId = mAnnotation.id();
   }
@@ -36,6 +41,50 @@ public class HiddenField extends FormFieldBase
         "<input type='hidden' id='%1$s' name='%2$s' value='%3$s' %4$s/>",
         mAnnotation.id(), mField.getName(), getFieldValue(),
         Helpers.attrToString(attributes));
+  }
+
+  @Override
+  public void setFieldValue(String[] values)
+  {
+    try
+    {
+
+      if (values.length > 1)
+      {
+        log.warn("Possible hacking attempt! Expected one value for field '"
+            + mField.getName() + "' but found: " + values.length);
+      }
+
+      if (mField.getType().equals(String.class))
+        super.setFieldValue(values);
+      if (mField.getType().equals(Boolean.class))
+      {
+        String val = values[0].trim().toLowerCase();
+        if ("".equals(val) || !"true".equals(val) || !"false".equals(val))
+          throw new SnapException("Only 'true' or 'false' are valid for boolean hidden fields");
+        
+        mField.set(mForm, Boolean.valueOf(values[0]));
+      }
+      else if (mField.getType().equals(Integer.class))
+        mField.set(mForm, Integer.valueOf(values[0]));
+      else if (mField.getType().equals(Long.class))
+        mField.set(mForm, Long.valueOf(values[0]));
+      else
+        throw new SnapException(
+            "Only field types of String, Boolean, Long, Integer are supported");
+      
+    }
+    catch(NumberFormatException nfe)
+    {
+      log.warn("Possible hacking attempt! Submitted field value '" + values[0]
+          + "' can't be converted to numeric type.", nfe);
+    }
+    catch (IllegalArgumentException | IllegalAccessException e)
+    {
+      String message = "Can't access field: " + mField.getName();
+      log.debug(message, e);
+      throw new SnapException(message, e);
+    }
   }
 
   @Override
