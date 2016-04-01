@@ -57,7 +57,7 @@ public class HiddenField extends FormFieldBase
 
       if (mField.getType().equals(String.class))
         super.setFieldValue(values);
-      if (mField.getType().equals(Boolean.class))
+      else if (mField.getType().equals(Boolean.class))
       {
         String val = values[0].trim().toLowerCase();
         if ("".equals(val) || !("true".equals(val) || "false".equals(val)))

@@ -74,20 +74,24 @@ public class CheckBoxField extends FormFieldBase
 
     try
     {
-
-      if (values.length > 1)
+      if (values != null && values.length > 1)
       {
         log.warn("Possible hacking attempt! Expected one value for field '"
             + mField.getName() + "' but found: " + values.length);
       }
-      
+
       // Checkboxes only post values when they are checked.
       // if they are not checked they are not posted back
       // so always set it to false first.
-      mField.set(mForm,Boolean.FALSE);
+      mField.set(mForm, Boolean.FALSE);
+      if (values == null)
+      {
+        // There were no values submitted to just return
+        return;
+      }
       if (values[0].equals(mField.getName()))
       {
-        // And set it to true if we found the field. 
+        // And set it to true if we found the field.
         mField.set(mForm, Boolean.TRUE);
       }
       else
