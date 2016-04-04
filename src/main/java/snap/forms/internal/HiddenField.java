@@ -61,8 +61,9 @@ public class HiddenField extends FormFieldBase
       {
         String val = values[0].trim().toLowerCase();
         if ("".equals(val) || !("true".equals(val) || "false".equals(val)))
-          throw new SnapException("Only 'true' or 'false' are valid for boolean hidden fields");
-        
+          throw new SnapException(
+              "Only 'true' or 'false' are valid for boolean hidden fields");
+
         mField.set(mForm, Boolean.valueOf(values[0]));
       }
       else if (mField.getType().equals(Integer.class))
@@ -72,9 +73,9 @@ public class HiddenField extends FormFieldBase
       else
         throw new SnapException(
             "Only field types of String, Boolean, Long, Integer are supported");
-      
+
     }
-    catch(NumberFormatException nfe)
+    catch (NumberFormatException nfe)
     {
       log.warn("Possible hacking attempt! Submitted field value '" + values[0]
           + "' can't be converted to numeric type.", nfe);

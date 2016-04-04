@@ -47,6 +47,7 @@ public class Form
   {
     mFieldList = new ArrayList<FormField>();
     mFieldMap = new HashMap<String, FormField>();
+    mFormErrors = new ArrayList<String>();
 
     initFields();
 
@@ -223,30 +224,17 @@ public class Form
 
     // render all fields
     StringBuilder builder = new StringBuilder();
-    builder.append(renderErrors());
+    builder.append(renderFormErrors());
     builder.append(startTag);
     for (FormField field : mFieldList)
     {
       builder.append(rowOpenTag);
-      builder.append(renderLabel(field, new HashMap<String,Object>()));
+      builder.append(renderLabel(field, new HashMap<String, Object>()));
       builder.append(field.render());
       builder.append(rowCloseTag);
     }
     builder.append(endTag);
     return builder.toString();
-  }
-
-  /**
-   * Renders form errors with span tag
-   * 
-   * @return String with the errors
-   */
-  public String renderErrors()
-  {
-    if (mFormError != null && !"".equals(mFormError))
-      return String.format("<span class='form-error'>%1$s</span>",
-          getFormError());
-    return "";
   }
 
   /**
@@ -311,8 +299,7 @@ public class Form
   public String renderLabel(FormField field, Map<String, Object> attributes)
   {
     if (field == null)
-      throw new SnapException(
-          "Rendering of label for non-existing field");
+      throw new SnapException("Rendering of label for non-existing field");
 
     String htmlId = field.getHtmlId();
     String label = field.getLabel();
@@ -356,6 +343,22 @@ public class Form
 
     return String.format("<span %1$s>%2$s</span>", attribs, field.getError());
 
+  }
+
+  public String renderFormErrors()
+  {
+    if (!hasFormErrors())
+      return "";
+
+    if (mFormErrors.size() == 1)
+      return mFormErrors.get(0);
+
+    StringBuilder builder = new StringBuilder();
+    builder.append("<ul>");
+    for (String error : mFormErrors)
+      builder.append("<li>").append(error).append("</li>");
+    builder.append("</ul>");
+    return builder.toString();
   }
 
   /**
@@ -404,7 +407,7 @@ public class Form
    */
   public boolean hasErrors()
   {
-    if (mFormError != null)
+    if (mFormErrors != null)
       return true;
 
     for (FormField field : mFieldList)
@@ -412,6 +415,16 @@ public class Form
         return true;
 
     return false;
+  }
+
+  /**
+   * Returns whether this form has form specific errors
+   * 
+   * @return true or false
+   */
+  public boolean hasFormErrors()
+  {
+    return mFormErrors.size() > 0;
   }
 
   /**
@@ -433,13 +446,13 @@ public class Form
   }
 
   /**
-   * Returns the error of this form
+   * Returns the errors of this form
    * 
    * @return The error string.
    */
-  public String getFormError()
+  public List<String> getErrors()
   {
-    return mFormError;
+    return mFormErrors;
   }
 
   /**
@@ -448,9 +461,9 @@ public class Form
    * @param formError
    *          The error string
    */
-  public void setFormError(String formError)
+  public void addError(String formError)
   {
-    mFormError = formError;
+    mFormErrors.add(formError);
   }
 
   /**
@@ -494,14 +507,14 @@ public class Form
    */
   public void clearAllErrors()
   {
-    mFormError = null;
+    mFormErrors.clear();
     for (FormField field : mFieldList)
       field.clearError();
   }
 
   private List<FormField> mFieldList;
+  private List<String> mFormErrors;
   private Map<String, FormField> mFieldMap;
-  private String mFormError = null;
   private String mFormName;
 
 }

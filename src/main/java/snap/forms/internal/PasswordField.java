@@ -19,7 +19,7 @@ public class PasswordField extends FormFieldBase
           "PasswordFields must be of type String");
 
     mLabel = mAnnotation.label();
-    addAttribute("class", mAnnotation.cssClass());
+    addAttribute("placeholder", mAnnotation.placeholder());
     mHtmlId = mAnnotation.id();
   }
 

@@ -25,7 +25,6 @@ public class MultiCheckboxField extends FormFieldBase
       throw new IllegalArgumentException(
           "MultiCheckboxFields must be of type Set<String>, Set<Long>, Set<Integer> or Set<ListOption>");
 
-    addAttribute("class", mAnnotation.cssClass());
     mHtmlId = mAnnotation.id();
   }
 

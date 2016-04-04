@@ -28,7 +28,6 @@ public class FileField extends FormFieldBase
           "FileFields must be of type Part or Set<Part>");
 
     mLabel = mAnnotation.label();
-    addAttribute("class", mAnnotation.cssClass());
     mHtmlId = mAnnotation.id();
   }
 

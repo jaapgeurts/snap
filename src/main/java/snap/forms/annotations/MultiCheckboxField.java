@@ -12,8 +12,6 @@ public @interface MultiCheckboxField
 
   public String id() default "";
 
-  public String cssClass() default "";
-
   public String options() default "";
 
 }

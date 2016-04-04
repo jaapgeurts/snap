@@ -11,8 +11,6 @@ public @interface TextArea
 {
   public String id() default "";
 
-  public String cssClass() default "";
-
   public String label() default "";
 
   public int cols() default -1;

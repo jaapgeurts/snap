@@ -36,7 +36,6 @@ public class ListField extends FormFieldBase
     }
 
     mLabel = mAnnotation.label();
-    addAttribute("class", mAnnotation.cssClass());
     mHtmlId = mAnnotation.id();
   }
 

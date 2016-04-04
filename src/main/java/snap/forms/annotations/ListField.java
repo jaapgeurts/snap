@@ -27,8 +27,6 @@ public @interface ListField
 
   public String id() default "";
 
-  public String cssClass() default "";
-
   public String label() default "";
 
   public String options() default "";

@@ -22,7 +22,7 @@ public class FormErrors extends JavaTagBase
     if (o != null && o instanceof snap.forms.Form)
     {
       snap.forms.Form form = (snap.forms.Form)o;
-      p(form.renderErrors());
+      p(form.renderFormErrors());
     }
   }
 }

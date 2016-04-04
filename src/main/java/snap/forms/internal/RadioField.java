@@ -22,7 +22,6 @@ public class RadioField extends FormFieldBase
     if (!field.getType().isEnum())
       throw new IllegalArgumentException("RadioFieldsmust be an enum");
 
-    addAttribute("class", mAnnotation.cssClass());
     mHtmlId = mAnnotation.id();
 
   }
@@ -74,9 +73,10 @@ public class RadioField extends FormFieldBase
   public String[] getOptions()
   {
     getFormFields();
-    
+
     return mOptions.stream().map(o -> {
-      return o instanceof ListOption ? ((ListOption)o).getValue() : o.toString();
+      return o instanceof ListOption ? ((ListOption)o).getValue()
+          : o.toString();
     }).collect(Collectors.toList()).toArray(new String[] {});
 
   }

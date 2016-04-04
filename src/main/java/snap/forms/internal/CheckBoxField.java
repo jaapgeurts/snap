@@ -20,7 +20,6 @@ public class CheckBoxField extends FormFieldBase
           "CheckBoxFields must be of type Boolean");
 
     mLabel = mAnnotation.label();
-    addAttribute("class", mAnnotation.cssClass());
     mHtmlId = mAnnotation.id();
   }
 

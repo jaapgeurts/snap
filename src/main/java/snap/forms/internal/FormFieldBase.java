@@ -153,7 +153,7 @@ public abstract class FormFieldBase implements FormField
   {
     mLabel = label;
   }
-  
+
   /**
    * Returns all possible field values for this field
    * 

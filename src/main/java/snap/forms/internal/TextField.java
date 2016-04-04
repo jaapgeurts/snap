@@ -18,7 +18,7 @@ public class TextField extends FormFieldBase
       throw new IllegalArgumentException("TextFields must be of type String");
 
     mLabel = mAnnotation.label();
-    addAttribute("class", mAnnotation.cssClass());
+    addAttribute("placeholder", mAnnotation.placeholder());
     mHtmlId = mAnnotation.id();
   }
 
@@ -37,7 +37,8 @@ public class TextField extends FormFieldBase
 
     return String.format(
         "<input type='text' id='%1$s' name='%2$s' value='%3$s' %4$s/>\n",
-        mAnnotation.id(), mField.getName(), value, Helpers.attrToString(attributes));
+        mAnnotation.id(), mField.getName(), value,
+        Helpers.attrToString(attributes));
 
   }
 

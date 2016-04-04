@@ -11,7 +11,5 @@ public @interface FileField
 {
   public String id() default "";
 
-  public String cssClass() default "";
-
   public String label() default "";
 }
