@@ -1,13 +1,9 @@
 package snap;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.RandomAccessFile;
 import java.time.DateTimeException;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -22,6 +18,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.servlet.ServletException;
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
@@ -34,6 +31,21 @@ import snap.views.NullView;
 
 public class StaticRoute extends Route
 {
+
+  private class Range
+  {
+    long start;
+    long end;
+    long length;
+
+    public Range(long start, long end)
+    {
+      this.start = start;
+      this.end = end;
+      this.length = end - start + 1;
+    }
+  }
+
   private static final int TRANSFER_BUFFER_SIZE = 10240;
   final Logger log = LoggerFactory.getLogger(StaticRoute.class);
   final DateTimeFormatter mHttpDateFormat = DateTimeFormatter
@@ -54,8 +66,6 @@ public class StaticRoute extends Route
       throws IOException, ServletException, HttpMethodException
   {
 
-    // TODO: add gzip compression
-
     RouteListener r = getRouteListener();
     if (r != null)
     {
@@ -64,12 +74,29 @@ public class StaticRoute extends Route
         return res;
     }
 
+    processRequest(context);
+
+    if (r != null)
+      r.onAfterRoute(context);
+
+    return NullView.INSTANCE;
+  }
+
+  private void processRequest(RequestContext context) throws IOException
+  {
+    boolean shouldSendData = true;
+    if (context.getMethod() == HttpMethod.HEAD)
+      shouldSendData = false;
+
+    // TODO: add gzip compression
+
     // Fetch the actual file and serve it directly
     Pattern p = Pattern.compile(mPath);
     Matcher m = p.matcher(context.getRequestURI());
     String fileName = m.replaceAll("");
 
     // Get a File object pointing to the correct file.
+    // will throw a resource not found exception if the file doesn't exit
     File file = getFile(context, fileName);
 
     // Now that we know the actual file, if the client sent the
@@ -100,95 +127,130 @@ public class StaticRoute extends Route
       }
     }
 
-    String contentDisposition = "inline";
-    if (fileIsNewerThanRequested)
-    {
-
-      // Set the mimetype first
-      String mimetype = context.getRequest().getServletContext()
-          .getMimeType(file.getCanonicalPath());
-      if (mimetype == null)
-        mimetype = "application/octet-stream";
-
-      HttpServletResponse response = context.getResponse();
-
-      if (mimetype.startsWith("text")) // assume all text is served as UTF-8
-      {
-        mimetype += "; charset=UTF-8";
-      }
-      else if (mimetype.startsWith("image"))
-      {
-        String accept = context.getRequest().getHeader("Accept");
-        contentDisposition = accept != null && accepts(accept, mimetype)
-            ? "inline" : "attachment";
-      }
-
-      response.setHeader("Accept-Ranges", "bytes");
-
-      response.setBufferSize(TRANSFER_BUFFER_SIZE);
-
-      // figure out the range we have to return
-      List<Pair<Long, Long>> ranges = null;
-      String boundaryToken = UUID.randomUUID().toString();
-      String rangeHeader = context.getRequest().getHeader("Range");
-      if (rangeHeader != null)
-        ranges = parseRanges(rangeHeader, file.length());
-
-      try
-      {
-        if (ranges != null)
-        {
-          MultiPartFile multiPartFile = new MultiPartFile(file, ranges,
-              boundaryToken, mimetype);
-          response.setStatus(HttpServletResponse.SC_PARTIAL_CONTENT);
-          response.setContentLengthLong(multiPartFile.getContentLength());
-          response.setContentType(
-              "multipart/byteranges; boundary=" + boundaryToken);
-          // Transfer the data.
-          transferData(new MultiPartFileInputStream(multiPartFile),
-              response.getOutputStream());
-
-        }
-        else
-        {
-          response.setStatus(HttpServletResponse.SC_OK);
-          response.setContentType(mimetype);
-          response.setContentLengthLong(file.length());
-          response.setHeader("Last-Modified", mHttpDateFormat.format(
-              ZonedDateTime.ofInstant(fileLastModified, ZoneId.of("GMT"))));
-          response.setHeader("Content-Disposition",
-              contentDisposition + ";filename=\"" + file.getName() + "\"");
-
-          transferData(new FileInputStream(file), response.getOutputStream());
-
-        }
-      }
-      catch (FileNotFoundException fnfe)
-      {
-        String message = "File not found after File.exists(): "
-            + file.getAbsolutePath();
-        log.info(message);
-        throw new ResourceNotFoundException(message, fnfe);
-      }
-      catch (IOException e)
-      {
-        log.error("Error serving file", e);
-        throw e;
-      }
-    }
-    else
+    if (!fileIsNewerThanRequested)
     {
       // file is not newer than client version
       HttpServletResponse response = context.getResponse();
       response.setStatus(HttpServletResponse.SC_NOT_MODIFIED);
+      // TODO: send ETag and expires
+      return;
     }
-    if (r != null)
-      r.onAfterRoute(context);
 
-    return NullView.INSTANCE;
+    // prepare for sending data
+
+    String contentDisposition = "inline";
+
+    // Set the mimetype first
+    String mimetype = context.getRequest().getServletContext()
+        .getMimeType(file.getCanonicalPath());
+    if (mimetype == null)
+      mimetype = "application/octet-stream";
+
+    if (mimetype.startsWith("text")) // assume all text is served as UTF-8
+    {
+      mimetype += "; charset=UTF-8";
+    }
+    else if (mimetype.startsWith("image"))
+    {
+      String accept = context.getRequest().getHeader("Accept");
+      contentDisposition = accept != null && accepts(accept, mimetype)
+          ? "inline" : "attachment";
+    }
+
+    HttpServletResponse response = context.getResponse();
+
+    // figure out the range we have to return
+    List<Range> ranges = null;
+    String boundaryToken = UUID.randomUUID().toString();
+    String rangeHeader = context.getRequest().getHeader("Range");
+    if (rangeHeader != null)
+    {
+      if ((!rangeHeader.matches("^bytes=\\d*-\\d*(,\\d*-\\d*)*$"))
+          || ((ranges = parseRanges(rangeHeader, file.length())) == null))
+      {
+        response.setHeader("Content-Range", "bytes */");
+        response
+            .sendError(HttpServletResponse.SC_REQUESTED_RANGE_NOT_SATISFIABLE);
+        return;
+      }
+    }
+
+    response.setHeader("Accept-Ranges", "bytes");
+    response.setHeader("Last-Modified", mHttpDateFormat
+        .format(ZonedDateTime.ofInstant(fileLastModified, ZoneId.of("GMT"))));
+    response.setHeader("Content-Disposition",
+        contentDisposition + ";filename=\"" + file.getName() + "\"");
+    response.setBufferSize(TRANSFER_BUFFER_SIZE);
+
+    RandomAccessFile srcFile = null;
+    ServletOutputStream os = null;
+    try
+    {
+      // open the file
+      srcFile = new RandomAccessFile(file, "r");
+      os = response.getOutputStream();
+
+      if (ranges == null)
+      {
+        response.setContentLengthLong(file.length());
+        response.setContentType(mimetype);
+        response.setStatus(HttpServletResponse.SC_OK);
+        if (shouldSendData)
+          transferData(srcFile, os, 0, file.length());
+      }
+      else if (ranges.size() == 1)
+      {
+        Range range = ranges.get(0);
+        response.setContentLengthLong(range.length);
+        response.setContentType(mimetype);
+        response.setStatus(HttpServletResponse.SC_PARTIAL_CONTENT);
+        response.setHeader("Content-Range",
+            "bytes " + range.start + "-" + range.end + "/" + file.length());
+
+        if (shouldSendData)
+          transferData(srcFile, os, range.start, range.length);
+      }
+      else if (ranges.size() > 1)
+      {
+
+        // send as multipart.
+        // generate random boundary token
+        final String BOUNDARY_TOKEN = UUID.randomUUID().toString();
+        response.setStatus(HttpServletResponse.SC_PARTIAL_CONTENT);
+        response
+            .setContentType("multipart/byteranges; boundary=" + boundaryToken);
+        if (shouldSendData)
+        {
+          for (Range range : ranges)
+          {
+            os.println();
+            os.println("--" + BOUNDARY_TOKEN);
+            os.println("Content-Type: " + mimetype);
+            os.println("Content-Range: bytes " + range.start + "-" + range.end
+                + "/" + file.length());
+            transferData(srcFile, os, range.start, range.length);
+          }
+        }
+      }
+    }
+    finally
+    {
+      try
+      {
+        if (srcFile != null)
+          srcFile.close();
+        if (os != null)
+          os.flush();
+      }
+      catch (IOException ioe)
+      {
+        // This usually happens if the user closes the connection prematurely
+        log.debug("Client disconnected prematurely. " + ioe.getMessage());
+      }
+    }
   }
 
-  private List<Pair<Long, Long>> parseRanges(String rangeHeader, long filesize)
+  private List<Range> parseRanges(String rangeHeader, long filesize)
   {
 
     String unit, ranges;
@@ -201,16 +263,15 @@ public class StaticRoute extends Route
       log.warn("Range request unit '" + unit + "' not supported");
       return null;
     }
-    List<Pair<Long, Long>> list = new ArrayList<>();
+    List<Range> list = new ArrayList<>();
     parts = ranges.split(",");
     for (String range : parts)
     {
       long first = -1, last = -1;
-      Pair<Long, Long> pair;
       String[] beginend = range.split("-");
       String begin = beginend[0];
       if (beginend.length == 2)
-      {        
+      {
         String end = beginend[1];
         if (end.length() > 0)
           last = Integer.valueOf(end);
@@ -226,46 +287,39 @@ public class StaticRoute extends Route
       {
         last = filesize - 1;
       }
-      pair = new Pair<>(first, last);
-      list.add(pair);
+      list.add(new Range(first, last));
     }
     return list;
   }
 
-  private void transferData(InputStream inputStream, OutputStream outputStream)
-      throws IOException
+  private void transferData(RandomAccessFile file, OutputStream out, long start,
+      long length) throws IOException
   {
-    BufferedInputStream in = null;
-    BufferedOutputStream out = null;
-    try
-    {
+    byte[] buffer = new byte[TRANSFER_BUFFER_SIZE];
+    int len;
 
-      in = new BufferedInputStream(inputStream);
-      out = new BufferedOutputStream(outputStream);
-      byte[] buffer = new byte[TRANSFER_BUFFER_SIZE];
-      int len = in.read(buffer);
-      while (len != -1)
-      {
+    if (length == file.length()) // send the whole file
+    {
+      while ((len = file.read(buffer)) > 0)
         out.write(buffer, 0, len);
-        len = in.read(buffer);
-      }
     }
-    finally
+    else
     {
-      try
+      file.seek(start);
+      while ((len = file.read(buffer)) > 0)
       {
-        if (out != null)
-          out.flush();
-        if (in != null)
-          in.close();
-      }
-      catch (IOException ioe)
-      {
-        // This usually happens if the user closes the connection prematurely
-        log.info("User disconnected prematurely. " + ioe.getMessage());
+        length -= len;
+        if (length < 0)
+        { // we read more than we should have
+          out.write(buffer, 0, len + (int)length);
+          break;
+        }
+        else
+        {
+          out.write(buffer, 0, len);
+        }
       }
     }
-
   }
 
   private File getFile(RequestContext context, String fileName)

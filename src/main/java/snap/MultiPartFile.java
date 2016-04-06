@@ -2,6 +2,7 @@ package snap;
 
 import java.io.File;
 import java.util.List;
+import java.util.UUID;
 
 public class MultiPartFile
 {
@@ -19,11 +20,11 @@ public class MultiPartFile
   private long contentLength;
 
   public MultiPartFile(File file, List<Pair<Long, Long>> ranges,
-      String boundaryToken, String contentType)
+      String contentType)
   {
     this.ranges = ranges;
     this.file = file;
-    this.boundaryToken = boundaryToken;
+    this.boundaryToken = UUID.randomUUID().toString();
     this.contentType = contentType;
 
     final int FILE_LEN = Long.toString(file.length()).length();
