@@ -80,7 +80,16 @@ public class Settings
     {
       log.warn("Can't read settings.", e);
     }
+  }
 
+  public static int getInt(String key)
+  {
+    return Integer.valueOf(mProperties.getProperty(key));
+  }
+
+  public static String get(String key)
+  {
+    return mProperties.getProperty(key);
   }
 
   public static Properties asProperties()
