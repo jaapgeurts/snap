@@ -48,8 +48,7 @@ public class LinebreaksToParagraph extends JavaTagBase
       if (o != null)
         s = (String)o.toString();
     }
-    p("<p" + attribs + ">" + s.trim().replaceAll("[\\r|\\n]+", "</p><p"+attribs+">")
-        + "</p>");
+    p("<p" + attribs + ">" + s.trim().replaceAll("[\\r|\\n]+", "</p><p" + attribs + ">") + "</p>");
   }
 
 }

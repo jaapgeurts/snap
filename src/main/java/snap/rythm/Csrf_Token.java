@@ -22,7 +22,6 @@ public class Csrf_Token extends JavaTagBase
     Object token = __getRenderArg("csrf_token_value");
     if (token == null)
       token = "";
-    p(String.format(
-        "<input type=\"hidden\" name=\"csrf_token\" value=\"%s\"/>", token));
+    p(String.format("<input type=\"hidden\" name=\"csrf_token\" value=\"%s\"/>", token));
   }
 }

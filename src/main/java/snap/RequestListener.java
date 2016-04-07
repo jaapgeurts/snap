@@ -10,8 +10,7 @@ public interface RequestListener
    * @param context
    *          The Request Context.
    */
-  public void onBeforeRequest(RequestContext context)
-      throws AuthenticationException, AuthorizationException;
+  public void onBeforeRequest(RequestContext context) throws AuthenticationException, AuthorizationException;
 
   /**
    * Perform processing after a route is processed

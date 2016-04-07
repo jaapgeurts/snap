@@ -36,8 +36,8 @@ public class Router
   public void init(String contextPath) throws FileNotFoundException
   {
     mContextPath = contextPath;
-    BufferedReader in = new BufferedReader(new InputStreamReader(getClass()
-        .getClassLoader().getResourceAsStream((Settings.routesFile))));
+    BufferedReader in = new BufferedReader(
+        new InputStreamReader(getClass().getClassLoader().getResourceAsStream((Settings.routesFile))));
     int i = 1;
     try
     {
@@ -110,20 +110,19 @@ public class Router
       }
     }
     if (route == null)
-      throw new RouteNotFoundException("Can't find route for Method: "
-          + method.toString() + " path: " + path);
+      throw new RouteNotFoundException(
+          "Can't find route for Method: " + method.toString() + " path: " + path);
 
     HttpMethod[] methods = route.getHttpMethods();
     if (methods == null)
       throw new SnapException("Route has no methods to call");
-      
+
     for (HttpMethod m : methods)
       if (method == m)
         return route;
 
-    throw new HttpMethodException("Route " + route.getAlias()
-        + " matches path " + path + ", but has incorrect method "
-        + method.toString());
+    throw new HttpMethodException("Route " + route.getAlias() + " matches path " + path
+        + ", but has incorrect method " + method.toString());
   }
 
   public String siteUrl()
@@ -136,8 +135,7 @@ public class Router
     return new HttpRedirect(linkForRoute(alias, params));
   }
 
-  public HttpRedirect redirectForRoute(String alias,
-      Map<String, String> getParams, Object... params)
+  public HttpRedirect redirectForRoute(String alias, Map<String, String> getParams, Object... params)
   {
     return new HttpRedirect(linkForRoute(alias, getParams, params));
   }
@@ -174,8 +172,7 @@ public class Router
    * @throws RouteNotFoundException
    *           When the route can't be found.
    */
-  public String linkForRoute(String alias, Map<String, String> getParams,
-      Object... params)
+  public String linkForRoute(String alias, Map<String, String> getParams, Object... params)
   {
     Route route = getRoute(alias);
     return route.getLink(getParams, params);
@@ -192,8 +189,7 @@ public class Router
   {
     Route route = mRouteMap.get(routeAlias);
     if (route == null)
-      throw new RouteNotFoundException("Can't redirect: Unknown route: "
-          + routeAlias);
+      throw new RouteNotFoundException("Can't redirect: Unknown route: " + routeAlias);
     return route;
   }
 

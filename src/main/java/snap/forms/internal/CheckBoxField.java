@@ -10,14 +10,12 @@ import snap.forms.Form;
 public class CheckBoxField extends FormFieldBase
 {
 
-  public CheckBoxField(Form form, Field field,
-      snap.forms.annotations.CheckBoxField annotation)
+  public CheckBoxField(Form form, Field field, snap.forms.annotations.CheckBoxField annotation)
   {
     super(form, field);
     mAnnotation = annotation;
     if (!field.getType().equals(Boolean.class))
-      throw new IllegalArgumentException(
-          "CheckBoxFields must be of type Boolean");
+      throw new IllegalArgumentException("CheckBoxFields must be of type Boolean");
 
     mLabel = mAnnotation.label();
     mHtmlId = mAnnotation.id();
@@ -35,34 +33,28 @@ public class CheckBoxField extends FormFieldBase
     if (!isVisible())
       return "";
 
-    if (!mField.getType().equals(Boolean.class)
-        && !mField.getType().equals(boolean.class))
-      throw new SnapException(
-          "CheckBoxField works on boolean primitives or Boolean classes only!)");
+    if (!mField.getType().equals(Boolean.class) && !mField.getType().equals(boolean.class))
+      throw new SnapException("CheckBoxField works on boolean primitives or Boolean classes only!)");
 
     // values are always auto boxed
     boolean val;
     try
     {
       if (mField.get(mForm) == null)
-        throw new SnapException(
-            "Checkbox field: " + mField.getName() + " can't be null.");
+        throw new SnapException("Checkbox field: " + mField.getName() + " can't be null.");
       val = (Boolean)mField.get(mForm);
     }
     catch (IllegalArgumentException | IllegalAccessException e)
     {
       log.debug("Can't access value of form field: " + mField.getName(), e);
-      throw new SnapException(
-          "Form field " + mField.getName() + " can't be accessed.", e);
+      throw new SnapException("Form field " + mField.getName() + " can't be accessed.", e);
     }
 
     if (val)
-      return String.format(
-          "<input type='checkbox' id='%1$s' name='%2$s' value='%2$s' checked %3$s/>\n",
+      return String.format("<input type='checkbox' id='%1$s' name='%2$s' value='%2$s' checked %3$s/>\n",
           mAnnotation.id(), mField.getName(), Helpers.attrToString(attributes));
     else
-      return String.format(
-          "<input type='checkbox' id='%1$s' name='%2$s' value='%2$s' %3$s/>\n",
+      return String.format("<input type='checkbox' id='%1$s' name='%2$s' value='%2$s' %3$s/>\n",
           mAnnotation.id(), mField.getName(), Helpers.attrToString(attributes));
 
   }
@@ -75,8 +67,8 @@ public class CheckBoxField extends FormFieldBase
     {
       if (values != null && values.length > 1)
       {
-        log.warn("Possible hacking attempt! Expected one value for field '"
-            + mField.getName() + "' but found: " + values.length);
+        log.warn("Possible hacking attempt! Expected one value for field '" + mField.getName()
+            + "' but found: " + values.length);
       }
 
       // Checkboxes only post values when they are checked.
@@ -95,9 +87,8 @@ public class CheckBoxField extends FormFieldBase
       }
       else
       {
-        log.warn("Possible hacking attempt! Expected value '" + mField.getName()
-            + "' got value: '" + values[0] + "' for Field: "
-            + mField.getName());
+        log.warn("Possible hacking attempt! Expected value '" + mField.getName() + "' got value: '"
+            + values[0] + "' for Field: " + mField.getName());
       }
 
     }

@@ -29,7 +29,7 @@ public class DynamicRootLink extends JavaTagBase
       Object[] plist = new Object[params.size() - 1];
       for (int i = 0; i < plist.length; i++)
         plist[i] = params.get(i + 1).value;
-      p(Settings.siteRootUrl+router.linkForRoute(alias, plist));
+      p(Settings.siteRootUrl + router.linkForRoute(alias, plist));
     }
   }
 }

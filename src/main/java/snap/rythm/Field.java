@@ -42,8 +42,7 @@ public class Field extends JavaTagBase
 
       o = paramMap.get("field");
       if (o == null)
-        throw new SnapException(
-            "@field missing 'field' argument. You must specify the field in the form");
+        throw new SnapException("@field missing 'field' argument. You must specify the field in the form");
       name = o.toString();
       paramMap.remove("field");
 
@@ -73,8 +72,7 @@ public class Field extends JavaTagBase
 
       // ignore the rest of the parameters but inform the user
       if (params.size() > 3)
-        log.warn("@field in form: '" + form.toString()
-            + "', positional parameter after three ignored.");
+        log.warn("@field in form: '" + form.toString() + "', positional parameter after three ignored.");
 
     }
 

@@ -12,5 +12,5 @@ public @interface CheckBoxField
   public String id() default "";
 
   public String label() default "";
-  
+
 }

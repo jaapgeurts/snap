@@ -42,8 +42,7 @@ public class FieldId extends JavaTagBase
 
       o = paramMap.get("field");
       if (o == null)
-        throw new SnapException(
-            "@fieldid missing 'field' argument. You must specify the field in the form");
+        throw new SnapException("@fieldid missing 'field' argument. You must specify the field in the form");
       name = o.toString();
       paramMap.remove("field");
 
@@ -60,8 +59,7 @@ public class FieldId extends JavaTagBase
       form = (snap.forms.Form)o;
 
       if (params.size() > 2)
-        log.warn("@fieldid in form: '" + form.toString()
-            + "', positional parameter two and after ignored.");
+        log.warn("@fieldid in form: '" + form.toString() + "', positional parameter two and after ignored.");
 
       // second parameter (this is the field name)
       o = params.getByPosition(1);

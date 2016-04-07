@@ -1,10 +1,10 @@
 package snap.views;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
@@ -76,10 +76,9 @@ public class TemplateView extends View
     r.setContentType("text/html; charset=UTF-8");
     r.setCharacterEncoding("UTF-8");
 
-    String s = WebApplication.getInstance().getRenderEngine()
-        .render(mTemplateName, mContext);
-    PrintWriter writer = r.getWriter();
-    writer.print(s);
+    String s = WebApplication.getInstance().getRenderEngine().render(mTemplateName, mContext);
+    ServletOutputStream os = r.getOutputStream();
+    os.print(s);
 
   }
 

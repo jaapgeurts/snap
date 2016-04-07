@@ -12,7 +12,7 @@ public @interface PasswordField
   public String id() default "";
 
   public String label() default "";
-  
+
   public String placeholder() default "";
 
 }

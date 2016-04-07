@@ -19,8 +19,7 @@ public class MultiPartFile
 
   private long contentLength;
 
-  public MultiPartFile(File file, List<Pair<Long, Long>> ranges,
-      String contentType)
+  public MultiPartFile(File file, List<Pair<Long, Long>> ranges, String contentType)
   {
     this.ranges = ranges;
     this.file = file;
@@ -31,15 +30,12 @@ public class MultiPartFile
     contentLength = 0;
     for (Pair<Long, Long> range : ranges)
     {
-      contentLength += BOUNDARY_INOUT_LEN + boundaryToken.length() + NEWLINE_LEN
-          + CONTENT_TYPE_LEN + contentType.length() + NEWLINE_LEN
-          + CONTENT_RANGE_LEN + range.getFirst().toString().length() + 1
-          + range.getSecond().toString().length() + 1 + FILE_LEN + NEWLINE_LEN
-          + NEWLINE_LEN;
+      contentLength += BOUNDARY_INOUT_LEN + boundaryToken.length() + NEWLINE_LEN + CONTENT_TYPE_LEN
+          + contentType.length() + NEWLINE_LEN + CONTENT_RANGE_LEN + range.getFirst().toString().length() + 1
+          + range.getSecond().toString().length() + 1 + FILE_LEN + NEWLINE_LEN + NEWLINE_LEN;
       contentLength += range.getSecond() - range.getFirst();
     }
-    contentLength += NEWLINE_LEN + BOUNDARY_INOUT_LEN + boundaryToken.length()
-        + BOUNDARY_INOUT_LEN;
+    contentLength += NEWLINE_LEN + BOUNDARY_INOUT_LEN + boundaryToken.length() + BOUNDARY_INOUT_LEN;
 
   }
 

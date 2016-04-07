@@ -9,8 +9,7 @@ import snap.forms.Form;
 public class SubmitButton extends FormFieldBase
 {
 
-  public SubmitButton(Form form, Field field,
-      snap.forms.annotations.SubmitField annotation)
+  public SubmitButton(Form form, Field field, snap.forms.annotations.SubmitField annotation)
   {
     super(form, field);
     mAnnotation = annotation;
@@ -33,10 +32,8 @@ public class SubmitButton extends FormFieldBase
     if (!isVisible())
       return "";
 
-    return String.format(
-        "<input type='submit' id='%1$s' name='%2$s' value='%3$s' %4$s/>",
-        mAnnotation.id(), mField.getName(), mLabel,
-        Helpers.attrToString(attributes));
+    return String.format("<input type='submit' id='%1$s' name='%2$s' value='%3$s' %4$s/>", mAnnotation.id(),
+        mField.getName(), mLabel, Helpers.attrToString(attributes));
   }
 
   @Override

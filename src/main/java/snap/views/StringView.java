@@ -1,8 +1,7 @@
 package snap.views;
 
 import java.io.IOException;
-import java.io.PrintWriter;
-
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 
 import snap.http.RequestContext;
@@ -27,10 +26,8 @@ public class StringView extends View
     r.setContentType("text/html; charset=UTF-8");
     r.setCharacterEncoding("UTF-8");
 
-    PrintWriter pw = r.getWriter();
-    pw.print(String.format(
-        "<html><head><title>StringView</title></head><body>%s</body></html>",
-        mText));
+    ServletOutputStream os = r.getOutputStream();
+    os.print(String.format("<html><head><title>StringView</title></head><body>%s</body></html>", mText));
   }
 
   private String mText;

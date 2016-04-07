@@ -10,17 +10,13 @@ import snap.forms.Form;
 public class HiddenField extends FormFieldBase
 {
 
-  public HiddenField(Form form, Field field,
-      snap.forms.annotations.HiddenField annotation)
+  public HiddenField(Form form, Field field, snap.forms.annotations.HiddenField annotation)
   {
     super(form, field);
     mAnnotation = annotation;
-    if (!(field.getType().equals(String.class)
-        || field.getType().equals(Boolean.class)
-        || field.getType().equals(Integer.class)
-        || field.getType().equals(Long.class)))
-      throw new IllegalArgumentException(
-          "HiddenFields must be of type String, Boolean, Integer, Long");
+    if (!(field.getType().equals(String.class) || field.getType().equals(Boolean.class)
+        || field.getType().equals(Integer.class) || field.getType().equals(Long.class)))
+      throw new IllegalArgumentException("HiddenFields must be of type String, Boolean, Integer, Long");
 
     mHtmlId = mAnnotation.id();
   }
@@ -37,10 +33,8 @@ public class HiddenField extends FormFieldBase
     if (!isVisible())
       return "";
 
-    return String.format(
-        "<input type='hidden' id='%1$s' name='%2$s' value='%3$s' %4$s/>",
-        mAnnotation.id(), mField.getName(), getFieldValue(),
-        Helpers.attrToString(attributes));
+    return String.format("<input type='hidden' id='%1$s' name='%2$s' value='%3$s' %4$s/>", mAnnotation.id(),
+        mField.getName(), getFieldValue(), Helpers.attrToString(attributes));
   }
 
   @Override
@@ -51,8 +45,8 @@ public class HiddenField extends FormFieldBase
 
       if (values.length > 1)
       {
-        log.warn("Possible hacking attempt! Expected one value for field '"
-            + mField.getName() + "' but found: " + values.length);
+        log.warn("Possible hacking attempt! Expected one value for field '" + mField.getName()
+            + "' but found: " + values.length);
       }
 
       if (mField.getType().equals(String.class))
@@ -61,8 +55,7 @@ public class HiddenField extends FormFieldBase
       {
         String val = values[0].trim().toLowerCase();
         if ("".equals(val) || !("true".equals(val) || "false".equals(val)))
-          throw new SnapException(
-              "Only 'true' or 'false' are valid for boolean hidden fields");
+          throw new SnapException("Only 'true' or 'false' are valid for boolean hidden fields");
 
         mField.set(mForm, Boolean.valueOf(values[0]));
       }
@@ -71,8 +64,7 @@ public class HiddenField extends FormFieldBase
       else if (mField.getType().equals(Long.class))
         mField.set(mForm, Long.valueOf(values[0]));
       else
-        throw new SnapException(
-            "Only field types of String, Boolean, Long, Integer are supported");
+        throw new SnapException("Only field types of String, Boolean, Long, Integer are supported");
 
     }
     catch (NumberFormatException nfe)

@@ -1,8 +1,7 @@
 package snap.views;
 
 import java.io.IOException;
-import java.io.PrintWriter;
-
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 
 import snap.http.RequestContext;
@@ -36,9 +35,9 @@ public class JsonView extends View
     r.setContentType("application/json; charset=UTF-8");
     r.setCharacterEncoding("UTF-8");
 
-    PrintWriter pw = r.getWriter();
+    ServletOutputStream os = r.getOutputStream();
     if (mJson != null)
-      pw.print(mJson.toJSONString());
+      os.print(mJson.toJSONString());
     // TODO: specify encoding too
 
   }

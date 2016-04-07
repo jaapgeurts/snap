@@ -15,21 +15,18 @@ import snap.forms.annotations.ListField.ListType;
 public class ListField extends FormFieldBase
 {
 
-  public ListField(Form form, Field field,
-      snap.forms.annotations.ListField annotation)
+  public ListField(Form form, Field field, snap.forms.annotations.ListField annotation)
   {
     super(form, field);
     mAnnotation = annotation;
     if (mAnnotation.type() == ListType.MULTI_LIST)
     {
       if (!Set.class.isAssignableFrom(field.getType()))
-        throw new IllegalArgumentException(
-            "MultiList ListField must be of type Set<?>");
+        throw new IllegalArgumentException("MultiList ListField must be of type Set<?>");
     }
     else
     {
-      if (!(field.getType().equals(String.class)
-          || field.getType().equals(Integer.class)
+      if (!(field.getType().equals(String.class) || field.getType().equals(Integer.class)
           || field.getType().equals(Long.class) || field.getType().isEnum()))
         throw new IllegalArgumentException(
             "DropDown and Single ListField must be of type String, Integer, Long or Enum");
@@ -44,8 +41,7 @@ public class ListField extends FormFieldBase
   {
     // Dropdown just returns a single value. set the String value;
     // TODO: also cast to Integer and Long
-    if (mAnnotation.type() == ListType.SINGLE_LIST
-        || mAnnotation.type() == ListType.DROPDOWN_LIST)
+    if (mAnnotation.type() == ListType.SINGLE_LIST || mAnnotation.type() == ListType.DROPDOWN_LIST)
     {
       try
       {
@@ -56,11 +52,9 @@ public class ListField extends FormFieldBase
         else if (mField.getType().equals(Long.class))
           mField.set(mForm, Long.valueOf(values[0]));
         else if (mField.getType().isEnum())
-          mField.set(mForm,
-              Enum.valueOf((Class<Enum>)mField.getType(), values[0]));
+          mField.set(mForm, Enum.valueOf((Class<Enum>)mField.getType(), values[0]));
         else
-          throw new SnapException(
-              "Only field types of String, Long, Integer and Enums are supported");
+          throw new SnapException("Only field types of String, Long, Integer and Enums are supported");
       }
       catch (NumberFormatException nfe)
       {
@@ -90,12 +84,10 @@ public class ListField extends FormFieldBase
     {
       if (mOptionFieldClass.isAssignableFrom(ListOption.class))
       {
-        if (mOptions.stream()
-            .anyMatch(obj -> ((ListOption)obj).getValue().equals(value)))
+        if (mOptions.stream().anyMatch(obj -> ((ListOption)obj).getValue().equals(value)))
           addValueToFormFieldSet(value);
         else
-          log.warn("Possible hacking attempt! Submitted field value '" + value
-              + "' not found in options");
+          log.warn("Possible hacking attempt! Submitted field value '" + value + "' not found in options");
       }
       else
       {
@@ -112,8 +104,7 @@ public class ListField extends FormFieldBase
         }))
           addValueToFormFieldSet(value);
         else
-          log.warn("Possible hacking attempt! Submitted field value '" + value
-              + "' not found in options");
+          log.warn("Possible hacking attempt! Submitted field value '" + value + "' not found in options");
       }
     }
   }
@@ -135,21 +126,16 @@ public class ListField extends FormFieldBase
     switch(mAnnotation.type())
     {
       case MULTI_LIST:
-        b.append(String.format(
-            "\n<select id='%1$s' name='%2$s' size='%3$s' multiple %4$s>\n",
-            mAnnotation.id(), mField.getName(), mAnnotation.size(),
-            Helpers.attrToString(attributes)));
+        b.append(String.format("\n<select id='%1$s' name='%2$s' size='%3$s' multiple %4$s>\n",
+            mAnnotation.id(), mField.getName(), mAnnotation.size(), Helpers.attrToString(attributes)));
         break;
       case DROPDOWN_LIST:
-        b.append(String.format("\n<select id='%1$s' name='%2$s' %3$s>\n",
-            mAnnotation.id(), mField.getName(),
+        b.append(String.format("\n<select id='%1$s' name='%2$s' %3$s>\n", mAnnotation.id(), mField.getName(),
             Helpers.attrToString(attributes)));
         break;
       case SINGLE_LIST:
-        b.append(
-            String.format("\n<select id='%1$s' name='%2$s' size='%3$s' %4$s>\n",
-                mAnnotation.id(), mField.getName(), mAnnotation.size(),
-                Helpers.attrToString(attributes)));
+        b.append(String.format("\n<select id='%1$s' name='%2$s' size='%3$s' %4$s>\n", mAnnotation.id(),
+            mField.getName(), mAnnotation.size(), Helpers.attrToString(attributes)));
     }
 
     // Check if the field is present
@@ -160,9 +146,7 @@ public class ListField extends FormFieldBase
     }
     catch (NoSuchFieldException nsfe)
     {
-      throw new SnapException(
-          "Options field '" + mAnnotation.options() + "' not present in form",
-          nsfe);
+      throw new SnapException("Options field '" + mAnnotation.options() + "' not present in form", nsfe);
     }
 
     // Check the field type
@@ -178,8 +162,7 @@ public class ListField extends FormFieldBase
     }
     catch (IllegalArgumentException | IllegalAccessException e)
     {
-      throw new SnapException("Can't access field: " + mAnnotation.options(),
-          e);
+      throw new SnapException("Can't access field: " + mAnnotation.options(), e);
     }
 
     for (Object o : options)
@@ -196,11 +179,9 @@ public class ListField extends FormFieldBase
         val = text = o.toString();
       }
       if (val.equals(getFieldValue()))
-        b.append(String.format(
-            "\t<option selected value='%1$s'>%2$s</option>\n", val, text));
+        b.append(String.format("\t<option selected value='%1$s'>%2$s</option>\n", val, text));
       else
-        b.append(
-            String.format("\t<option value='%1$s'>%2$s</option>\n", val, text));
+        b.append(String.format("\t<option value='%1$s'>%2$s</option>\n", val, text));
     }
     b.append("</select>");
     return b.toString();
@@ -217,8 +198,7 @@ public class ListField extends FormFieldBase
       else if (mOptionFieldClass.equals(Integer.class))
         mFieldValues.add(Integer.valueOf(value));
       else
-        throw new SnapException(
-            "Currently only Set<String>, Set<Long>, Set<Integer> are supported");
+        throw new SnapException("Currently only Set<String>, Set<Long>, Set<Integer> are supported");
     }
     catch (NumberFormatException nfe)
     {
@@ -236,9 +216,7 @@ public class ListField extends FormFieldBase
     }
     catch (NoSuchFieldException nsfe)
     {
-      throw new SnapException(
-          "Options field '" + mAnnotation.options() + "' not present in form",
-          nsfe);
+      throw new SnapException("Options field '" + mAnnotation.options() + "' not present in form", nsfe);
     }
 
     // Get the options and the values
@@ -248,8 +226,7 @@ public class ListField extends FormFieldBase
       if (mField.getType().isAssignableFrom(Set.class))
         mFieldValues = (Set<Object>)mField.get(mForm);
       if (mFieldValues == null)
-        throw new SnapException("Field " + mField.getName()
-            + " is null. Did you forget to initialize it?");
+        throw new SnapException("Field " + mField.getName() + " is null. Did you forget to initialize it?");
       // Get the type of the Set container./
       ParameterizedType pType = (ParameterizedType)mField.getGenericType();
       mOptionFieldClass = (Class<?>)pType.getActualTypeArguments()[0];
@@ -257,8 +234,7 @@ public class ListField extends FormFieldBase
     }
     catch (IllegalArgumentException | IllegalAccessException e)
     {
-      throw new SnapException("Can't access field: " + mAnnotation.options(),
-          e);
+      throw new SnapException("Can't access field: " + mAnnotation.options(), e);
     }
   }
 

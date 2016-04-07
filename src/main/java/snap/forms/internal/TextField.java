@@ -9,8 +9,7 @@ import snap.forms.Form;
 public class TextField extends FormFieldBase
 {
 
-  public TextField(Form form, Field field,
-      snap.forms.annotations.TextField annotation)
+  public TextField(Form form, Field field, snap.forms.annotations.TextField annotation)
   {
     super(form, field);
     mAnnotation = annotation;
@@ -35,10 +34,8 @@ public class TextField extends FormFieldBase
       return "";
     String value = getFieldValue();
 
-    return String.format(
-        "<input type='text' id='%1$s' name='%2$s' value='%3$s' %4$s/>\n",
-        mAnnotation.id(), mField.getName(), value,
-        Helpers.attrToString(attributes));
+    return String.format("<input type='text' id='%1$s' name='%2$s' value='%3$s' %4$s/>\n", mAnnotation.id(),
+        mField.getName(), value, Helpers.attrToString(attributes));
 
   }
 

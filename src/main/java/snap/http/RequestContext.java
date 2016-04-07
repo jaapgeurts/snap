@@ -370,8 +370,7 @@ public class RequestContext
    * @return the redirect object
    * 
    */
-  public HttpRedirect getRedirect(String alias, Map<String, String> getParams,
-      Object... params)
+  public HttpRedirect getRedirect(String alias, Map<String, String> getParams, Object... params)
   {
     return getRouter().redirectForRoute(alias, getParams, params);
   }

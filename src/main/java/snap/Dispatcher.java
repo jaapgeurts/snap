@@ -47,11 +47,9 @@ public class Dispatcher extends HttpServlet
     try
     {
       Class.forName("snap.Settings");
-      mWebApplication = (WebApplication)Class.forName(Settings.webAppClass)
-          .newInstance();
+      mWebApplication = (WebApplication)Class.forName(Settings.webAppClass).newInstance();
     }
-    catch (ClassNotFoundException | InstantiationException
-        | IllegalAccessException e)
+    catch (ClassNotFoundException | InstantiationException | IllegalAccessException e)
     {
       throw new ServletException(e);
     }
@@ -92,28 +90,27 @@ public class Dispatcher extends HttpServlet
   }
 
   @Override
-  protected void doDelete(HttpServletRequest request,
-      HttpServletResponse response) throws ServletException, IOException
+  protected void doDelete(HttpServletRequest request, HttpServletResponse response)
+      throws ServletException, IOException
   {
     handleRequest(new RequestContext(HttpMethod.DELETE, request, response));
   }
 
   @Override
-  protected void doOptions(HttpServletRequest request,
-      HttpServletResponse response) throws ServletException, IOException
+  protected void doOptions(HttpServletRequest request, HttpServletResponse response)
+      throws ServletException, IOException
   {
     handleRequest(new RequestContext(HttpMethod.OPTIONS, request, response));
   }
 
   @Override
-  protected void doTrace(HttpServletRequest request,
-      HttpServletResponse response) throws ServletException, IOException
+  protected void doTrace(HttpServletRequest request, HttpServletResponse response)
+      throws ServletException, IOException
   {
     handleRequest(new RequestContext(HttpMethod.TRACE, request, response));
   }
 
-  private void handleRequest(RequestContext context) throws ServletException,
-      IOException
+  private void handleRequest(RequestContext context) throws ServletException, IOException
   {
 
     context.setRouter(mRouter);
@@ -140,7 +137,7 @@ public class Dispatcher extends HttpServlet
     {
 
       Route route = mRouter.findRouteForPath(method, path);
-      
+
       context.setRoute(route);
 
       if (mRequestListener != null)
@@ -157,13 +154,11 @@ public class Dispatcher extends HttpServlet
     }
     catch (MissingCsrfTokenException mct)
     {
-      errorResult = new HttpError(HttpServletResponse.SC_BAD_REQUEST,
-          "CsrfToken missing", mct);
+      errorResult = new HttpError(HttpServletResponse.SC_BAD_REQUEST, "CsrfToken missing", mct);
     }
     catch (InvalidCsrfTokenException ict)
     {
-      errorResult = new HttpError(HttpServletResponse.SC_BAD_REQUEST,
-          "CsrfToken invalid", ict);
+      errorResult = new HttpError(HttpServletResponse.SC_BAD_REQUEST, "CsrfToken invalid", ict);
     }
     catch (HttpMethodException hme)
     {
@@ -172,18 +167,15 @@ public class Dispatcher extends HttpServlet
     }
     catch (RouteNotFoundException rnfe)
     {
-      errorResult = new HttpError(HttpServletResponse.SC_NOT_FOUND,
-          "Route not found", rnfe);
+      errorResult = new HttpError(HttpServletResponse.SC_NOT_FOUND, "Route not found", rnfe);
     }
     catch (ResourceNotFoundException rnfe)
     {
-      errorResult = new HttpError(HttpServletResponse.SC_NOT_FOUND,
-          "Resource not found", rnfe);
+      errorResult = new HttpError(HttpServletResponse.SC_NOT_FOUND, "Resource not found", rnfe);
     }
     catch (AuthorizationException ae)
     {
-      errorResult = new HttpError(HttpServletResponse.SC_FORBIDDEN,
-          "User not authorized", ae);
+      errorResult = new HttpError(HttpServletResponse.SC_FORBIDDEN, "User not authorized", ae);
     }
     catch (AuthenticationException uae)
     {
@@ -200,20 +192,17 @@ public class Dispatcher extends HttpServlet
         else
           next = path;
         // encode the path
-        response
-            .sendRedirect(url + "?next=" + URLEncoder.encode(next, "UTF-8"));
+        response.sendRedirect(url + "?next=" + URLEncoder.encode(next, "UTF-8"));
       }
       else
       {
-        errorResult = new HttpError(HttpServletResponse.SC_UNAUTHORIZED,
-            "You are not authenticated");
+        errorResult = new HttpError(HttpServletResponse.SC_UNAUTHORIZED, "You are not authenticated");
       }
     }
     catch (SnapException se)
     {
       log.error("Snap Framework error", se);
-      errorResult = new HttpError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
-          se.getMessage(), se);
+      errorResult = new HttpError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, se.getMessage(), se);
     }
     catch (Throwable t)
     {
@@ -221,8 +210,7 @@ public class Dispatcher extends HttpServlet
       // Catch everything and report it in the browser.
       // If we really can't handle it then bail
       // TODO: Load error view
-      errorResult = new HttpError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
-          "Internal Server Error", t);
+      errorResult = new HttpError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Internal Server Error", t);
 
     }
 

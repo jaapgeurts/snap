@@ -24,8 +24,7 @@ public class MultiPartFileInputStream extends InputStream
   private long byteOffset = 0;
   private int dataOrBlock = BLOCK;
 
-  public MultiPartFileInputStream(MultiPartFile multiPartFile)
-      throws FileNotFoundException
+  public MultiPartFileInputStream(MultiPartFile multiPartFile) throws FileNotFoundException
   {
     this.multiPartFile = multiPartFile;
     ranges = multiPartFile.getRanges();
@@ -60,10 +59,10 @@ public class MultiPartFileInputStream extends InputStream
   {
     if (rangeIndex > ranges.size())
       return 0;
-    
+
     if (rangeIndex == ranges.size())
       return multiPartBlock.length - (int)byteOffset;
-    
+
     return 1;
   }
 
@@ -91,7 +90,7 @@ public class MultiPartFileInputStream extends InputStream
     return result;
 
   }
-  
+
   @Override
   public void close() throws IOException
   {
@@ -168,11 +167,9 @@ public class MultiPartFileInputStream extends InputStream
     {
       Pair<Long, Long> pair = ranges.get(rangeIndex);
       multiPartString = NEWLINE + "--" + multiPartFile.getBoundaryToken() + NEWLINE;
-      multiPartString += CONTENT_TYPE + multiPartFile.getContentType()
-          + NEWLINE;
-      multiPartString += CONTENT_RANGE + pair.getFirst().toString() + "-"
-          + pair.getSecond().toString() + "/" + multiPartFile.getFile().length()
-          + NEWLINE + NEWLINE;
+      multiPartString += CONTENT_TYPE + multiPartFile.getContentType() + NEWLINE;
+      multiPartString += CONTENT_RANGE + pair.getFirst().toString() + "-" + pair.getSecond().toString() + "/"
+          + multiPartFile.getFile().length() + NEWLINE + NEWLINE;
     }
     multiPartBlock = multiPartString.getBytes(StandardCharsets.UTF_8);
 

@@ -52,8 +52,7 @@ public class Form
     initFields();
 
     mFormName = getClass().getCanonicalName();
-    mFormName = mFormName.substring(mFormName.lastIndexOf('.') + 1,
-        mFormName.length());
+    mFormName = mFormName.substring(mFormName.lastIndexOf('.') + 1, mFormName.length());
   }
 
   private void initFields()
@@ -94,8 +93,7 @@ public class Form
         else if (annotation instanceof snap.forms.annotations.MultiCheckboxField)
         {
           snap.forms.annotations.MultiCheckboxField msfa = (snap.forms.annotations.MultiCheckboxField)annotation;
-          field = new snap.forms.internal.MultiCheckboxField(this, classField,
-              msfa);
+          field = new snap.forms.internal.MultiCheckboxField(this, classField, msfa);
         }
         else if (annotation instanceof snap.forms.annotations.ListField)
         {
@@ -176,8 +174,7 @@ public class Form
       }
       else
       {
-        ((FormFieldBase)entry.getValue())
-            .setFieldValue(params.get(entry.getKey()));
+        ((FormFieldBase)entry.getValue()).setFieldValue(params.get(entry.getKey()));
       }
     }
   }
@@ -254,8 +251,7 @@ public class Form
       throw new SnapException("Rendering of non-existing field " + fieldName);
 
     Map<String, String> attribs = new HashMap<>();
-    attributes.entrySet().stream()
-        .forEach(e -> attribs.put(e.getKey(), e.getValue().toString()));
+    attributes.entrySet().stream().forEach(e -> attribs.put(e.getKey(), e.getValue().toString()));
 
     // Merge in the attributes from the html template
     // the attributes from code take precedence
@@ -309,8 +305,7 @@ public class Form
 
     // Convert <string,object> map to <string,string> map
     Map<String, String> attribs = new HashMap<>();
-    attributes.entrySet().stream()
-        .forEach(e -> attribs.put(e.getKey(), e.getValue().toString()));
+    attributes.entrySet().stream().forEach(e -> attribs.put(e.getKey(), e.getValue().toString()));
 
     return String.format("<label for='%1$s' %3$s>%2$s</label>\n", htmlId, label,
         Helpers.attrToString(attribs));
@@ -326,8 +321,7 @@ public class Form
    *          Additional attributes for the SPAN element
    * @return
    */
-  public String renderFieldError(String fieldName,
-      Map<String, Object> attributes)
+  public String renderFieldError(String fieldName, Map<String, Object> attributes)
   {
     FormField field = mFieldMap.get(fieldName);
 
@@ -338,8 +332,7 @@ public class Form
       return "";
 
     String attribs = attributes.entrySet().stream()
-        .map(e -> e.getKey() + "='" + e.getValue().toString() + "'")
-        .collect(Collectors.joining(" "));
+        .map(e -> e.getKey() + "='" + e.getValue().toString() + "'").collect(Collectors.joining(" "));
 
     return String.format("<span %1$s>%2$s</span>", attribs, field.getError());
 
@@ -382,11 +375,9 @@ public class Form
    */
   public boolean isValid()
   {
-    Validator validator = Validation.buildDefaultValidatorFactory()
-        .getValidator();
+    Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
 
-    Set<ConstraintViolation<Form>> constraintViolations = validator
-        .validate(this);
+    Set<ConstraintViolation<Form>> constraintViolations = validator.validate(this);
 
     for (ConstraintViolation<Form> cv : constraintViolations)
     {
@@ -439,8 +430,7 @@ public class Form
     FormField field = mFieldMap.get(fieldName);
 
     if (field == null)
-      throw new SnapException(
-          "Field: " + fieldName + " does not exist in Form: " + mFormName);
+      throw new SnapException("Field: " + fieldName + " does not exist in Form: " + mFormName);
 
     return field.hasError();
   }

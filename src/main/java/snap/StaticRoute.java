@@ -1,5 +1,6 @@
 package snap;
 
+import java.io.EOFException;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -48,11 +49,10 @@ public class StaticRoute extends Route
 
   private static final int TRANSFER_BUFFER_SIZE = 10240;
   final Logger log = LoggerFactory.getLogger(StaticRoute.class);
-  final DateTimeFormatter mHttpDateFormat = DateTimeFormatter
-      .ofPattern("EEE, dd MMM yyyy HH:mm:ss z", Locale.US);
+  final DateTimeFormatter mHttpDateFormat = DateTimeFormatter.ofPattern("EEE, dd MMM yyyy HH:mm:ss z",
+      Locale.US);
 
-  public StaticRoute(String contextPath, String path, String alias,
-      String directory)
+  public StaticRoute(String contextPath, String path, String alias, String directory)
   {
     super(contextPath, alias, path);
     // TODO: merge the matching into the super class
@@ -110,11 +110,9 @@ public class StaticRoute extends Route
     {
       try
       {
-        ZonedDateTime cachedFileDate = ZonedDateTime.parse(modifiedSince,
-            mHttpDateFormat);
+        ZonedDateTime cachedFileDate = ZonedDateTime.parse(modifiedSince, mHttpDateFormat);
         // reset the file time to the same timezone as the cachedFileDate
-        ZonedDateTime zdt = ZonedDateTime.ofInstant(fileLastModified,
-            cachedFileDate.getZone());
+        ZonedDateTime zdt = ZonedDateTime.ofInstant(fileLastModified, cachedFileDate.getZone());
 
         // the file is older so don't send it (by default always send)
         if (!zdt.isAfter(cachedFileDate))
@@ -122,8 +120,7 @@ public class StaticRoute extends Route
       }
       catch (DateTimeException | NumberFormatException e)
       {
-        log.warn("Can't parse If-Modified-Since date: \"" + modifiedSince
-            + "\" Sending file anyway.");
+        log.warn("Can't parse If-Modified-Since date: \"" + modifiedSince + "\" Sending file anyway.");
       }
     }
 
@@ -141,8 +138,7 @@ public class StaticRoute extends Route
     String contentDisposition = "inline";
 
     // Set the mimetype first
-    String mimetype = context.getRequest().getServletContext()
-        .getMimeType(file.getCanonicalPath());
+    String mimetype = context.getRequest().getServletContext().getMimeType(file.getCanonicalPath());
     if (mimetype == null)
       mimetype = "application/octet-stream";
 
@@ -153,8 +149,7 @@ public class StaticRoute extends Route
     else if (mimetype.startsWith("image"))
     {
       String accept = context.getRequest().getHeader("Accept");
-      contentDisposition = accept != null && accepts(accept, mimetype)
-          ? "inline" : "attachment";
+      contentDisposition = accept != null && accepts(accept, mimetype) ? "inline" : "attachment";
     }
 
     HttpServletResponse response = context.getResponse();
@@ -169,17 +164,15 @@ public class StaticRoute extends Route
           || ((ranges = parseRanges(rangeHeader, file.length())) == null))
       {
         response.setHeader("Content-Range", "bytes */");
-        response
-            .sendError(HttpServletResponse.SC_REQUESTED_RANGE_NOT_SATISFIABLE);
+        response.sendError(HttpServletResponse.SC_REQUESTED_RANGE_NOT_SATISFIABLE);
         return;
       }
     }
 
     response.setHeader("Accept-Ranges", "bytes");
-    response.setHeader("Last-Modified", mHttpDateFormat
-        .format(ZonedDateTime.ofInstant(fileLastModified, ZoneId.of("GMT"))));
-    response.setHeader("Content-Disposition",
-        contentDisposition + ";filename=\"" + file.getName() + "\"");
+    response.setHeader("Last-Modified",
+        mHttpDateFormat.format(ZonedDateTime.ofInstant(fileLastModified, ZoneId.of("GMT"))));
+    response.setHeader("Content-Disposition", contentDisposition + ";filename=\"" + file.getName() + "\"");
     response.setBufferSize(TRANSFER_BUFFER_SIZE);
 
     RandomAccessFile srcFile = null;
@@ -204,8 +197,7 @@ public class StaticRoute extends Route
         response.setContentLengthLong(range.length);
         response.setContentType(mimetype);
         response.setStatus(HttpServletResponse.SC_PARTIAL_CONTENT);
-        response.setHeader("Content-Range",
-            "bytes " + range.start + "-" + range.end + "/" + file.length());
+        response.setHeader("Content-Range", "bytes " + range.start + "-" + range.end + "/" + file.length());
 
         if (shouldSendData)
           transferData(srcFile, os, range.start, range.length);
@@ -217,8 +209,7 @@ public class StaticRoute extends Route
         // generate random boundary token
         final String BOUNDARY_TOKEN = UUID.randomUUID().toString();
         response.setStatus(HttpServletResponse.SC_PARTIAL_CONTENT);
-        response
-            .setContentType("multipart/byteranges; boundary=" + boundaryToken);
+        response.setContentType("multipart/byteranges; boundary=" + boundaryToken);
         if (shouldSendData)
         {
           for (Range range : ranges)
@@ -226,11 +217,27 @@ public class StaticRoute extends Route
             os.println();
             os.println("--" + BOUNDARY_TOKEN);
             os.println("Content-Type: " + mimetype);
-            os.println("Content-Range: bytes " + range.start + "-" + range.end
-                + "/" + file.length());
+            os.println("Content-Range: bytes " + range.start + "-" + range.end + "/" + file.length());
             transferData(srcFile, os, range.start, range.length);
           }
+          os.println();
+          os.println("--" + BOUNDARY_TOKEN + "--");
         }
+      }
+    }
+    catch (IOException ioe)
+    {
+      try
+      {
+        // test to see if this IOException happened because the remote
+        // side closed the connection
+        os.flush();
+        os = null;
+        throw ioe;
+      }
+      catch (IOException e)
+      {
+        log.debug("Http client disconnected prematurely.");
       }
     }
     finally
@@ -245,7 +252,7 @@ public class StaticRoute extends Route
       catch (IOException ioe)
       {
         // This usually happens if the user closes the connection prematurely
-        log.debug("Client disconnected prematurely. " + ioe.getMessage());
+        log.debug("Http client disconnected prematurely.");
       }
     }
   }
@@ -292,8 +299,8 @@ public class StaticRoute extends Route
     return list;
   }
 
-  private void transferData(RandomAccessFile file, OutputStream out, long start,
-      long length) throws IOException
+  private void transferData(RandomAccessFile file, OutputStream out, long start, long length)
+      throws IOException
   {
     byte[] buffer = new byte[TRANSFER_BUFFER_SIZE];
     int len;
@@ -322,15 +329,13 @@ public class StaticRoute extends Route
     }
   }
 
-  private File getFile(RequestContext context, String fileName)
-      throws IOException
+  private File getFile(RequestContext context, String fileName) throws IOException
   {
 
     File file = null;
     String permittedPath;
 
-    String path = context.getRequest().getServletContext()
-        .getRealPath(mLocation);
+    String path = context.getRequest().getServletContext().getRealPath(mLocation);
     if (path != null)
     {
       file = new File(path);
@@ -352,27 +357,22 @@ public class StaticRoute extends Route
     else
     {
       // Convert a location on the webroot to a path on the filesystem.
-      String actualPath = context.getRequest().getServletContext()
-          .getRealPath(computedPath);
+      String actualPath = context.getRequest().getServletContext().getRealPath(computedPath);
       if (actualPath == null)
       {
-        throw new ResourceNotFoundException(
-            "File \"" + fileName + "\" not found on local disk");
+        throw new ResourceNotFoundException("File \"" + fileName + "\" not found on local disk");
       }
       file = new File(actualPath);
-      permittedPath = new File(
-          context.getRequest().getServletContext().getRealPath(mLocation))
-              .getCanonicalPath();
+      permittedPath = new File(context.getRequest().getServletContext().getRealPath(mLocation))
+          .getCanonicalPath();
     }
     String canonicalPath = file.getCanonicalPath();
 
     // check if the path is inside the directory path
     if (!canonicalPath.startsWith(permittedPath))
     {
-      log.warn("Requested file " + file.getPath()
-          + " is not under permitted folder: " + permittedPath);
-      throw new ResourceNotFoundException(
-          "File \"" + file.getAbsolutePath() + "\" not found on local disk");
+      log.warn("Requested file " + file.getPath() + " is not under permitted folder: " + permittedPath);
+      throw new ResourceNotFoundException("File \"" + file.getAbsolutePath() + "\" not found on local disk");
     }
 
     if (!file.exists())
@@ -384,8 +384,7 @@ public class StaticRoute extends Route
 
     if (file.isDirectory())
     {
-      String message = "Attempt to access directory \"" + file.getAbsolutePath()
-          + "\" as file.";
+      String message = "Attempt to access directory \"" + file.getAbsolutePath() + "\" as file.";
       log.info(message);
       throw new ResourceNotFoundException(message);
     }
@@ -406,8 +405,7 @@ public class StaticRoute extends Route
     String[] acceptValues = acceptHeader.split("\\s*(,|;)\\s*");
     Arrays.sort(acceptValues);
     return Arrays.binarySearch(acceptValues, toAccept) > -1
-        || Arrays.binarySearch(acceptValues,
-            toAccept.replaceAll("/.*$", "/*")) > -1
+        || Arrays.binarySearch(acceptValues, toAccept.replaceAll("/.*$", "/*")) > -1
         || Arrays.binarySearch(acceptValues, "*/*") > -1;
   }
 

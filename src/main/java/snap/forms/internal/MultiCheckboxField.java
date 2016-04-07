@@ -16,8 +16,7 @@ import snap.forms.ListOption;
 public class MultiCheckboxField extends FormFieldBase
 {
 
-  public MultiCheckboxField(Form form, Field field,
-      snap.forms.annotations.MultiCheckboxField annotation)
+  public MultiCheckboxField(Form form, Field field, snap.forms.annotations.MultiCheckboxField annotation)
   {
     super(form, field);
     mAnnotation = annotation;
@@ -47,20 +46,17 @@ public class MultiCheckboxField extends FormFieldBase
     {
       attributes.remove("which");
       // render just one
-      Optional<?> optional = mOptions.stream().filter(o -> isValue(o, which))
-          .findFirst();
+      Optional<?> optional = mOptions.stream().filter(o -> isValue(o, which)).findFirst();
       if (optional.isPresent())
         return doRender(optional.get(), attributes);
       else
         throw new SnapException(
-            String.format("Can't render field for value %1$s of field %2$s",
-                which, mField.getName()));
+            String.format("Can't render field for value %1$s of field %2$s", which, mField.getName()));
     }
     else
     {
       // render all
-      return mOptions.stream().map(o -> doRender(o, attributes))
-          .collect(Collectors.joining("\n"));
+      return mOptions.stream().map(o -> doRender(o, attributes)).collect(Collectors.joining("\n"));
     }
   }
 
@@ -75,8 +71,7 @@ public class MultiCheckboxField extends FormFieldBase
     getFormFields();
 
     return mOptions.stream().map(o -> {
-      return o instanceof ListOption ? ((ListOption)o).getValue()
-          : o.toString();
+      return o instanceof ListOption ? ((ListOption)o).getValue() : o.toString();
     }).collect(Collectors.toList()).toArray(new String[] {});
 
   }
@@ -100,12 +95,10 @@ public class MultiCheckboxField extends FormFieldBase
       {
         // check if the value that was returned is actually in the possible
         // listoptions
-        if (mOptions.stream()
-            .anyMatch(obj -> ((ListOption)obj).getValue().equals(value)))
+        if (mOptions.stream().anyMatch(obj -> ((ListOption)obj).getValue().equals(value)))
           addValueToFormFieldSet(value);
         else
-          log.warn("Possible hacking attempt! Submitted field value '" + value
-              + "' not found in options");
+          log.warn("Possible hacking attempt! Submitted field value '" + value + "' not found in options");
       }
       else
       {
@@ -113,8 +106,7 @@ public class MultiCheckboxField extends FormFieldBase
         if (mOptions.stream().anyMatch(obj -> obj.toString().equals(value)))
           addValueToFormFieldSet(value);
         else
-          log.warn("Possible hacking attempt! Submitted field value '" + value
-              + "' not found in options");
+          log.warn("Possible hacking attempt! Submitted field value '" + value + "' not found in options");
       }
     }
   }
@@ -160,15 +152,11 @@ public class MultiCheckboxField extends FormFieldBase
 
     // check type here.
     if (mFieldValues.contains(val))
-      return String.format(
-          "\t<input id='%1$s-%5$s' type='checkbox' name='%2$s' value='%3$s' checked %4$s/>",
-          mAnnotation.id(), mField.getName(), val, text, htmlid,
-          Helpers.attrToString(attributes));
+      return String.format("\t<input id='%1$s-%5$s' type='checkbox' name='%2$s' value='%3$s' checked %4$s/>",
+          mAnnotation.id(), mField.getName(), val, text, htmlid, Helpers.attrToString(attributes));
     else
-      return String.format(
-          "\t<input id='%1$s-%5$s' type='checkbox' name='%2$s' value='%3$s' %4$s/>",
-          mAnnotation.id(), mField.getName(), val, text, htmlid,
-          Helpers.attrToString(attributes));
+      return String.format("\t<input id='%1$s-%5$s' type='checkbox' name='%2$s' value='%3$s' %4$s/>",
+          mAnnotation.id(), mField.getName(), val, text, htmlid, Helpers.attrToString(attributes));
   }
 
   private void addValueToFormFieldSet(String value)
@@ -182,8 +170,7 @@ public class MultiCheckboxField extends FormFieldBase
       else if (mOptionFieldClass.equals(Integer.class))
         mFieldValues.add(Integer.valueOf(value));
       else
-        throw new SnapException(
-            "Currently only Set<String>, Set<Long>, Set<Integer> are supported");
+        throw new SnapException("Currently only Set<String>, Set<Long>, Set<Integer> are supported");
     }
     catch (NumberFormatException nfe)
     {
@@ -201,9 +188,7 @@ public class MultiCheckboxField extends FormFieldBase
     }
     catch (NoSuchFieldException nsfe)
     {
-      throw new SnapException(
-          "Options field '" + mAnnotation.options() + "' not present in form",
-          nsfe);
+      throw new SnapException("Options field '" + mAnnotation.options() + "' not present in form", nsfe);
     }
 
     // Get the options and the values
@@ -213,8 +198,7 @@ public class MultiCheckboxField extends FormFieldBase
       if (mField.getType().isAssignableFrom(Set.class))
         mFieldValues = (Set<Object>)mField.get(mForm);
       if (mFieldValues == null)
-        throw new SnapException("Field " + mField.getName()
-            + " is null. Did you forget to initialize it?");
+        throw new SnapException("Field " + mField.getName() + " is null. Did you forget to initialize it?");
       // Get the type of the Set container./
       ParameterizedType pType = (ParameterizedType)mField.getGenericType();
       mOptionFieldClass = (Class<?>)pType.getActualTypeArguments()[0];
@@ -222,8 +206,7 @@ public class MultiCheckboxField extends FormFieldBase
     }
     catch (IllegalArgumentException | IllegalAccessException e)
     {
-      throw new SnapException("Can't access field: " + mAnnotation.options(),
-          e);
+      throw new SnapException("Can't access field: " + mAnnotation.options(), e);
     }
   }
 

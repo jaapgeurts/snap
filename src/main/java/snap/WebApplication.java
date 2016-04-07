@@ -73,8 +73,7 @@ public abstract class WebApplication
    * @param exception
    * @throws IOException
    */
-  public View handleError(RequestContext context, int errorCode,
-      Throwable exception) throws IOException
+  public View handleError(RequestContext context, int errorCode, Throwable exception) throws IOException
   {
     HttpServletResponse response = context.getResponse();
     if (errorCode == HttpServletResponse.SC_UNAUTHORIZED)
@@ -115,8 +114,7 @@ public abstract class WebApplication
    * @param password
    * @return
    */
-  public boolean authenticateUser(RequestContext context, String username,
-      String password)
+  public boolean authenticateUser(RequestContext context, String username, String password)
   {
     return false;
   }
@@ -201,8 +199,7 @@ public abstract class WebApplication
     mWebAppProperties = null;
     try
     {
-      InputStream in = Thread.currentThread().getContextClassLoader()
-          .getResourceAsStream(filePath);
+      InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream(filePath);
       mWebAppProperties = new Properties();
       try
       {

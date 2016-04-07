@@ -13,8 +13,7 @@ import snap.forms.Form;
 public class FileField extends FormFieldBase
 {
 
-  public FileField(Form form, Field field,
-      snap.forms.annotations.FileField annotation)
+  public FileField(Form form, Field field, snap.forms.annotations.FileField annotation)
   {
     // TODO: check if template type Set<?> is of Part
     super(form, field);
@@ -24,8 +23,7 @@ public class FileField extends FormFieldBase
     else if (Set.class.isAssignableFrom(field.getType()))
       mMultiple = true;
     else
-      throw new IllegalArgumentException(
-          "FileFields must be of type Part or Set<Part>");
+      throw new IllegalArgumentException("FileFields must be of type Part or Set<Part>");
 
     mLabel = mAnnotation.label();
     mHtmlId = mAnnotation.id();
@@ -44,12 +42,11 @@ public class FileField extends FormFieldBase
       return "";
 
     if (mMultiple)
-      return String.format(
-          "<input type='file' id='%1$s' name='%2$s' multiple %3$s/>\n",
-          mAnnotation.id(), mField.getName(), Helpers.attrToString(attributes));
+      return String.format("<input type='file' id='%1$s' name='%2$s' multiple %3$s/>\n", mAnnotation.id(),
+          mField.getName(), Helpers.attrToString(attributes));
     else
-      return String.format("<input type='file' id='%1$s' name='%2$s' %3$s/>\n",
-          mAnnotation.id(), mField.getName(), Helpers.attrToString(attributes));
+      return String.format("<input type='file' id='%1$s' name='%2$s' %3$s/>\n", mAnnotation.id(),
+          mField.getName(), Helpers.attrToString(attributes));
 
   }
 

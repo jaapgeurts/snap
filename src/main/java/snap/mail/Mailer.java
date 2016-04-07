@@ -53,8 +53,7 @@ public class Mailer
       return this;
     }
 
-    public MessageBuilder setFrom(String name, String address)
-        throws AddressException
+    public MessageBuilder setFrom(String name, String address) throws AddressException
     {
 
       from = createAddress(address, name);
@@ -68,8 +67,7 @@ public class Mailer
       return this;
     }
 
-    public MessageBuilder addRecipient(String address, String name)
-        throws AddressException
+    public MessageBuilder addRecipient(String address, String name) throws AddressException
     {
       recipients.add(createAddress(address, name));
       return this;
@@ -81,8 +79,7 @@ public class Mailer
       return this;
     }
 
-    private InternetAddress createAddress(String address, String name)
-        throws AddressException
+    private InternetAddress createAddress(String address, String name) throws AddressException
     {
       try
       {
@@ -96,8 +93,7 @@ public class Mailer
       catch (AddressException e)
       {
 
-        log.error("Invalid recipient address: " + name + " <" + address + ">",
-            e);
+        log.error("Invalid recipient address: " + name + " <" + address + ">", e);
         throw e;
       }
       catch (UnsupportedEncodingException e)
@@ -119,8 +115,7 @@ public class Mailer
       return this;
     }
 
-    public MimeMessage build(Map<String, Object> context)
-        throws MessagingException
+    public MimeMessage build(Map<String, Object> context) throws MessagingException
     {
       try
       {
@@ -132,8 +127,8 @@ public class Mailer
         MimeBodyPart textPart = new MimeBodyPart();
         // TODO: check if value is present
 
-        File txtFile = new File(Settings.rootPath + "/"
-            + Settings.emailTemplatePath + "/" + templateName + ".txt");
+        File txtFile = new File(
+            Settings.rootPath + "/" + Settings.emailTemplatePath + "/" + templateName + ".txt");
         if (!txtFile.exists())
         {
           log.error("Missing template file: " + txtFile);
@@ -144,8 +139,8 @@ public class Mailer
 
         // Set html Part
         MimeBodyPart htmlPart = new MimeBodyPart();
-        File htmlFile = new File(Settings.rootPath + "/"
-            + Settings.emailTemplatePath + "/" + templateName + ".html");
+        File htmlFile = new File(
+            Settings.rootPath + "/" + Settings.emailTemplatePath + "/" + templateName + ".html");
         if (!htmlFile.exists())
         {
           log.error("Missing template file: " + htmlFile);
@@ -171,8 +166,7 @@ public class Mailer
       }
       catch (MessagingException e)
       {
-        log.error("Can't create message: " + from.getAddress() + " :: "
-            + subject, e);
+        log.error("Can't create message: " + from.getAddress() + " :: " + subject, e);
         throw e;
       }
     }
@@ -199,15 +193,16 @@ public class Mailer
   public void open() throws MessagingException
   {
     mTransport = mSession.getTransport("smtp");
-    mTransport.connect(mSession.getProperty("mail.smtp.user"),
-        mSession.getProperty("mail.smtp.password"));
+    mTransport.connect(mSession.getProperty("mail.smtp.user"), mSession.getProperty("mail.smtp.password"));
   }
 
   /**
    * Send a message.
    * 
-   * @param msg The message to send.
-   * @throws MessagingException Thrown when the message can't be sent.
+   * @param msg
+   *          The message to send.
+   * @throws MessagingException
+   *           Thrown when the message can't be sent.
    */
   public void send(Message msg) throws MessagingException
   {

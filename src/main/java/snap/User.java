@@ -1,8 +1,8 @@
 package snap;
 
 /**
- * Implement this interface to store the user object in the system so that the @LoginRequired
- * annotation is supported
+ * Implement this interface to store the user object in the system so that
+ * the @LoginRequired annotation is supported
  * 
  * @author Jaap Geurts
  *

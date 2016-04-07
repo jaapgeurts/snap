@@ -9,14 +9,12 @@ import snap.forms.Form;
 public class PasswordField extends FormFieldBase
 {
 
-  public PasswordField(Form form, Field field,
-      snap.forms.annotations.PasswordField annotation)
+  public PasswordField(Form form, Field field, snap.forms.annotations.PasswordField annotation)
   {
     super(form, field);
     mAnnotation = annotation;
     if (!field.getType().equals(String.class))
-      throw new IllegalArgumentException(
-          "PasswordFields must be of type String");
+      throw new IllegalArgumentException("PasswordFields must be of type String");
 
     mLabel = mAnnotation.label();
     addAttribute("placeholder", mAnnotation.placeholder());
@@ -28,7 +26,7 @@ public class PasswordField extends FormFieldBase
   {
     return render(getAttributes());
   }
-  
+
   @Override
   public String render(Map<String, String> attributes)
   {
@@ -37,9 +35,8 @@ public class PasswordField extends FormFieldBase
 
     // Ignore the value parameter:: never set passwords in HTML
 
-    return String.format(
-        "<input type='password' id='%1$s' name='%2$s' %3$s/>\n",
-        mAnnotation.id(), mField.getName(), Helpers.attrToString(attributes));
+    return String.format("<input type='password' id='%1$s' name='%2$s' %3$s/>\n", mAnnotation.id(),
+        mField.getName(), Helpers.attrToString(attributes));
   }
 
   @Override

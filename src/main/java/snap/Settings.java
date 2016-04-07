@@ -25,13 +25,11 @@ public class Settings
 
   public static boolean redirectEnabled;
 
-
   static
   {
     try
     {
-      InputStream in = Thread.currentThread().getContextClassLoader()
-          .getResourceAsStream("snap.properties");
+      InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream("snap.properties");
       Properties p = new Properties();
       try
       {
@@ -39,9 +37,9 @@ public class Settings
         String t = p.getProperty("snap.router.routes");
         if (t != null)
           routesFile = new String(t);
-        
+
         t = p.getProperty("snap.router.packageprefix");
-        if (t!=null)
+        if (t != null)
           packagePrefix = new String(t);
 
         webAppClass = p.getProperty("snap.applicationclass");

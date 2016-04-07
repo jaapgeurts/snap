@@ -68,8 +68,8 @@ public abstract class FormFieldBase implements FormField
       {
         if (values.length > 1)
         {
-          log.warn("Possible hacking attempt! Expected one value for field '"
-              + mField.getName() + "' but found: " + values.length);
+          log.warn("Possible hacking attempt! Expected one value for field '" + mField.getName()
+              + "' but found: " + values.length);
         }
         mField.set(mForm, values[0]);
       }
@@ -95,8 +95,7 @@ public abstract class FormFieldBase implements FormField
     catch (IllegalArgumentException | IllegalAccessException e)
     {
       log.debug("Can't access value of form field: " + mField.getName(), e);
-      throw new SnapException(
-          "Form field " + mField.getName() + " can't be accessed.", e);
+      throw new SnapException("Form field " + mField.getName() + " can't be accessed.", e);
     }
   }
 
@@ -128,8 +127,8 @@ public abstract class FormFieldBase implements FormField
     if (which == null || "".equals(which))
       return getHtmlId();
 
-    throw new SnapException(String.format(
-        "The field %1$s does not support HtmlID for values", mField.getName()));
+    throw new SnapException(
+        String.format("The field %1$s does not support HtmlID for values", mField.getName()));
   }
 
   @Override
@@ -144,8 +143,8 @@ public abstract class FormFieldBase implements FormField
     if (which == null || "".equals(which))
       return getLabel();
 
-    throw new SnapException(String.format(
-        "The field %1$s does not support labels for values", mField.getName()));
+    throw new SnapException(
+        String.format("The field %1$s does not support labels for values", mField.getName()));
   }
 
   @Override
