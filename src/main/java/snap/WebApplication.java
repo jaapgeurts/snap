@@ -78,19 +78,17 @@ public abstract class WebApplication
     HttpServletResponse response = context.getResponse();
     if (errorCode == HttpServletResponse.SC_UNAUTHORIZED)
       response.setHeader("WWW-Authenticate", "Basic realm=\"snap\"");
-    if (exception == null)
+    if (Settings.debug && exception != null)
     {
-      response.sendError(errorCode);
+      response.sendError(errorCode, exception.getMessage());
     }
     else
     {
-      if (Settings.debug)
-        response.sendError(errorCode, exception.getMessage());
-      else
-        response.sendError(errorCode);
+      response.sendError(errorCode);
     }
 
     return NullView.INSTANCE;
+
   }
 
   /**

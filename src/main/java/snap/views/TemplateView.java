@@ -55,6 +55,68 @@ public class TemplateView extends View
     mContext.put(name, value);
   }
 
+  /**
+   * Gets the HTTP status code that will be set when this view is rendered
+   * 
+   * @return
+   */
+  public int getStatusCode()
+  {
+    return mStatusCode;
+  }
+
+  /**
+   * Sets the HTTP status code that will be set when this view is rendered
+   * 
+   * @param statusCode
+   */
+  public void setStatusCode(int statusCode)
+  {
+    this.mStatusCode = statusCode;
+  }
+
+  /**
+   * Gets the HTTP content type that will be set when this view is rendered
+   * 
+   * @return
+   */
+  public String getContentType()
+  {
+    return mContentType;
+  }
+
+  /**
+   * Sets the HTTP content type that will be set when this view is rendered
+   * 
+   * @param contentType
+   */
+  public void setContentType(String contentType)
+  {
+    this.mContentType = contentType;
+  }
+
+  /**
+   * Gets the HTTP character encoding that will be set when this view is
+   * rendered
+   * 
+   * @return
+   */
+  public String getCharEncoding()
+  {
+    return mCharEncoding;
+  }
+
+  /**
+   * Sets the HTTP character encoding that will be set when this view is
+   * rendered
+   * 
+   * @param charEncoding
+   */
+  public void setCharEncoding(String charEncoding)
+  {
+    this.mCharEncoding = charEncoding;
+  }
+
   @Override
   public void render(RequestContext context) throws IOException
   {
@@ -72,9 +134,9 @@ public class TemplateView extends View
     if (user != null)
       mContext.put("user", user);
 
-    r.setStatus(HttpServletResponse.SC_OK);
-    r.setContentType("text/html; charset=UTF-8");
-    r.setCharacterEncoding("UTF-8");
+    r.setStatus(mStatusCode);
+    r.setContentType(mContentType);
+    r.setCharacterEncoding(mCharEncoding);
 
     String s = WebApplication.getInstance().getRenderEngine().render(mTemplateName, mContext);
     ServletOutputStream os = r.getOutputStream();
@@ -84,5 +146,9 @@ public class TemplateView extends View
 
   protected String mTemplateName;
   protected Map<String, Object> mContext;
+
+  private int mStatusCode = HttpServletResponse.SC_OK;
+  private String mContentType = "text/html; charset=UTF-8";
+  private String mCharEncoding = "UTF-8";
 
 }

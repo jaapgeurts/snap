@@ -17,6 +17,8 @@ import org.slf4j.LoggerFactory;
 import snap.Router;
 import snap.Settings;
 import snap.WebApplication;
+import snap.views.NullView;
+import snap.views.View;
 
 public class HttpError implements RequestResult
 {
@@ -69,7 +71,11 @@ public class HttpError implements RequestResult
       // The default implementation just returns the error to the Servlet
       // Container
       WebApplication webApp = WebApplication.getInstance();
-      webApp.handleError(context, mErrorCode, mException);
+      View view = webApp.handleError(context, mErrorCode, mException);
+      if (view != null && !(view instanceof NullView))
+      {
+        view.render(context);
+      }
     }
   }
 
