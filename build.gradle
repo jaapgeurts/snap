@@ -2,6 +2,8 @@ apply plugin: 'java'
 apply plugin: 'eclipse'
 
 sourceCompatibility = 1.8
+group = 'com.proficiosoftware'
+archivesBaseName = 'snap'
 version = '0.1'
 
 repositories {
@@ -21,6 +23,7 @@ dependencies {
              
     testCompile group: 'junit', name: 'junit', version: '4.+'
 }
+
 
 jar {
     manifest {
@@ -51,9 +54,10 @@ artifacts {
 }
 
 uploadArchives {
+
     repositories {
-       flatDir {
-           dirs 'repos'
+       ivy {
+         url 'repos'
        }
     }
 }
