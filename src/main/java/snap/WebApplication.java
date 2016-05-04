@@ -12,6 +12,8 @@ import org.rythmengine.RythmEngine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import snap.http.RequestContext;
 import snap.views.NullView;
 import snap.views.View;
@@ -155,6 +157,18 @@ public abstract class WebApplication
   }
 
   /**
+   * Returns the default Jackson JSON mapper. This is used by the Snap!'s JsonView
+   * TODO: make this a factory method that can return any kind of json mapper
+   * @return
+   */
+  public ObjectMapper getJsonMapper()
+  {
+    ObjectMapper mapper = new ObjectMapper();
+  
+    return mapper;
+  }
+
+  /**
    * Setup a listener for request pre post processing hooks. You must set this
    * listiner in the Init() call. Setting it after Init() has no effect.
    * 
@@ -192,6 +206,9 @@ public abstract class WebApplication
    * @param filePath
    * @return The properties
    */
+  // FIXME: this should not be named so and read properties for the snap user
+  // should not be stored in this class but in the users own derived webbapp
+  // class
   protected Properties readProperties(String filePath)
   {
     mWebAppProperties = null;

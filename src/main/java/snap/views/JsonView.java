@@ -1,26 +1,29 @@
 package snap.views;
 
 import java.io.IOException;
+
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import snap.WebApplication;
 import snap.http.RequestContext;
 
-import com.alibaba.fastjson.JSON;
-
-public class JsonView extends View
+public class JsonView<T> extends View
 {
 
   private int mStatus = HttpServletResponse.SC_OK;
 
-  public JsonView(JSON root)
+  public JsonView(T root)
   {
     if (root == null)
-      throw new NullPointerException("Argument \"root\" can't be NULL");
-    mJson = root;
+      throw new IllegalArgumentException("Root object for JSON can't be null");
+    mRoot = root;
+    mapper = WebApplication.getInstance().getJsonMapper();
   }
 
-  public JsonView(JSON root, int status)
+  public JsonView(T root, int status)
   {
     this(root);
     mStatus = status;
@@ -36,12 +39,10 @@ public class JsonView extends View
     r.setCharacterEncoding("UTF-8");
 
     ServletOutputStream os = r.getOutputStream();
-    if (mJson != null)
-      os.print(mJson.toJSONString());
-    // TODO: specify encoding too
 
+    mapper.writeValue(os, mRoot);
   }
 
-  private JSON mJson;
-
+  private T mRoot;
+  private ObjectMapper mapper;
 }
