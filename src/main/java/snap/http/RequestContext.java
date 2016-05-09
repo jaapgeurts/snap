@@ -110,7 +110,7 @@ public class RequestContext
   }
 
   /**
-   * Returns a variable from the decoded URL identified by name These are values
+   * Returns a variable from the decoded URL identified by name. These are values
    * that appear regex expression in the Route.
    * 
    * @param name
@@ -119,6 +119,17 @@ public class RequestContext
   public String getParamUrl(String name)
   {
     return mUrlParams.get(name);
+  }
+
+  /**
+   * Return all params and the values that were extracted from the URL
+   * 
+   * @return
+   */
+  public Map<String, String> getParamUrls()
+  {
+    return mUrlParams;
+
   }
 
   // TODO: add method that returns a param by position so that the user

@@ -4,6 +4,7 @@ import java.io.UnsupportedEncodingException;
 import java.lang.ref.SoftReference;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -238,7 +239,46 @@ public class Route
         }
         else
         {
-          result = (RequestResult)actionMethod.invoke(controller, context);
+          // check if the method has parameters and try to assign
+          Parameter[] parameters = actionMethod.getParameters();
+          if (parameters.length < 1) // at least two
+            throw new SnapException("Controller method must have at least on parameter: RequestContext");
+          if (parameters[0].getType() != RequestContext.class)
+            throw new SnapException("First parameter must be a RequestContext");
+
+          // Attempt to assign value to the method arguments
+          Object arguments[] = new Object[parameters.length];
+          arguments[0] = context;
+          if (parameters[0].isNamePresent())
+          {
+            // Parameter names are supported so check each argument:
+            for (int i = 1; i < parameters.length; i++)
+            {
+              // search all arguments with the same name
+              Parameter param = parameters[i];
+              String value = context.getParamUrl(param.getName());
+              if (value == null)
+              {
+                log.error("Argument: '" + param.getName() + "' not found in URL param list");
+                continue;
+              }
+              if (param.getType() == String.class)
+                arguments[i] = value;
+              else if (param.getType() == Integer.class)
+                arguments[i] = Integer.valueOf(value);
+              else if (param.getType() == Long.class)
+                arguments[i] = Long.valueOf(value);
+              else
+              {
+                log.info("You can only assign String, Integer and Long values to controller arguments");
+              }
+            }
+          }
+          else
+          {
+            log.debug("Java 8 is required to support parameter assignments");
+          }
+          result = (RequestResult)actionMethod.invoke(controller, arguments);
         }
         // controllers should not return NULL
         if (result == null)
@@ -280,6 +320,7 @@ public class Route
       return result;
     }
     else
+
     {
       String message = "Controller or Method not found for route: " + getAlias() + ". Specified: "
           + mController + "::" + mMethodName;
