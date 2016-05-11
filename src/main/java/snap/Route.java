@@ -11,9 +11,11 @@ import java.util.Arrays;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
 import javax.servlet.http.Cookie;
 
 import org.jcodings.specific.UTF8Encoding;
@@ -556,21 +558,22 @@ public class Route
 
       try
       {
-        m = controller.getClass().getMethod(mMethodName, RequestContext.class);
+        Method[] methods = controller.getClass().getMethods();
+        List<Method> methodList = Arrays.stream(methods).filter(x -> x.getName().equals(mMethodName))
+            .collect(Collectors.toList());
+        if (methodList.size() == 0)
+          log.error(
+              "Route " + getAlias() + " has no method " + mMethodName + " in controller " + mController);
+        else if (methodList.size() > 1)
+          log.error("More than one method '" + mMethodName + "' found for route " + getAlias());
+        m = methodList.get(0);
         mMethodRef = new SoftReference<Method>(m);
       }
-      catch (NoSuchMethodException | SecurityException e)
+      catch (SecurityException e)
       {
-        Method[] methods = controller.getClass().getMethods();
-        Optional<Method> result = Arrays.stream(methods).filter(x -> x.getName().equals(mMethodName))
-            .findFirst();
-        if (result.isPresent())
-          log.error("Route " + getAlias() + " has method " + mMethodName + " in controller " + mController
-              + " but has wrong signature. Expected: " + mMethodName + "(RequestContext); found: "
-              + result.get().toGenericString(), e);
-        else
-          log.error("Route " + getAlias() + " has no method " + mMethodName + " in controller " + mController,
-              e);
+
+        log.error("Route " + getAlias() + ". Error accessing method " + mMethodName + " in controller "
+            + mController, e);
 
         return null;
       }
