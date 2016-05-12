@@ -566,8 +566,11 @@ public class Route
               "Route " + getAlias() + " has no method " + mMethodName + " in controller " + mController);
         else if (methodList.size() > 1)
           log.error("More than one method '" + mMethodName + "' found for route " + getAlias());
-        m = methodList.get(0);
-        mMethodRef = new SoftReference<Method>(m);
+        else
+        {
+          m = methodList.get(0);
+          mMethodRef = new SoftReference<Method>(m);
+        }
       }
       catch (SecurityException e)
       {

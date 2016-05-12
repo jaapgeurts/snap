@@ -207,6 +207,15 @@ public class RequestContext
   {
     return mServletRequest.getHeader(header);
   }
+  
+  /**
+   * Returns the HTTP referer header, if available, else NULL
+   * @return
+   */
+  public String getReferrerURL()
+  {
+    return mServletRequest.getHeader("referer");
+  }
 
   /**
    * Gets the HTTP Method by which this request was called.
