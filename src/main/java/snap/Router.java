@@ -91,8 +91,10 @@ public class Router
    * Finds a route in the list for the specified method and path
    * 
    * @param method
+   *          The HTTP method
    * @param path
-   * @return
+   *          The requested URL path
+   * @return the route that matched the method and path
    * @throws RouteNotFoundException
    *           when the method and path don't match any route rules
    * @throws HttpMethodException
@@ -180,8 +182,8 @@ public class Router
 
   /**
    * 
-   * @param routeAlias
-   * @return
+   * @param routeAlias The alias of the route
+   * @return The route for this alias
    * @throws RouteNotFoundException
    *           When the route can't be found.
    */

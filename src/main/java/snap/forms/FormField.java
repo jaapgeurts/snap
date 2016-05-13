@@ -15,7 +15,7 @@ public interface FormField
   /**
    * Renders the field with the specified attributes
    * 
-   * @param attributes
+   * @param attributes HTML tag attributes
    * @return HTML for the field
    */
   public String render(Map<String, String> attributes);
@@ -30,7 +30,7 @@ public interface FormField
   /**
    * Set this fields error string
    * 
-   * @param errorText
+   * @param errorText The error to display
    */
   public void setError(String errorText);
 
@@ -49,7 +49,7 @@ public interface FormField
   /**
    * Prevent this field from rendering
    * 
-   * @param visible
+   * @param visible true or false
    */
   public void setVisible(boolean visible);
 
@@ -64,7 +64,7 @@ public interface FormField
    * Set the HTML Id for this field. You would normally set this trough its
    * corresponding annotation
    * 
-   * @param htmlId
+   * @param htmlId the  ID to use
    */
   public void setHtmlId(String htmlId);
 
@@ -89,7 +89,7 @@ public interface FormField
    * Sets the label for this field. You would normally set this through its
    * corresponding annotation
    * 
-   * @param label
+   * @param label the label text
    */
   public void setLabel(String label);
 
@@ -104,8 +104,8 @@ public interface FormField
    * If this field has multiple values (such as a listbox or a radio list then
    * this field returns the label text for this particular value
    * 
-   * @param which
-   * @return the tex for the label for the value indicated by which
+   * @param which the value of the label 
+   * @return the text for the label for the value indicated by which
    */
   public String getLabel(String which);
 

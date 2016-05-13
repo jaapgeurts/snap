@@ -83,7 +83,8 @@ public class RadioField extends FormFieldBase
    * lists
    * 
    * @param which
-   * @return
+   *          the text indicated by the which (the value field)
+   * @return the text
    */
   @Override
   public String getLabel(String which)

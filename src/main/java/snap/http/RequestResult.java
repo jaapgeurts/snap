@@ -22,7 +22,9 @@ public interface RequestResult
    * implement the render() method.
    * 
    * @param context
+   *          The request context
    * @throws IOException
+   *           thrown when an error occurs
    */
   public void handleResult(RequestContext context) throws IOException;
 }

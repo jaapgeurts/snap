@@ -74,6 +74,7 @@ public class RequestContext
    * 
    * @return The Json Object for the data
    * @throws IOException
+   *           The error thrown.
    */
   public JSONObject getContentAsJson() throws IOException
   {
@@ -91,7 +92,7 @@ public class RequestContext
    * WARNING: if you have a post parameter with the name name as a GET parameter
    * you will only see one of them. This is a limitation of the Servlet spec
    * 
-   * @return
+   * @return the parameters a Map
    */
   public Map<String, String[]> getParamsPostGet()
   {
@@ -102,6 +103,7 @@ public class RequestContext
    * Return post or get variable identified by name
    * 
    * @param name
+   *          the parameter to find
    * @return returns null when parameter is not available.
    */
   public String getParamPostGet(String name)
@@ -110,10 +112,11 @@ public class RequestContext
   }
 
   /**
-   * Returns a variable from the decoded URL identified by name. These are values
-   * that appear regex expression in the Route.
+   * Returns a variable from the decoded URL identified by name. These are
+   * values that appear regex expression in the Route.
    * 
    * @param name
+   *          the param to find.
    * @return Null if the parameter is not available
    */
   public String getParamUrl(String name)
@@ -124,7 +127,7 @@ public class RequestContext
   /**
    * Return all params and the values that were extracted from the URL
    * 
-   * @return
+   * @return all params name/value in the URL
    */
   public Map<String, String> getParamUrls()
   {
@@ -207,10 +210,11 @@ public class RequestContext
   {
     return mServletRequest.getHeader(header);
   }
-  
+
   /**
    * Returns the HTTP referer header, if available, else NULL
-   * @return
+   * 
+   * @return The referer value
    */
   public String getReferrerURL()
   {
@@ -230,7 +234,7 @@ public class RequestContext
   /**
    * Gets the route object that led to this request.
    * 
-   * @return
+   * @return the route for this request
    */
   public Route getRoute()
   {
@@ -241,6 +245,7 @@ public class RequestContext
    * Used by the framework. Sets the route object for this request
    * 
    * @param route
+   *          the route for this request. Set by the framework.
    */
   public void setRoute(Route route)
   {
@@ -264,6 +269,7 @@ public class RequestContext
    * Sets the Framework Router
    * 
    * @param router
+   *          the router in use
    */
   public void setRouter(Router router)
   {
@@ -273,7 +279,7 @@ public class RequestContext
   /**
    * Gets the Original Servlet request
    * 
-   * @return
+   * @return the original servlet request
    */
   public HttpServletRequest getRequest()
   {
@@ -283,7 +289,7 @@ public class RequestContext
   /**
    * Get the original servlet response
    * 
-   * @return
+   * @return the original servlet response
    */
   public HttpServletResponse getResponse()
   {
@@ -398,7 +404,7 @@ public class RequestContext
   /**
    * Returns the current generated CSRF token
    * 
-   * @return
+   * @return the CSRF token
    */
   public String getServerCsrfToken()
   {

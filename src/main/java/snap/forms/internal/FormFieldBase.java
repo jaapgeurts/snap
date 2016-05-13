@@ -23,7 +23,9 @@ public abstract class FormFieldBase implements FormField
    * Constructor
    * 
    * @param form
+   *          The form this field belongs to
    * @param field
+   *          the field
    */
   public FormFieldBase(Form form, Field field)
   {

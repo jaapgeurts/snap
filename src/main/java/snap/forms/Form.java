@@ -319,7 +319,7 @@ public class Form
    *          The field name
    * @param attributes
    *          Additional attributes for the SPAN element
-   * @return
+   * @return the rendered string
    */
   public String renderFieldError(String fieldName, Map<String, Object> attributes)
   {

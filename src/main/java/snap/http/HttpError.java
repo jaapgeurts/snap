@@ -58,7 +58,13 @@ public class HttpError implements RequestResult
       r.setStatus(mErrorCode);
       r.setContentType("text/html; charset=UTF-8");
       r.setCharacterEncoding("UTF-8");
-      r.setHeader("WWW-Authenticate", "Basic realm=\"snap\"");
+      if (mErrorCode == HttpServletResponse.SC_UNAUTHORIZED)
+      {
+        for(Authenticator authenticator : WebApplication.getInstance().getAuthenticators())
+        {
+          r.addHeader("WWW-Authenticate", authenticator.getWWWAuthenticateHeader());
+        }
+      }
 
       String s = WebApplication.getInstance().getRenderEngine().render(template, map);
       ServletOutputStream os = r.getOutputStream();

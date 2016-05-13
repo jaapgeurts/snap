@@ -6,9 +6,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
-import java.util.Base64;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -34,6 +32,7 @@ import snap.annotations.PermissionRequired;
 import snap.annotations.RoleRequired;
 import snap.annotations.RouteOptions;
 import snap.forms.MissingCsrfTokenException;
+import snap.http.Authenticator;
 import snap.http.HttpMethod;
 import snap.http.HttpRedirect;
 import snap.http.RequestContext;
@@ -98,8 +97,10 @@ public class Route
    * Returns true if the urlPath matches this route's rule and method
    * 
    * @param method
+   *          The HTTP method
    * @param urlPath
-   * @return
+   *          the URL path to match
+   * @return true if this method and path match
    */
   public boolean match(HttpMethod method, String urlPath)
   {
@@ -127,7 +128,8 @@ public class Route
    * Returns true if the urlPath matches this route's rule
    * 
    * @param urlPath
-   * @return
+   *          the path to match
+   * @return true if matched, false otherwise
    */
   public boolean match(String urlPath)
   {
@@ -169,26 +171,35 @@ public class Route
         if (context.getAuthenticatedUser() == null)
         {
           boolean isAuthenticated = false;
-          // attempt authenticate via Http Basic
-          try
+          String authHeader = context.getHeader("Authorization");
+          if (authHeader != null)
           {
-            String authToken = decodeAuthentication(context.getHeader("Authorization"));
-            if (authToken != null)
+            boolean authMethodMatched = false;
+            // attempt authenticate via a registered authenticator
+            for (Authenticator authenticator : WebApplication.getInstance().getAuthenticators())
             {
-              int firstColonPos = authToken.indexOf(':');
-              String username = authToken.substring(0, firstColonPos);
-              String password = authToken.substring(firstColonPos + 1, authToken.length());
-
-              isAuthenticated = WebApplication.getInstance().authenticateUser(context, username, password);
+              if (authenticator.matchAuthenticationHeader(authHeader))
+              {
+                authMethodMatched = true;
+                isAuthenticated = authenticator.authenticate(context, authHeader);
+                if (isAuthenticated)
+                  break;
+              }
             }
+
+            if (!authMethodMatched)
+              log.info("No suitable authenticator for authentication method: " + authHeader);
           }
-          catch (Exception e)
+          else
           {
-            log.error("Error during Basic authentication", e);
+            log.debug("User not authenticated and no Authorization header sent");
           }
+
           if (!isAuthenticated)
+          {
             throw new AuthenticationException("Not allowed to access URL: "
                 + context.getRequest().getPathInfo() + ". User not Authenticated");
+          }
 
         }
       }
@@ -328,27 +339,6 @@ public class Route
           + mController + "::" + mMethodName;
       throw new SnapException(message);
     }
-  }
-
-  private String decodeAuthentication(String header)
-  {
-    if (header == null)
-      return null;
-
-    String[] parts = header.trim().split(" ");
-    if (parts == null || parts.length != 2)
-      return null;
-
-    // only basic supported now
-    if (!parts[0].trim().equals("Basic"))
-    {
-      log.info("Currently only Basic authentication is supported");
-      return null;
-    }
-
-    String credentials = new String(Base64.getDecoder().decode(parts[1].trim()), StandardCharsets.UTF_8);
-    return credentials;
-
   }
 
   public String getLink()
@@ -588,10 +578,7 @@ public class Route
   {
     // if the user is not logged in do nothing.
     if (context.getAuthenticatedUser() == null)
-    {
-      log.debug("User not logged in. Not checking Csrf token");
       return false;
-    }
 
     String token = context.getParamPostGet("csrf_token");
     if (token == null)

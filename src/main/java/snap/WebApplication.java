@@ -2,6 +2,8 @@ package snap;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 import javax.servlet.ServletConfig;
@@ -14,6 +16,7 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import snap.http.Authenticator;
 import snap.http.RequestContext;
 import snap.views.NullView;
 import snap.views.View;
@@ -31,6 +34,7 @@ public abstract class WebApplication
   public WebApplication()
   {
     mWebApplication = this;
+    mAuthenticators = new ArrayList<>();
   }
 
   public void init(ServletConfig config)
@@ -71,15 +75,26 @@ public abstract class WebApplication
    * Default error handling
    * 
    * @param context
+   *          The request context
    * @param errorCode
+   *          The error code
    * @param exception
+   *          the exception that was thrown
    * @throws IOException
+   *           can throw an expection. ie. when the stream was closed
+   *           prematurely
+   * @return the view to display
    */
   public View handleError(RequestContext context, int errorCode, Throwable exception) throws IOException
   {
     HttpServletResponse response = context.getResponse();
     if (errorCode == HttpServletResponse.SC_UNAUTHORIZED)
-      response.setHeader("WWW-Authenticate", "Basic realm=\"snap\"");
+    {
+      for (Authenticator authenticator : getAuthenticators())
+      {
+        response.addHeader("WWW-Authenticate", authenticator.getWWWAuthenticateHeader());
+      }
+    }
     if (Settings.debug && exception != null)
     {
       response.sendError(errorCode, exception.getMessage());
@@ -97,7 +112,8 @@ public abstract class WebApplication
    * Return the user object from your persistance store.
    * 
    * @param userid
-   * @return
+   *          The ID of the user to fetch
+   * @return the User or NULL
    */
   public User getUser(Long userid)
   {
@@ -105,18 +121,24 @@ public abstract class WebApplication
   }
 
   /**
-   * Authenticate the user with the credentials. Call setAuthenticatedUser() on
-   * context if authentication was successful and return true. False if
-   * authentication failed
+   * Adds an authenticator to the web application. These are authenticators that
    * 
-   * @param context
-   * @param username
-   * @param password
-   * @return
+   * @param authenticator
+   *          The authenticator to add
    */
-  public boolean authenticateUser(RequestContext context, String username, String password)
+  public void addAuthenticator(Authenticator authenticator)
   {
-    return false;
+    mAuthenticators.add(authenticator);
+  }
+
+  /**
+   * Returns the list of all authenticators known to the webapp
+   * 
+   * @return a list of all authenticators
+   */
+  public List<Authenticator> getAuthenticators()
+  {
+    return mAuthenticators;
   }
 
   public void destroy()
@@ -127,7 +149,7 @@ public abstract class WebApplication
   /**
    * Return the Web app properties
    * 
-   * @return
+   * @return The properties of the application
    */
   public static Properties getProperties()
   {
@@ -139,7 +161,7 @@ public abstract class WebApplication
   /**
    * Returns the installed Rythm engine
    * 
-   * @return
+   * @return The current rendering engine
    */
   public RythmEngine getRenderEngine()
   {
@@ -149,7 +171,7 @@ public abstract class WebApplication
   /**
    * Gets the application servlet context
    * 
-   * @return
+   * @return the servlet context
    */
   public ServletContext getContext()
   {
@@ -157,14 +179,16 @@ public abstract class WebApplication
   }
 
   /**
-   * Returns the default Jackson JSON mapper. This is used by the Snap!'s JsonView
-   * TODO: make this a factory method that can return any kind of json mapper
-   * @return
+   * Returns the default Jackson JSON mapper. This is used by the Snap!'s
+   * JsonView TODO: make this a factory method that can return any kind of json
+   * mapper
+   * 
+   * @return the Jackson JSON mapper
    */
   public ObjectMapper getJsonMapper()
   {
     ObjectMapper mapper = new ObjectMapper();
-  
+
     return mapper;
   }
 
@@ -173,6 +197,7 @@ public abstract class WebApplication
    * listiner in the Init() call. Setting it after Init() has no effect.
    * 
    * @param listener
+   *          the listener to add
    */
   public void setRequestListener(RequestListener listener)
   {
@@ -182,7 +207,7 @@ public abstract class WebApplication
   /**
    * Returns the install request listener
    * 
-   * @return
+   * @return the installed listener
    */
   public RequestListener getRequestListener()
   {
@@ -192,7 +217,7 @@ public abstract class WebApplication
   /**
    * Reads the properties of the web app. By default names "webapp.properties"
    * 
-   * @return
+   * @return the properies
    */
   protected Properties readProperties()
   {
@@ -204,6 +229,7 @@ public abstract class WebApplication
    * classes
    * 
    * @param filePath
+   *          The path to read the properties from
    * @return The properties
    */
   // FIXME: this should not be named so and read properties for the snap user
@@ -239,6 +265,7 @@ public abstract class WebApplication
   private static WebApplication mWebApplication = null;
   private RequestListener mRequestListener;
 
+  private List<Authenticator> mAuthenticators;
   private static Properties mWebAppProperties = null;
 
 }

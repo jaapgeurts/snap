@@ -58,7 +58,7 @@ public class TemplateView extends View
   /**
    * Gets the HTTP status code that will be set when this view is rendered
    * 
-   * @return
+   * @return the HTTP status code
    */
   public int getStatusCode()
   {
@@ -69,6 +69,7 @@ public class TemplateView extends View
    * Sets the HTTP status code that will be set when this view is rendered
    * 
    * @param statusCode
+   *          the HTTP status code
    */
   public void setStatusCode(int statusCode)
   {
@@ -78,7 +79,7 @@ public class TemplateView extends View
   /**
    * Gets the HTTP content type that will be set when this view is rendered
    * 
-   * @return
+   * @return the HTTP content type header string
    */
   public String getContentType()
   {
@@ -89,6 +90,7 @@ public class TemplateView extends View
    * Sets the HTTP content type that will be set when this view is rendered
    * 
    * @param contentType
+   *          the HTTP content type header string
    */
   public void setContentType(String contentType)
   {
@@ -99,7 +101,7 @@ public class TemplateView extends View
    * Gets the HTTP character encoding that will be set when this view is
    * rendered
    * 
-   * @return
+   * @return the HTTP encoding string
    */
   public String getCharEncoding()
   {
@@ -111,6 +113,7 @@ public class TemplateView extends View
    * rendered
    * 
    * @param charEncoding
+   *          the HTTP encoding string
    */
   public void setCharEncoding(String charEncoding)
   {
