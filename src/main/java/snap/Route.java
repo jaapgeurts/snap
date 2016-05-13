@@ -207,8 +207,8 @@ public class Route
       {
         User user = context.getAuthenticatedUser();
         if (user == null)
-          throw new AuthenticationException("Not allowed to access URL: " + context.getRequest().getPathInfo()
-              + ". User not Authenticated");
+          throw new AuthenticationException(
+              "Not allowed to access URL: " + mPath + ". User not Authenticated");
 
         RoleRequired[] roles = actionMethod.getAnnotationsByType(RoleRequired.class);
         boolean hasRole = Arrays.stream(roles).anyMatch(r -> user.hasRole(r.role()));

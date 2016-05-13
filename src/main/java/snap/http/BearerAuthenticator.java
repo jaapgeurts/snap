@@ -16,7 +16,7 @@ public abstract class BearerAuthenticator implements Authenticator
   @Override
   public String getWWWAuthenticateHeader()
   {
-    return "";
+    return "Bearer realm=\"snap\"";
   }
 
   /**
