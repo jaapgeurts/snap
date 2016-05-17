@@ -136,7 +136,7 @@ public class RequestContext
   }
 
   // TODO: add method that returns a param by position so that the user
-  // is not force to specify variable names
+  // is not forced to specify variable names
 
   /**
    * Returns a list of all cookies sent with this request Forwards the request
@@ -158,8 +158,6 @@ public class RequestContext
    */
   public Cookie getCookie(String name)
   {
-    // TODO: put cookies in a map or sort the cookie array and use binary search
-    // for speed.
     Cookie[] cookies = mServletRequest.getCookies();
     if (cookies == null)
       return null;

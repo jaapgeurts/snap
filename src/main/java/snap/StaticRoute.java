@@ -54,7 +54,7 @@ public class StaticRoute extends Route
   public StaticRoute(String contextPath, String path, String alias, String directory)
   {
     super(contextPath, alias, path);
-    // TODO: merge the matching into the super class
+    
     mLocation = directory;
     // Only allow GET, HEAD method for static media
     mHttpMethods = new HttpMethod[] { HttpMethod.GET, HttpMethod.HEAD };

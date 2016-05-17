@@ -209,9 +209,8 @@ public class Dispatcher extends HttpServlet
       log.error("Uncaught exception", t);
       // Catch everything and report it in the browser.
       // If we really can't handle it then bail
-      // TODO: Load error view
+      // Load error view
       errorResult = new HttpError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Internal Server Error", t);
-
     }
 
     // If requestresult != null then an error occurred;

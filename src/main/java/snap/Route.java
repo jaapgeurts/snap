@@ -167,7 +167,6 @@ public class Route
           && !actionMethod.isAnnotationPresent(IgnoreLoginRequired.class))
           || actionMethod.isAnnotationPresent(LoginRequired.class))
       {
-        // TODO: think about this, because it requires session and not stateless
         if (context.getAuthenticatedUser() == null)
         {
           boolean isAuthenticated = false;
@@ -224,7 +223,6 @@ public class Route
           throw new AuthenticationException("Not allowed to access URL: " + context.getRequest().getPathInfo()
               + ". User not Authenticated");
 
-        // TODO: consider anyMatch vs allMatch
         PermissionRequired[] rights = actionMethod.getAnnotationsByType(PermissionRequired.class);
         boolean hasRight = Arrays.stream(rights).anyMatch(r -> user.hasPermission(r.permission()));
         if (!hasRight)

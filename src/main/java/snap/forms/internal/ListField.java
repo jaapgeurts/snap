@@ -40,7 +40,6 @@ public class ListField extends FormFieldBase
   public void setFieldValue(String[] values)
   {
     // Dropdown just returns a single value. set the String value;
-    // TODO: also cast to Integer and Long
     if (mAnnotation.type() == ListType.SINGLE_LIST || mAnnotation.type() == ListType.DROPDOWN_LIST)
     {
       try
@@ -69,7 +68,7 @@ public class ListField extends FormFieldBase
       }
       return;
     }
-    // TODO: still need to handle a multi-list
+    // TODO: implement a multi-select-list
 
     getFormFields();
     mFieldValues.clear();

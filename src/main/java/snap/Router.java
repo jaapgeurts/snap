@@ -14,7 +14,6 @@ import org.slf4j.LoggerFactory;
 import snap.http.HttpMethod;
 import snap.http.HttpRedirect;
 
-// TODO: make this a singleton
 public class Router
 {
   final static Logger log = LoggerFactory.getLogger(Router.class);
@@ -182,7 +181,8 @@ public class Router
 
   /**
    * 
-   * @param routeAlias The alias of the route
+   * @param routeAlias
+   *          The alias of the route
    * @return The route for this alias
    * @throws RouteNotFoundException
    *           When the route can't be found.

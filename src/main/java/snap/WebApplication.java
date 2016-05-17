@@ -46,7 +46,7 @@ public abstract class WebApplication
     Settings.rootPath = rootPath;
 
     // Setup the template engine
-    // TODO: RythmEngine not thread safe?? see bug:
+    // RythmEngine not thread safe?? see bug:
     // https://github.com/greenlaw110/Rythm/issues/20
     Properties conf = new Properties();
     conf.put("engine.mode", "dev");

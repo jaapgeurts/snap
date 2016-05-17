@@ -136,7 +136,7 @@ public class RadioField extends FormFieldBase
   @Override
   public void setFieldValue(String[] values)
   {
-    // TODO: handle other types as well.
+    // TODO: handle other types besides Enum<?>.
     // currently only enums supported
     // handle enums and set the correct value
     // Object[] enums = classField.getType().getEnumConstants();

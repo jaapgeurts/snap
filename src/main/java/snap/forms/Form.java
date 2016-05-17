@@ -63,9 +63,8 @@ public class Form
     {
       Annotation[] annotations = classField.getAnnotations();
 
-      // TODO: Consider using classField.getAnnotationByType();
-      // TODO: could cache the reflection field object in the Html Field
-      // representation obj
+      // Loop throw all the annotations on the class and create a field
+      // according to its declared kind
       for (Annotation annotation : annotations)
       {
         FormField field = null;
@@ -147,13 +146,14 @@ public class Form
 
     // for all fields find parameters in the request and assign
 
-    // TODO: rewrite and let the subclasses handle assignment.
-
     for (Entry<String, FormField> entry : mFieldMap.entrySet())
     {
       // Make an exception for FileField since it doesn't take a string
       // but takes a Part class
-      // TODO: consider changing this.
+      // We need to get the parts here because it is taken from the context.
+      // Fields don't have context.
+      // the filefield is special ass setfield(part) will add it to the set
+      // if the field is a Set<Part>
       if (entry.getValue() instanceof FileField)
       {
         FileField ff = (FileField)entry.getValue();

@@ -15,7 +15,6 @@ public class FileField extends FormFieldBase
 
   public FileField(Form form, Field field, snap.forms.annotations.FileField annotation)
   {
-    // TODO: check if template type Set<?> is of Part
     super(form, field);
     mAnnotation = annotation;
     if (field.getType().equals(Part.class))
