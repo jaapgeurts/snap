@@ -398,9 +398,10 @@ public class Form
    */
   public boolean hasErrors()
   {
-    if (mFormErrors != null)
+    if (!mFormErrors.isEmpty())
       return true;
 
+    // if there is any error in any field also return true
     for (FormField field : mFieldList)
       if (field.hasError())
         return true;
@@ -415,7 +416,7 @@ public class Form
    */
   public boolean hasFormErrors()
   {
-    return mFormErrors.size() > 0;
+    return !mFormErrors.isEmpty();
   }
 
   /**
