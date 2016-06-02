@@ -2,6 +2,7 @@ package snap.views;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.IllformedLocaleException;
 import java.util.Locale;
 import java.util.Map;
 
@@ -148,13 +149,19 @@ public class TemplateView extends View
     // These are two operations that are not atomic.
     // There might be a race condition because engine is a global variable
     // per servlet instance and not per request.
-    // so between prepare and render a switch could occur and change the locale
+    // so between prepare and render a context switch could occur and change the locale
     String language = context.getLanguage();
     if (language != null)
     {
-      Locale locale = new Locale(language);
-      if (locale != null)
+      try
+      {
+        Locale locale = new Locale.Builder().setLanguageTag(language).build();
         engine.prepare(locale);
+      }
+      catch (IllformedLocaleException ile)
+      {
+        log.error("Language: " + language + " not recognized", ile);
+      }
     }
     String s = engine.render(mTemplateName, mContext);
     ServletOutputStream os = r.getOutputStream();

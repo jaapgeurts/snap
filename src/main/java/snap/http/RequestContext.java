@@ -43,7 +43,7 @@ public class RequestContext
 
   public static final String SNAP_CSRF_COOKIE_NAME = "csrf_token";
 
-  private static final String SNAP_USER_LANGUAGE = "Snap.UserLanguage";
+  private static final String SNAP_USER_LANGUAGE = "Snap.UserLanguageTag";
 
   // set to 10 years
   private static final int LANGUAGE_COOKIE_EXPIRY = 10 * 365 * 24 * 60 * 60;
@@ -400,7 +400,7 @@ public class RequestContext
         break;
       default:
         log.warn(
-            "RequestContext::setLocale(localeMode) " + Settings.localeMode.toString() + " not implemented.");
+            "RequestContext::setLanguage(localeMode) " + Settings.localeMode.toString() + " not implemented.");
         break;
     }
   }
@@ -422,8 +422,9 @@ public class RequestContext
         Cookie cookie = getCookie(SNAP_USER_LANGUAGE);
         if (cookie != null)
           language = cookie.getValue();
+        break;
       default:
-        log.warn("RequestContext::getLocale() " + Settings.localeMode.toString() + " not implemented.");
+        log.warn("RequestContext::getLanguage() " + Settings.localeMode.toString() + " not implemented.");
         break;
     }
     return language;
