@@ -49,7 +49,7 @@ public abstract class WebApplication
     // RythmEngine not thread safe?? see bug:
     // https://github.com/greenlaw110/Rythm/issues/20
     Properties conf = new Properties();
-    conf.put("engine.mode", "dev");
+    conf.put("engine.mode", Settings.rythmEngineMode);
     conf.put("home.template", rootPath);
     mEngine = new RythmEngine(conf);
 

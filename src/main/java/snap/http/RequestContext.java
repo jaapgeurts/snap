@@ -15,12 +15,13 @@ import javax.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.alibaba.fastjson.JSONObject;
+
 import snap.Route;
 import snap.Router;
+import snap.Settings;
 import snap.User;
 import snap.WebApplication;
-
-import com.alibaba.fastjson.JSONObject;
 
 /**
  * This class represents information about the current HTTP request. Most
@@ -38,9 +39,14 @@ public class RequestContext
 
   private static final String SNAP_AUTHENTICATED_USER = "Snap.AuthenticatedUser";
   private static final String SNAP_CSRF_TOKEN = "Snap.CsrfToken";
-  private static final int SESSION_COOKIE_EXPIRY = -1;
+  private static final int CSRF_COOKIE_EXPIRY = -1;
 
   public static final String SNAP_CSRF_COOKIE_NAME = "csrf_token";
+
+  private static final String SNAP_USER_LANGUAGE = "Snap.UserLanguage";
+
+  // set to 10 years
+  private static final int LANGUAGE_COOKIE_EXPIRY = 10 * 365 * 24 * 60 * 60;
 
   /**
    * Construct a RequestContext. You should never need to construct this object,
@@ -198,6 +204,18 @@ public class RequestContext
   }
 
   /**
+   * Removes the cookie from the user browser. This is the same as calling
+   * cookie.setMaxAge(0) and adding the cookie to the response
+   * 
+   * @param cookie
+   */
+  public void removeCookie(Cookie cookie)
+  {
+    cookie.setMaxAge(0);
+    addCookie(cookie);
+  }
+
+  /**
    * Get the value for an HTTP Header.
    * 
    * @param header
@@ -325,8 +343,8 @@ public class RequestContext
         mSession.setAttribute(SNAP_AUTHENTICATED_USER, userid);
         mSession.setAttribute(SNAP_CSRF_TOKEN, generateCsrfToken());
         Cookie cookie = new Cookie(SNAP_CSRF_COOKIE_NAME, getServerCsrfToken());
-        // cookie.setDomain("snappix.thaloi.com");
-        cookie.setMaxAge(SESSION_COOKIE_EXPIRY);
+        // cookie.setDomain("com.snap");
+        cookie.setMaxAge(CSRF_COOKIE_EXPIRY);
         cookie.setPath("/");
         addCookie(cookie);
       }
@@ -344,6 +362,71 @@ public class RequestContext
     if (mAuthenticatedUser == null)
       return null;
     return WebApplication.getInstance().getUser(mAuthenticatedUser);
+  }
+
+  /**
+   * Set the language for this request. You can set this only once as the
+   * language will be stored in the user session or a user cookie depending on
+   * the 'snap.site.localemode' setting.
+   * 
+   * @param language
+   *          Use a standard Locale.getLanguage() value or set to null to remove
+   *          and switch back to the default locale
+   * 
+   */
+  public void setLanguage(String language)
+  {
+    switch(Settings.localeMode)
+    {
+      case SESSION:
+        if (language == null)
+          mSession.removeAttribute(SNAP_USER_LANGUAGE);
+        else
+          mSession.setAttribute(SNAP_USER_LANGUAGE, language);
+        break;
+      case COOKIE:
+        Cookie cookie = new Cookie(SNAP_USER_LANGUAGE, "");
+        cookie.setPath("/");
+        if (language == null)
+        {
+          removeCookie(cookie);
+        }
+        else
+        {
+          cookie.setValue(language);
+          cookie.setMaxAge(LANGUAGE_COOKIE_EXPIRY);
+          addCookie(cookie);
+        }
+        break;
+      default:
+        log.warn(
+            "RequestContext::setLocale(localeMode) " + Settings.localeMode.toString() + " not implemented.");
+        break;
+    }
+  }
+
+  /**
+   * Returns the language for this request or null if no language was set
+   * 
+   * @return
+   */
+  public String getLanguage()
+  {
+    String language = null;
+    switch(Settings.localeMode)
+    {
+      case SESSION:
+        language = (String)mSession.getAttribute(SNAP_USER_LANGUAGE);
+        break;
+      case COOKIE:
+        Cookie cookie = getCookie(SNAP_USER_LANGUAGE);
+        if (cookie != null)
+          language = cookie.getValue();
+      default:
+        log.warn("RequestContext::getLocale() " + Settings.localeMode.toString() + " not implemented.");
+        break;
+    }
+    return language;
   }
 
   /**

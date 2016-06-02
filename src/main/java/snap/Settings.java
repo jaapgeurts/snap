@@ -11,6 +11,10 @@ public class Settings
 {
   final static Logger log = LoggerFactory.getLogger(Settings.class);
 
+  public enum LocaleStorageMode {
+    COOKIE, SESSION, DATABASE
+  };
+
   public static String routesFile = "routes.conf";
   public static String packagePrefix;
   public static String webAppClass = null;
@@ -18,6 +22,8 @@ public class Settings
   public static String siteRootUrl = "http://localhost";
   public static boolean debug = true;
   public static String emailTemplatePath;
+  public static String rythmEngineMode = "dev"; // defaults to dev mode
+  public static LocaleStorageMode localeMode = LocaleStorageMode.COOKIE;
 
   public static boolean threadSafeController = false;
 
@@ -67,6 +73,25 @@ public class Settings
         t = p.getProperty("snap.site.debug");
         if (t != null)
           debug = Boolean.parseBoolean(t);
+
+        t = p.getProperty("rythm.engine.mode");
+        if (t != null)
+        {
+          if (!"dev".equals(t.toLowerCase()) && !"prod".equals(t.toLowerCase()))
+            log.warn("Invalid value for 'rythm.engine.mode'. Legal values are 'dev' or 'prod'. Defaulting to 'dev'");
+          else
+            rythmEngineMode = new String(t);
+        }
+
+        t = p.getProperty("snap.site.localemode");
+        try
+        {
+          LocaleStorageMode.valueOf(t.toUpperCase());
+        }
+        catch (NullPointerException | IllegalArgumentException e)
+        {
+          log.warn("Missing or invalid value for 'snap.site.localemode'. legal values are 'cookie', 'session' or 'database'. Defaulting to 'cookie'");
+        }
 
         mProperties = p;
       }

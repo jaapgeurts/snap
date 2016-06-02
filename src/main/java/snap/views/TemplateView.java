@@ -2,11 +2,13 @@ package snap.views;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 
+import org.rythmengine.RythmEngine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -141,7 +143,20 @@ public class TemplateView extends View
     r.setContentType(mContentType);
     r.setCharacterEncoding(mCharEncoding);
 
-    String s = WebApplication.getInstance().getRenderEngine().render(mTemplateName, mContext);
+    RythmEngine engine = WebApplication.getInstance().getRenderEngine();
+    // TODO: potential problem here. The locale is switched right before render.
+    // These are two operations that are not atomic.
+    // There might be a race condition because engine is a global variable
+    // per servlet instance and not per request.
+    // so between prepare and render a switch could occur and change the locale
+    String language = context.getLanguage();
+    if (language != null)
+    {
+      Locale locale = new Locale(language);
+      if (locale != null)
+        engine.prepare(locale);
+    }
+    String s = engine.render(mTemplateName, mContext);
     ServletOutputStream os = r.getOutputStream();
     os.print(s);
 

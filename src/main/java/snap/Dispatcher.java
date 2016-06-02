@@ -162,8 +162,7 @@ public class Dispatcher extends HttpServlet
     }
     catch (HttpMethodException hme)
     {
-      errorResult = new HttpError(HttpServletResponse.SC_METHOD_NOT_ALLOWED,
-          "Incorrect Http Method. Annotate your controller methods", hme);
+      errorResult = new HttpError(HttpServletResponse.SC_METHOD_NOT_ALLOWED, "Invalid http method", hme);
     }
     catch (RouteNotFoundException rnfe)
     {

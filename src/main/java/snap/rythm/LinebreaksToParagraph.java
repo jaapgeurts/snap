@@ -12,7 +12,7 @@ public class LinebreaksToParagraph extends JavaTagBase
   @Override
   public String __getName()
   {
-    return "toP";
+    return "nl2p";
   }
 
   @Override
@@ -25,7 +25,7 @@ public class LinebreaksToParagraph extends JavaTagBase
     if (paramMap.size() > 0) // passed by name
     {
       if (!paramMap.containsKey("text"))
-        throw new SnapException("@toP() missing 'text' argument");
+        throw new SnapException("@nl2p() missing 'text' argument");
       // get the text value out and remove the key text.
       Object o = paramMap.get("text");
       s = (String)o.toString();
