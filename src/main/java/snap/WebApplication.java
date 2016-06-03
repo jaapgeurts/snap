@@ -18,7 +18,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import snap.http.Authenticator;
 import snap.http.RequestContext;
-import snap.rythm.SpaceToNonBreakingSpaceTransformer;
 import snap.views.NullView;
 import snap.views.View;
 
@@ -68,9 +67,6 @@ public abstract class WebApplication
     mEngine.registerFastTag(new snap.rythm.LinebreaksToParagraph());
     mEngine.registerFastTag(new snap.rythm.FormErrors());
     mEngine.registerFastTag(new snap.rythm.FieldId());
-
-    // register transformers
-    mEngine.registerTransformer(SpaceToNonBreakingSpaceTransformer.class);
 
     // todo: investigate adding custom resource loader to solve loading Router
 

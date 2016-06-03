@@ -46,6 +46,17 @@ public abstract class Form
 {
 
   final static Logger log = LoggerFactory.getLogger(Form.class);
+  //
+  // public static <T extends Form> T create(Class<T> clazz, RequestContext
+  // context)
+  // throws InstantiationException, IllegalAccessException
+  // {
+  //
+  // T form = clazz.newInstance();
+  // form.init(context);
+  // form.onCreate();
+  // return form;
+  // }
 
   public Form(RequestContext context)
   {
@@ -79,6 +90,8 @@ public abstract class Form
    */
   public void assignFieldValues()
   {
+
+    mIsAssigned = true;
 
     Map<String, String[]> params = mContext.getParamsPostGet();
 
@@ -326,8 +339,9 @@ public abstract class Form
   public boolean isValid()
   {
 
-    // TODO: consider: should validation be allowed when assignFieldValues
-    // hasn't been called?
+    if (!mIsAssigned)
+      log.warn("Form " + mFormName
+          + " is being validated but fields have not been assigned yet. Did you forget to call assignFieldValues();");
 
     ValidatorFactory validatorFactory = Validation.buildDefaultValidatorFactory();
     Validator validator;
@@ -567,5 +581,7 @@ public abstract class Form
 
   private Locale mLocale = null;
   private ResourceBundle mResourceBundle;
+
+  private boolean mIsAssigned = false;
 
 }
