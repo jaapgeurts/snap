@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.security.SecureRandom;
+import java.util.IllformedLocaleException;
+import java.util.Locale;
 import java.util.Map;
 
 import javax.servlet.http.Cookie;
@@ -237,6 +239,22 @@ public class RequestContext
     return mServletRequest.getHeader("referer");
   }
 
+  public String getRequestURI()
+  {
+    String uri = mServletRequest.getRequestURI();
+    try
+    {
+      return URLDecoder.decode(uri, "UTF-8");
+    }
+    catch (UnsupportedEncodingException e)
+    {
+      log.error("JVM Doesn't support UTF8", e);
+    }
+
+    // if we can't decode it, then just return it.
+    return uri;
+  }
+
   /**
    * Gets the HTTP Method by which this request was called.
    * 
@@ -376,6 +394,8 @@ public class RequestContext
    */
   public void setLanguage(String language)
   {
+    mLanguage = language;
+    
     switch(Settings.localeMode)
     {
       case SESSION:
@@ -399,8 +419,8 @@ public class RequestContext
         }
         break;
       default:
-        log.warn(
-            "RequestContext::setLanguage(localeMode) " + Settings.localeMode.toString() + " not implemented.");
+        log.warn("RequestContext::setLanguage(localeMode) " + Settings.localeMode.toString()
+            + " not implemented.");
         break;
     }
   }
@@ -412,22 +432,51 @@ public class RequestContext
    */
   public String getLanguage()
   {
-    String language = null;
+    if (mLanguage != null)
+      return mLanguage;
+
     switch(Settings.localeMode)
     {
       case SESSION:
-        language = (String)mSession.getAttribute(SNAP_USER_LANGUAGE);
+        mLanguage = (String)mSession.getAttribute(SNAP_USER_LANGUAGE);
         break;
       case COOKIE:
         Cookie cookie = getCookie(SNAP_USER_LANGUAGE);
         if (cookie != null)
-          language = cookie.getValue();
+          mLanguage = cookie.getValue();
         break;
       default:
         log.warn("RequestContext::getLanguage() " + Settings.localeMode.toString() + " not implemented.");
         break;
     }
-    return language;
+    return mLanguage;
+  }
+
+  /**
+   * Returns the Locale for this request or null if no language is set. This is
+   * a convenience function which creates a local based on the value of
+   * getLanguage()
+   * 
+   * @return The locale or null if no language is set
+   */
+  public Locale getLocale()
+  {
+    if (mLocale != null)
+      return mLocale;
+
+    String language = getLanguage();
+    if (language != null)
+    {
+      try
+      {
+        return new Locale.Builder().setLanguageTag(language).build();
+      }
+      catch (IllformedLocaleException ile)
+      {
+        log.error("Language: " + language + " not recognized", ile);
+      }
+    }
+    return null;
   }
 
   /**
@@ -552,19 +601,7 @@ public class RequestContext
 
   private HttpSession mSession;
 
-  public String getRequestURI()
-  {
-    String uri = mServletRequest.getRequestURI();
-    try
-    {
-      return URLDecoder.decode(uri, "UTF-8");
-    }
-    catch (UnsupportedEncodingException e)
-    {
-      log.error("JVM Doesn't support UTF8", e);
-    }
+  private Locale mLocale = null;
 
-    // if we can't decode it, then just return it.
-    return uri;
-  }
+  private String mLanguage = null;
 }

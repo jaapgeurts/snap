@@ -7,8 +7,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -17,12 +19,14 @@ import javax.servlet.http.Part;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import snap.Helpers;
 import snap.SnapException;
+import snap.WebApplication;
 import snap.forms.internal.FileField;
 import snap.forms.internal.FormFieldBase;
 import snap.http.RequestContext;
@@ -38,111 +42,45 @@ import snap.http.RequestContext;
  * @author Jaap Geurts
  *
  */
-public class Form
+public abstract class Form
 {
 
   final static Logger log = LoggerFactory.getLogger(Form.class);
 
-  public Form()
+  public Form(RequestContext context)
   {
+    if (context == null)
+      throw new IllegalArgumentException("Context parameter can't be null");
+
+    mContext = context;
+
     mFieldList = new ArrayList<FormField>();
     mFieldMap = new HashMap<String, FormField>();
     mFormErrors = new ArrayList<String>();
 
-    initFields();
-
     mFormName = getClass().getCanonicalName();
     mFormName = mFormName.substring(mFormName.lastIndexOf('.') + 1, mFormName.length());
-  }
 
-  private void initFields()
-  {
+    initFields();
 
-    Field[] classFields = getClass().getDeclaredFields();
-    for (Field classField : classFields)
-    {
-      Annotation[] annotations = classField.getAnnotations();
+    mLocale = mContext.getLocale();
 
-      // Loop throw all the annotations on the class and create a field
-      // according to its declared kind
-      for (Annotation annotation : annotations)
-      {
-        FormField field = null;
-        String fieldName = classField.getName();
-        if (annotation instanceof snap.forms.annotations.TextField)
-        {
-          snap.forms.annotations.TextField tfa = (snap.forms.annotations.TextField)annotation;
-          field = new snap.forms.internal.TextField(this, classField, tfa);
-        }
-        else if (annotation instanceof snap.forms.annotations.TextArea)
-        {
-          snap.forms.annotations.TextArea taa = (snap.forms.annotations.TextArea)annotation;
-          field = new snap.forms.internal.TextArea(this, classField, taa);
-        }
-        else if (annotation instanceof snap.forms.annotations.CheckBoxField)
-        {
-          snap.forms.annotations.CheckBoxField cba = (snap.forms.annotations.CheckBoxField)annotation;
-          field = new snap.forms.internal.CheckBoxField(this, classField, cba);
-        }
-        else if (annotation instanceof snap.forms.annotations.RadioField)
-        {
-          snap.forms.annotations.RadioField rfa = (snap.forms.annotations.RadioField)annotation;
-          field = new snap.forms.internal.RadioField(this, classField, rfa);
-        }
-        else if (annotation instanceof snap.forms.annotations.MultiCheckboxField)
-        {
-          snap.forms.annotations.MultiCheckboxField msfa = (snap.forms.annotations.MultiCheckboxField)annotation;
-          field = new snap.forms.internal.MultiCheckboxField(this, classField, msfa);
-        }
-        else if (annotation instanceof snap.forms.annotations.ListField)
-        {
-          snap.forms.annotations.ListField ddla = (snap.forms.annotations.ListField)annotation;
-          field = new snap.forms.internal.ListField(this, classField, ddla);
-        }
-        else if (annotation instanceof snap.forms.annotations.SubmitField)
-        {
-          snap.forms.annotations.SubmitField sfa = (snap.forms.annotations.SubmitField)annotation;
-          field = new snap.forms.internal.SubmitButton(this, classField, sfa);
-        }
-        else if (annotation instanceof snap.forms.annotations.HiddenField)
-        {
-          snap.forms.annotations.HiddenField hfa = (snap.forms.annotations.HiddenField)annotation;
-          field = new snap.forms.internal.HiddenField(this, classField, hfa);
-        }
-        else if (annotation instanceof snap.forms.annotations.FileField)
-        {
-          snap.forms.annotations.FileField ffa = (snap.forms.annotations.FileField)annotation;
-          field = new snap.forms.internal.FileField(this, classField, ffa);
-        }
-        else if (annotation instanceof snap.forms.annotations.PasswordField)
-        {
-          snap.forms.annotations.PasswordField pwfa = (snap.forms.annotations.PasswordField)annotation;
-          field = new snap.forms.internal.PasswordField(this, classField, pwfa);
-        }
-        if (field != null)
-        {
-          mFieldList.add(field);
-          mFieldMap.put(fieldName, field);
-        }
-      }
-    }
+    if (mLocale == null)
+      mResourceBundle = ResourceBundle.getBundle(WebApplication.RESOURCE_BUNDLE_NAME);
+    else
+      mResourceBundle = ResourceBundle.getBundle(WebApplication.RESOURCE_BUNDLE_NAME, mLocale);
+
   }
 
   /**
    * Populates this form with values contained in the request. If the field is a
    * select field, this method will check if the posted value matches one of the
    * values in the choice
-   * 
-   * @param context
-   *          The context of the current request from which the params will be
-   *          read
    */
-  public void assignFieldValues(RequestContext context)
+  public void assignFieldValues()
   {
-    if (context == null)
-      return;
 
-    Map<String, String[]> params = context.getParamsPostGet();
+    Map<String, String[]> params = mContext.getParamsPostGet();
 
     // for all fields find parameters in the request and assign
 
@@ -159,7 +97,7 @@ public class Form
         FileField ff = (FileField)entry.getValue();
         try
         {
-          Collection<Part> parts = context.getRequest().getParts();
+          Collection<Part> parts = mContext.getRequest().getParts();
           for (Part p : parts)
           {
             if (p.getName().equals(entry.getKey()))
@@ -174,7 +112,8 @@ public class Form
       }
       else
       {
-        ((FormFieldBase)entry.getValue()).setFieldValue(params.get(entry.getKey()));
+        if (params.containsKey(entry.getKey()))
+          ((FormFieldBase)entry.getValue()).setFieldValue(params.get(entry.getKey()));
       }
     }
   }
@@ -292,6 +231,15 @@ public class Form
     return renderLabel(field, attributes);
   }
 
+  /**
+   * Renders a label for a specific field
+   * 
+   * @param field
+   *          The field to render the label for
+   * @param attributes
+   *          Extra attributes to add to the label
+   * @return the HTML string
+   */
   public String renderLabel(FormField field, Map<String, Object> attributes)
   {
     if (field == null)
@@ -302,6 +250,8 @@ public class Form
 
     if (label == null)
       return "";
+
+    label = parseAnnotationString(label);
 
     // Convert <string,object> map to <string,string> map
     Map<String, String> attribs = new HashMap<>();
@@ -375,7 +325,19 @@ public class Form
    */
   public boolean isValid()
   {
-    Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
+
+    // TODO: consider: should validation be allowed when assignFieldValues
+    // hasn't been called?
+
+    ValidatorFactory validatorFactory = Validation.buildDefaultValidatorFactory();
+    Validator validator;
+    if (mLocale != null)
+      validator = validatorFactory.usingContext()
+          .messageInterpolator(
+              new ForcedLocaleMessageInterpolator(validatorFactory.getMessageInterpolator(), mLocale))
+          .getValidator();
+    else
+      validator = validatorFactory.getValidator();
 
     Set<ConstraintViolation<Form>> constraintViolations = validator.validate(this);
 
@@ -503,9 +465,107 @@ public class Form
       field.clearError();
   }
 
+  /**
+   * Parses a string that was passed by the user in an annotation. Check if the
+   * string contains text enclosed in { } and replace that with a string from
+   * the resource bundle. Note that currently on { } as the first and last char
+   * are supported
+   * 
+   * @param text
+   *          the text to parse
+   * @return if the text was enclosed in { } return the text in localized from
+   *         fetched from a resource bundle
+   */
+  public String parseAnnotationString(String text)
+  {
+    if (text.charAt(0) == '{' && text.charAt(text.length() - 1) == '}')
+    {
+      text = mResourceBundle.getString(text.substring(1, text.length() - 1));
+    }
+    return text;
+  }
+
+  private void initFields()
+  {
+
+    Field[] classFields = getClass().getDeclaredFields();
+    for (Field classField : classFields)
+    {
+      Annotation[] annotations = classField.getAnnotations();
+
+      // Loop throw all the annotations on the class and create a field
+      // according to its declared kind
+      for (Annotation annotation : annotations)
+      {
+        FormField field = null;
+        String fieldName = classField.getName();
+        if (annotation instanceof snap.forms.annotations.TextField)
+        {
+          snap.forms.annotations.TextField tfa = (snap.forms.annotations.TextField)annotation;
+          field = new snap.forms.internal.TextField(this, classField, tfa);
+        }
+        else if (annotation instanceof snap.forms.annotations.TextArea)
+        {
+          snap.forms.annotations.TextArea taa = (snap.forms.annotations.TextArea)annotation;
+          field = new snap.forms.internal.TextArea(this, classField, taa);
+        }
+        else if (annotation instanceof snap.forms.annotations.CheckBoxField)
+        {
+          snap.forms.annotations.CheckBoxField cba = (snap.forms.annotations.CheckBoxField)annotation;
+          field = new snap.forms.internal.CheckBoxField(this, classField, cba);
+        }
+        else if (annotation instanceof snap.forms.annotations.RadioField)
+        {
+          snap.forms.annotations.RadioField rfa = (snap.forms.annotations.RadioField)annotation;
+          field = new snap.forms.internal.RadioField(this, classField, rfa);
+        }
+        else if (annotation instanceof snap.forms.annotations.MultiCheckboxField)
+        {
+          snap.forms.annotations.MultiCheckboxField msfa = (snap.forms.annotations.MultiCheckboxField)annotation;
+          field = new snap.forms.internal.MultiCheckboxField(this, classField, msfa);
+        }
+        else if (annotation instanceof snap.forms.annotations.ListField)
+        {
+          snap.forms.annotations.ListField ddla = (snap.forms.annotations.ListField)annotation;
+          field = new snap.forms.internal.ListField(this, classField, ddla);
+        }
+        else if (annotation instanceof snap.forms.annotations.SubmitField)
+        {
+          snap.forms.annotations.SubmitField sfa = (snap.forms.annotations.SubmitField)annotation;
+          field = new snap.forms.internal.SubmitButton(this, classField, sfa);
+        }
+        else if (annotation instanceof snap.forms.annotations.HiddenField)
+        {
+          snap.forms.annotations.HiddenField hfa = (snap.forms.annotations.HiddenField)annotation;
+          field = new snap.forms.internal.HiddenField(this, classField, hfa);
+        }
+        else if (annotation instanceof snap.forms.annotations.FileField)
+        {
+          snap.forms.annotations.FileField ffa = (snap.forms.annotations.FileField)annotation;
+          field = new snap.forms.internal.FileField(this, classField, ffa);
+        }
+        else if (annotation instanceof snap.forms.annotations.PasswordField)
+        {
+          snap.forms.annotations.PasswordField pwfa = (snap.forms.annotations.PasswordField)annotation;
+          field = new snap.forms.internal.PasswordField(this, classField, pwfa);
+        }
+        if (field != null)
+        {
+          mFieldList.add(field);
+          mFieldMap.put(fieldName, field);
+        }
+      }
+    }
+  }
+
+  private RequestContext mContext;
+
   private List<FormField> mFieldList;
   private List<String> mFormErrors;
   private Map<String, FormField> mFieldMap;
   private String mFormName;
+
+  private Locale mLocale = null;
+  private ResourceBundle mResourceBundle;
 
 }

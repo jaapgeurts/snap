@@ -33,7 +33,7 @@ public class SubmitButton extends FormFieldBase
       return "";
 
     return String.format("<input type='submit' id='%1$s' name='%2$s' value='%3$s' %4$s/>", mAnnotation.id(),
-        mField.getName(), mLabel, Helpers.attrToString(attributes));
+        mField.getName(), mForm.parseAnnotationString(mLabel), Helpers.attrToString(attributes));
   }
 
   @Override

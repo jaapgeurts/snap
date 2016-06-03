@@ -50,12 +50,9 @@ public class CheckBoxField extends FormFieldBase
       throw new SnapException("Form field " + mField.getName() + " can't be accessed.", e);
     }
 
-    if (val)
-      return String.format("<input type='checkbox' id='%1$s' name='%2$s' value='%2$s' checked %3$s/>\n",
-          mAnnotation.id(), mField.getName(), Helpers.attrToString(attributes));
-    else
-      return String.format("<input type='checkbox' id='%1$s' name='%2$s' value='%2$s' %3$s/>\n",
-          mAnnotation.id(), mField.getName(), Helpers.attrToString(attributes));
+    return String.format(
+        "<input type='checkbox' id='%1$s' name='%2$s' value='true' %3$s%4$s/>\n<input type='hidden' value='false' name='%2$s'/>\n",
+        mAnnotation.id(), mField.getName(), val ? "checked " : "", Helpers.attrToString(attributes));
 
   }
 
@@ -65,31 +62,23 @@ public class CheckBoxField extends FormFieldBase
 
     try
     {
-      if (values != null && values.length > 1)
-      {
-        log.warn("Possible hacking attempt! Expected one value for field '" + mField.getName()
-            + "' but found: " + values.length);
-      }
-
-      // Checkboxes only post values when they are checked.
-      // if they are not checked they are not posted back
-      // so always set it to false first.
-      mField.set(mForm, Boolean.FALSE);
       if (values == null)
       {
         // There were no values submitted to just return
         return;
       }
-      if (values[0].equals(mField.getName()))
+
+      if (values != null && values.length > 2)
       {
-        // And set it to true if we found the field.
-        mField.set(mForm, Boolean.TRUE);
+        log.warn("Possible hacking attempt! Expected no more than two values for field '" + mField.getName()
+            + "' but found: " + values.length);
       }
-      else
-      {
-        log.warn("Possible hacking attempt! Expected value '" + mField.getName() + "' got value: '"
-            + values[0] + "' for Field: " + mField.getName());
-      }
+
+      // Always take the first value. If there is two values it means the
+      // checkbox checked and thus submitted
+      // if there is only one value it means the checkbox was not submitted so
+      // the first value now is the hidden value
+      mField.set(mForm, Boolean.valueOf(values[0]));
 
     }
     catch (IllegalArgumentException | IllegalAccessException e)

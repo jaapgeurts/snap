@@ -67,7 +67,7 @@ public class Field extends JavaTagBase
 
       // third parameter (this is the which name)
       o = params.getByPosition(2);
-      if (o != null)
+      if (o != null && !"".equals(o.toString().trim()))
         paramMap.put("which", o);
 
       // ignore the rest of the parameters but inform the user

@@ -136,7 +136,7 @@ public abstract class FormFieldBase implements FormField
   @Override
   public String getLabel()
   {
-    return mLabel;
+    return mForm.parseAnnotationString(mLabel);
   }
 
   @Override
