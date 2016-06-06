@@ -122,6 +122,9 @@ public class TemplateView extends View
     this.mCharEncoding = charEncoding;
   }
 
+  /**
+   * Renders the output to the outputstream.
+   */
   @Override
   public void render(RequestContext context) throws IOException
   {
@@ -144,15 +147,14 @@ public class TemplateView extends View
     r.setCharacterEncoding(mCharEncoding);
 
     RythmEngine engine = WebApplication.getInstance().getRenderEngine();
-    // TODO: potential problem here. The locale is switched right before render.
-    // These are two operations that are not atomic.
-    // There might be a race condition because engine is a global variable
-    // per servlet instance and not per request.
-    // so between prepare and render a context switch could occur and change the
-    // locale
     Locale locale = context.getLocale();
-    if (locale != null)
-      engine.prepare(locale);
+    if (locale == null)
+    {
+      // get the locale from the servlet, which attempts to get it from the
+      // Accept-Language Header or else the default system locale
+      locale = context.getRequest().getLocale();
+    }
+    engine.prepare(locale);
     String s = engine.render(mTemplateName, mContext);
     ServletOutputStream os = r.getOutputStream();
     os.print(s);

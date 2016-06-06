@@ -45,7 +45,7 @@ public class RequestContext
 
   public static final String SNAP_CSRF_COOKIE_NAME = "csrf_token";
 
-  private static final String SNAP_USER_LANGUAGE = "Snap.UserLanguageTag";
+  public static final String SNAP_USER_LANGUAGE = "Snap.UserLanguageTag";
 
   // set to 10 years
   private static final int LANGUAGE_COOKIE_EXPIRY = 10 * 365 * 24 * 60 * 60;
@@ -210,6 +210,7 @@ public class RequestContext
    * cookie.setMaxAge(0) and adding the cookie to the response
    * 
    * @param cookie
+   *          The cookie to remove from the client
    */
   public void removeCookie(Cookie cookie)
   {
@@ -383,19 +384,26 @@ public class RequestContext
   }
 
   /**
-   * Set the language for this request. You can set this only once as the
-   * language will be stored in the user session or a user cookie depending on
-   * the 'snap.site.localemode' setting.
+   * Set the language for this request. If you set persist to true then you only
+   * have to set this once. The language setting will be stored in the user
+   * session or a user cookie depending on the 'snap.site.localemode' setting.
+   * If you set persist to false the setting is not saved.
    * 
    * @param language
    *          Use a standard Locale.getLanguage() value or set to null to remove
    *          and switch back to the default locale
+   * @param persist
+   *          True - Save the setting to cookie or session False - just save the
+   *          setting in the current RequestContext
    * 
    */
-  public void setLanguage(String language)
+  public void setLanguage(String language, boolean persist)
   {
     mLanguage = language;
-    
+
+    if (!persist)
+      return;
+
     switch(Settings.localeMode)
     {
       case SESSION:
@@ -426,9 +434,15 @@ public class RequestContext
   }
 
   /**
-   * Returns the language for this request or null if no language was set
+   * Returns the language for this request. If the language was previously set
+   * with setLanguage(language,persist) then that value will be returned. If
+   * persist was true then the language will be saved between requests and
+   * returned. If setLanguage() was not set and not persisted Snap! will return
+   * the value of the Accept-Language header if it was sent. In all remaining
+   * cases it returns null
    * 
-   * @return
+   * @return The language in BCP47 notation or null if no language was set and
+   *         no Accept-Language was sent
    */
   public String getLanguage()
   {

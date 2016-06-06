@@ -470,6 +470,24 @@ public class Route
     return map;
   }
 
+  /**
+   * If enabled and authentication fails this route will redirect to the
+   * redirect url. see settings:
+   * 
+   * <pre>
+   * snap.login.redirect.url
+   * </pre>
+   * 
+   * and
+   * 
+   * <pre>
+   * snap.login.redirect
+   * </pre>
+   * 
+   * Change with @LoginRedirect annotation
+   * 
+   * @return true if redirect is enabled, false otherwise
+   */
   public boolean isRedirectEnabled()
   {
     LoginRedirect lr = getMethod().getAnnotation(LoginRedirect.class);
@@ -479,11 +497,22 @@ public class Route
 
   }
 
+  /**
+   * Get the HTTP methods supported by this route. Change this by adding
+   * HttpMethods in the @RouteOptions annotation
+   * 
+   * @return the list of supported HttpMethods
+   */
   public HttpMethod[] getHttpMethods()
   {
     return mHttpMethods;
   }
 
+  /**
+   * Get the alias by which this route is known.
+   * 
+   * @return the alias
+   */
   public String getAlias()
   {
     return mAlias;
@@ -496,6 +525,16 @@ public class Route
     if (mMethodName != null)
       s = mMethodName;
     return "Alias: " + mAlias + ", Path: " + mPath + ", Endpoint: " + s;
+  }
+
+  /**
+   * Returns whether this route is a static route or not
+   * 
+   * @return true or false
+   */
+  public boolean isStatic()
+  {
+    return false;
   }
 
   private Object getController()

@@ -54,7 +54,7 @@ public class StaticRoute extends Route
   public StaticRoute(String contextPath, String path, String alias, String directory)
   {
     super(contextPath, alias, path);
-    
+
     mLocation = directory;
     // Only allow GET, HEAD method for static media
     mHttpMethods = new HttpMethod[] { HttpMethod.GET, HttpMethod.HEAD };
@@ -79,6 +79,32 @@ public class StaticRoute extends Route
       r.onAfterRoute(context);
 
     return NullView.INSTANCE;
+  }
+
+  @Override
+  public String getLink(Object[] params)
+  {
+    int begin = 0, end = mPath.length();
+    if (mPath.charAt(0) == '^')
+      begin++;
+    if (mPath.charAt(end - 1) == '$')
+      end--;
+    String path = mPath.substring(begin, end);
+    if (mContextPath == null || "".equals(mContextPath))
+      return path + params[0].toString();
+    else
+      return mContextPath + path + params[0].toString();
+  }
+
+  public String getDirectory()
+  {
+    return mLocation;
+  }
+
+  @Override
+  public boolean isStatic()
+  {
+    return true;
   }
 
   private void processRequest(RequestContext context) throws IOException
@@ -406,26 +432,6 @@ public class StaticRoute extends Route
     return Arrays.binarySearch(acceptValues, toAccept) > -1
         || Arrays.binarySearch(acceptValues, toAccept.replaceAll("/.*$", "/*")) > -1
         || Arrays.binarySearch(acceptValues, "*/*") > -1;
-  }
-
-  @Override
-  public String getLink(Object[] params)
-  {
-    int begin = 0, end = mPath.length();
-    if (mPath.charAt(0) == '^')
-      begin++;
-    if (mPath.charAt(end - 1) == '$')
-      end--;
-    String path = mPath.substring(begin, end);
-    if (mContextPath == null || "".equals(mContextPath))
-      return path + params[0].toString();
-    else
-      return mContextPath + path + params[0].toString();
-  }
-
-  public String getDirectory()
-  {
-    return mLocation;
   }
 
   private String mLocation;

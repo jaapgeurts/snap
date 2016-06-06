@@ -78,6 +78,9 @@ public class CheckBoxField extends FormFieldBase
       // checkbox checked and thus submitted
       // if there is only one value it means the checkbox was not submitted so
       // the first value now is the hidden value
+      // according to this link:
+      // http://stackoverflow.com/questions/4027635/do-browsers-preserve-order-of-inputs-with-same-name-on-get-post
+      // the order is preserved
       mField.set(mForm, Boolean.valueOf(values[0]));
 
     }

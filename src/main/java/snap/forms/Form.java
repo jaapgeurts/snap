@@ -105,6 +105,9 @@ public abstract class Form
       // Fields don't have context.
       // the filefield is special ass setfield(part) will add it to the set
       // if the field is a Set<Part>
+      if (!params.containsKey(entry.getKey()))
+        continue;
+
       if (entry.getValue() instanceof FileField)
       {
         FileField ff = (FileField)entry.getValue();
@@ -125,8 +128,7 @@ public abstract class Form
       }
       else
       {
-        if (params.containsKey(entry.getKey()))
-          ((FormFieldBase)entry.getValue()).setFieldValue(params.get(entry.getKey()));
+        ((FormFieldBase)entry.getValue()).setFieldValue(params.get(entry.getKey()));
       }
     }
   }
