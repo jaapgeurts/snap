@@ -84,9 +84,7 @@ public abstract class Form
   }
 
   /**
-   * Populates this form with values contained in the request. If the field is a
-   * select field, this method will check if the posted value matches one of the
-   * values in the choice
+   * Populates this form with values contained in the request.
    */
   public void assignFieldValues()
   {

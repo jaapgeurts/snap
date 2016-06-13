@@ -91,23 +91,7 @@ public class MultiCheckboxField extends FormFieldBase
 
     for (String value : values)
     {
-      if (mOptionFieldClass.isAssignableFrom(ListOption.class))
-      {
-        // check if the value that was returned is actually in the possible
-        // listoptions
-        if (mOptions.stream().anyMatch(obj -> ((ListOption)obj).getValue().equals(value)))
-          addValueToFormFieldSet(value);
-        else
-          log.warn("Possible hacking attempt! Submitted field value '" + value + "' not found in options");
-      }
-      else
-      {
-        // content is another type of object
-        if (mOptions.stream().anyMatch(obj -> obj.toString().equals(value)))
-          addValueToFormFieldSet(value);
-        else
-          log.warn("Possible hacking attempt! Submitted field value '" + value + "' not found in options");
-      }
+      addValueToFormFieldSet(value);
     }
   }
 

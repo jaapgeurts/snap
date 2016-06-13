@@ -81,30 +81,7 @@ public class ListField extends FormFieldBase
 
     for (String value : values)
     {
-      if (mOptionFieldClass.isAssignableFrom(ListOption.class))
-      {
-        if (mOptions.stream().anyMatch(obj -> ((ListOption)obj).getValue().equals(value)))
-          addValueToFormFieldSet(value);
-        else
-          log.warn("Possible hacking attempt! Submitted field value '" + value + "' not found in options");
-      }
-      else
-      {
-        // content is another type of object
-        if (mOptions.stream().anyMatch(obj -> {
-          if (obj instanceof ListOption)
-          {
-            return ((ListOption)obj).getValue().equals(value);
-          }
-          else
-          {
-            return obj.toString().equals(value);
-          }
-        }))
-          addValueToFormFieldSet(value);
-        else
-          log.warn("Possible hacking attempt! Submitted field value '" + value + "' not found in options");
-      }
+      addValueToFormFieldSet(value);
     }
   }
 
