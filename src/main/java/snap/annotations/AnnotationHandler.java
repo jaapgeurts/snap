@@ -7,5 +7,18 @@ import snap.http.RequestContext;
 
 public interface AnnotationHandler
 {
-  public void execute(Class<?> controllerClass, Method method, Annotation annotation, RequestContext context);
+  /**
+   * This method is executed when the matching registered annotation is
+   * processed.
+   * 
+   * @param controller
+   *          The current controller object
+   * @param method
+   *          The controller method that's being called
+   * @param annotation
+   *          The annotation that is being processed
+   * @param context
+   *          The current request context.
+   */
+  public void execute(Object controller, Method method, Annotation annotation, RequestContext context);
 }

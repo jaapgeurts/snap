@@ -13,7 +13,7 @@ public class PermissionRequiredHandler implements AnnotationHandler
 {
 
   @Override
-  public void execute(Class<?> controllerClass, Method method, Annotation annotation, RequestContext context)
+  public void execute(Object controller, Method method, Annotation annotation, RequestContext context)
   {
     User user = context.getAuthenticatedUser();
     if (user == null)

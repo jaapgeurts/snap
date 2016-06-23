@@ -16,10 +16,11 @@ public class LoginRequiredHandler implements AnnotationHandler
   final Logger log = LoggerFactory.getLogger(LoginRequiredHandler.class);
 
   @Override
-  public void execute(Class<?> controllerClass, Method method, Annotation annotation,
+  public void execute(Object controller, Method method, Annotation annotation,
       RequestContext context)
   {
-    if ((!controllerClass.isAnnotationPresent(LoginRequired.class)
+    
+    if ((!controller.getClass().isAnnotationPresent(LoginRequired.class)
         || method.isAnnotationPresent(IgnoreLoginRequired.class))
         && !method.isAnnotationPresent(LoginRequired.class))
       return;

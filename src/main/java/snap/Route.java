@@ -180,7 +180,7 @@ public class Route
     RequestResult result = null;
     if (actionMethod != null)
     {
-      Class<?> controllerClass = actionMethod.getDeclaringClass();
+      Class<?> controllerClass = getController().getClass();
       if (mRouteListener != null)
       {
         RequestResult r = mRouteListener.onBeforeRoute(context);
@@ -202,7 +202,7 @@ public class Route
       {
         AnnotationHandler handler = registeredAnnotations.get(annotation);
         if (handler != null)
-          handler.execute(controllerClass, actionMethod, annotation, context);
+          handler.execute(getController(), actionMethod, annotation, context);
       }
 
       // Check any defined annotations on the action method and execute
@@ -211,7 +211,7 @@ public class Route
       {
         AnnotationHandler handler = registeredAnnotations.get(annotation);
         if (handler != null)
-          handler.execute(controllerClass, actionMethod, annotation, context);
+          handler.execute(getController(), actionMethod, annotation, context);
       }
 
       // Execute the actual controller action here.
