@@ -194,6 +194,11 @@ public class StaticRoute extends Route
       }
     }
 
+    // have the client recheck the cache in 1 week (60*60*24*7)
+    response.setHeader("Cache-Control", "private, no-transform, max-age=604800");
+    // even though Expires is deprecated and replaced by max-age, use it for
+    // compatibility
+    response.setHeader("Expires", mHttpDateFormat.format(ZonedDateTime.now(ZoneId.of("GMT")).plusDays(7)));
     response.setHeader("Accept-Ranges", "bytes");
     response.setHeader("Last-Modified",
         mHttpDateFormat.format(ZonedDateTime.ofInstant(fileLastModified, ZoneId.of("GMT"))));

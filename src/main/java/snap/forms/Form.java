@@ -106,6 +106,9 @@ public abstract class Form
 
       if (entry.getValue() instanceof FileField)
       {
+        if ("multipart/form-data".equals(mContext.getRequest().getContentType().toLowerCase()))
+          continue;
+
         FileField ff = (FileField)entry.getValue();
         try
         {

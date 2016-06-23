@@ -25,6 +25,10 @@ public class Router
     return mRouter;
   }
 
+  /**
+   * Construct a new Router. Users should NOT call this. They should call the
+   * Static method.
+   */
   private Router()
   {
     mRouteList = new ArrayList<Route>();
@@ -32,6 +36,15 @@ public class Router
 
   }
 
+  /**
+   * Initialize the router with the Servlet Container Context Path
+   * 
+   * @param contextPath
+   *          - The path under which this servlet runs and this router is
+   *          decoding url paths
+   * @throws FileNotFoundException
+   *           Thrown if the route can't find the route file
+   */
   public void init(String contextPath) throws FileNotFoundException
   {
     mContextPath = contextPath;
@@ -57,7 +70,7 @@ public class Router
         {
           try
           {
-            route = new Route(mContextPath, parts[1], alias, parts[3]);
+            route = new Route(mContextPath, alias, parts[1], parts[3]);
             mRouteList.add(route);
             mRouteMap.put(alias, route);
           }

@@ -9,5 +9,5 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 public @interface RoleRequired
 {
-  public String role() default "";
+  public String[] roles() default {};
 }

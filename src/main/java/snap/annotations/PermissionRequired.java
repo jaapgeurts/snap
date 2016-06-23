@@ -9,5 +9,5 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 public @interface PermissionRequired
 {
-  public String permission() default "";
+  public String[] permissions() default {};
 }

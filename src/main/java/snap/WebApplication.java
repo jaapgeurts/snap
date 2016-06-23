@@ -2,8 +2,11 @@ package snap;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.annotation.Annotation;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import javax.servlet.ServletConfig;
@@ -16,6 +19,13 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import snap.annotations.AnnotationHandler;
+import snap.annotations.LoginRequired;
+import snap.annotations.LoginRequiredHandler;
+import snap.annotations.PermissionRequired;
+import snap.annotations.PermissionRequiredHandler;
+import snap.annotations.RoleRequired;
+import snap.annotations.RoleRequiredHandler;
 import snap.http.Authenticator;
 import snap.http.RequestContext;
 import snap.views.NullView;
@@ -36,6 +46,7 @@ public abstract class WebApplication
   {
     mWebApplication = this;
     mAuthenticators = new ArrayList<>();
+    mControllerAnnotationHandlers = new HashMap<>();
   }
 
   public void init(ServletConfig config)
@@ -46,9 +57,12 @@ public abstract class WebApplication
     String rootPath = mServletContext.getRealPath(".");
     Settings.rootPath = rootPath;
 
+    // Register all snap provided annotations
+    registerAnnotation(RoleRequired.class, new RoleRequiredHandler());
+    registerAnnotation(PermissionRequired.class, new PermissionRequiredHandler());
+    registerAnnotation(LoginRequired.class, new LoginRequiredHandler());
+
     // Setup the template engine
-    // RythmEngine not thread safe?? see bug:
-    // https://github.com/greenlaw110/Rythm/issues/20
     Properties conf = new Properties();
     conf.put("engine.mode", Settings.rythmEngineMode);
     conf.put("home.template", rootPath);
@@ -127,7 +141,7 @@ public abstract class WebApplication
    * @param authenticator
    *          The authenticator to add
    */
-  public void addAuthenticator(Authenticator authenticator)
+  public void registerAuthenticator(Authenticator authenticator)
   {
     mAuthenticators.add(authenticator);
   }
@@ -140,6 +154,25 @@ public abstract class WebApplication
   public List<Authenticator> getAuthenticators()
   {
     return mAuthenticators;
+  }
+
+  /**
+   * Register an annotation for use with controllers. This annotation can be
+   * applied to either methods or controller classes
+   * 
+   * @param annotation
+   *          The annotation that you want to use
+   * @param handler
+   *          The handler that executes when the annotation is processed
+   */
+  public void registerAnnotation(Class<? extends Annotation> annotation, AnnotationHandler handler)
+  {
+    mControllerAnnotationHandlers.put(annotation, handler);
+  }
+
+  public Map<Class<? extends Annotation>, AnnotationHandler> getAnnotations()
+  {
+    return mControllerAnnotationHandlers;
   }
 
   public void destroy()
@@ -268,5 +301,7 @@ public abstract class WebApplication
 
   private List<Authenticator> mAuthenticators;
   private static Properties mWebAppProperties = null;
+
+  private Map<Class<? extends Annotation>, AnnotationHandler> mControllerAnnotationHandlers;
 
 }

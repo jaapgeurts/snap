@@ -1,6 +1,7 @@
 package snap;
 
 import java.io.UnsupportedEncodingException;
+import java.lang.annotation.Annotation;
 import java.lang.ref.SoftReference;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -25,14 +26,10 @@ import org.joni.Region;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import snap.annotations.IgnoreLoginRequired;
+import snap.annotations.AnnotationHandler;
 import snap.annotations.LoginRedirect;
-import snap.annotations.LoginRequired;
-import snap.annotations.PermissionRequired;
-import snap.annotations.RoleRequired;
 import snap.annotations.RouteOptions;
 import snap.forms.MissingCsrfTokenException;
-import snap.http.Authenticator;
 import snap.http.HttpMethod;
 import snap.http.HttpRedirect;
 import snap.http.RequestContext;
@@ -42,10 +39,23 @@ public class Route
 {
   final Logger log = LoggerFactory.getLogger(Route.class);
 
+  /**
+   * Constructs a new blank route
+   */
   public Route()
   {
   }
 
+  /**
+   * Constructs a new route
+   * 
+   * @param contextPath
+   *          The context path under which the servlet is registered
+   * @param alias
+   *          The alias by which this route is known
+   * @param url
+   *          The URL that is bound to this route.
+   */
   public Route(String contextPath, String alias, String url)
   {
     mContextPath = contextPath;
@@ -55,7 +65,19 @@ public class Route
     mRegex = new Regex(re, 0, re.length, Option.NONE, UTF8Encoding.INSTANCE);
   }
 
-  public Route(String contextPath, String url, String alias, String objectMethodPath)
+  /**
+   * Constructs a new route.
+   * 
+   * @param contextPath
+   *          The context path under which the servlet is registered
+   * @param alias
+   *          The alias by which this route is known
+   * @param url
+   *          The URL that is bound to this route.
+   * @param objectMethodPath
+   *          The object and method to call when this route is hit
+   */
+  public Route(String contextPath, String alias, String url, String objectMethodPath)
   {
     this(contextPath, alias, url);
     if (objectMethodPath.charAt(0) == '.')
@@ -141,6 +163,15 @@ public class Route
     return success;
   }
 
+  /**
+   * Execute this route
+   * 
+   * @param context
+   *          The context of the current request
+   * @return A request result
+   * @throws Throwable
+   *           Any error that occurs during execution
+   */
   public RequestResult handleRoute(RequestContext context) throws Throwable
   {
 
@@ -163,71 +194,24 @@ public class Route
         validateCsrfToken(context);
       }
 
-      if ((controllerClass.isAnnotationPresent(LoginRequired.class)
-          && !actionMethod.isAnnotationPresent(IgnoreLoginRequired.class))
-          || actionMethod.isAnnotationPresent(LoginRequired.class))
+      // Check any defined annotations on the controller and execute
+      Annotation[] assignedAnnotations = controllerClass.getAnnotations();
+      Map<Class<? extends Annotation>, AnnotationHandler> registeredAnnotations = WebApplication.getInstance()
+          .getAnnotations();
+      for (Annotation annotation : assignedAnnotations)
       {
-        if (context.getAuthenticatedUser() == null)
-        {
-          boolean isAuthenticated = false;
-          String authHeader = context.getHeader("Authorization");
-          if (authHeader != null)
-          {
-            boolean authMethodMatched = false;
-            // attempt authenticate via a registered authenticator
-            for (Authenticator authenticator : WebApplication.getInstance().getAuthenticators())
-            {
-              if (authenticator.matchAuthenticationHeader(authHeader))
-              {
-                authMethodMatched = true;
-                isAuthenticated = authenticator.authenticate(context, authHeader);
-                if (isAuthenticated)
-                  break;
-              }
-            }
-
-            if (!authMethodMatched)
-              log.info("No suitable authenticator for authentication method: " + authHeader);
-          }
-          else
-          {
-            log.debug("User not authenticated and no Authorization header sent");
-          }
-
-          if (!isAuthenticated)
-          {
-            throw new AuthenticationException("Not allowed to access URL: "
-                + context.getRequest().getPathInfo() + ". User not Authenticated");
-          }
-
-        }
+        AnnotationHandler handler = registeredAnnotations.get(annotation);
+        if (handler != null)
+          handler.execute(controllerClass, actionMethod, annotation, context);
       }
-      if (actionMethod.isAnnotationPresent(RoleRequired.class))
+
+      // Check any defined annotations on the action method and execute
+      assignedAnnotations = actionMethod.getAnnotations();
+      for (Annotation annotation : assignedAnnotations)
       {
-        User user = context.getAuthenticatedUser();
-        if (user == null)
-          throw new AuthenticationException(
-              "Not allowed to access URL: " + mPath + ". User not Authenticated");
-
-        RoleRequired[] roles = actionMethod.getAnnotationsByType(RoleRequired.class);
-        boolean hasRole = Arrays.stream(roles).anyMatch(r -> user.hasRole(r.role()));
-
-        if (!hasRole)
-          throw new AuthorizationException(
-              "Not allowed to access URL: " + context.getRequest().getPathInfo() + ". User not Authorized");
-      }
-      if (actionMethod.isAnnotationPresent(PermissionRequired.class))
-      {
-        User user = context.getAuthenticatedUser();
-        if (user == null)
-          throw new AuthenticationException("Not allowed to access URL: " + context.getRequest().getPathInfo()
-              + ". User not Authenticated");
-
-        PermissionRequired[] rights = actionMethod.getAnnotationsByType(PermissionRequired.class);
-        boolean hasRight = Arrays.stream(rights).anyMatch(r -> user.hasPermission(r.permission()));
-        if (!hasRight)
-          throw new AuthorizationException(
-              "Not allowed to access URL: " + context.getRequest().getPathInfo() + ". User not Authorized");
+        AnnotationHandler handler = registeredAnnotations.get(annotation);
+        if (handler != null)
+          handler.execute(controllerClass, actionMethod, annotation, context);
       }
 
       // Execute the actual controller action here.
@@ -339,16 +323,43 @@ public class Route
     }
   }
 
+  /**
+   * Reverse a link for this route. Get a link that you can use in HTML for this
+   * route. It is assumed that this link has no replaceable groups.
+   * 
+   * @return a relative URL as a string. (Excludes Protocol, host, port)
+   */
   public String getLink()
   {
     return getLink(null, null);
   }
 
+  /**
+   * Reverse a link for this route. Get a link that you can use in HTML for this
+   * route. Pass any groups that need to be replaced as an Object array. To get
+   * the replacement value this method will call .toString() on each Object.
+   * 
+   * @param params The params to replace in the groups
+   * @return a relative URL as a string. (Excludes Protocol, host, port)
+   */
   public String getLink(Object[] params)
   {
     return getLink(null, params);
   }
 
+  /**
+   * Reverse a link for this route. Get a link that you can use in HTML for this
+   * route. Pass any groups that need to be replaced as an Object array in
+   * params. To get the replacement value this method will call .toString() on
+   * each Object.
+   * 
+   * @param params
+   *          The params to replace in the groups.
+   * @param getParams.
+   *          The params to append to the end of the URL as key value pairs (The
+   *          part after the ?).
+   * @return a relative URL as a string. (Excludes Protocol, host, port)
+   */
   public String getLink(Map<String, String> getParams, Object[] params)
   {
     StringBuilder builder = new StringBuilder();
@@ -438,6 +449,13 @@ public class Route
     return new HttpRedirect(getLink(params));
   }
 
+  /**
+   * Return all the parameters that appear in the URL for this route
+   * 
+   * @param path
+   *          the Path to decode
+   * @return A map of decoded parameters
+   */
   public Map<String, String> getParameters(String path)
   {
     if (path == null || "".equals(path))
@@ -516,6 +534,16 @@ public class Route
   public String getAlias()
   {
     return mAlias;
+  }
+
+  /**
+   * Get the URL path of this route as found in the routes.conf file
+   * 
+   * @return the path of this route
+   */
+  public String getPath()
+  {
+    return mPath;
   }
 
   @Override
