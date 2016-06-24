@@ -200,7 +200,7 @@ public class Route
           .getAnnotations();
       for (Annotation annotation : assignedAnnotations)
       {
-        AnnotationHandler handler = registeredAnnotations.get(annotation);
+        AnnotationHandler handler = registeredAnnotations.get(annotation.getClass());
         if (handler != null)
           handler.execute(getController(), actionMethod, annotation, context);
       }
@@ -209,7 +209,7 @@ public class Route
       assignedAnnotations = actionMethod.getAnnotations();
       for (Annotation annotation : assignedAnnotations)
       {
-        AnnotationHandler handler = registeredAnnotations.get(annotation);
+        AnnotationHandler handler = registeredAnnotations.get(annotation.getClass());
         if (handler != null)
           handler.execute(getController(), actionMethod, annotation, context);
       }
@@ -339,7 +339,8 @@ public class Route
    * route. Pass any groups that need to be replaced as an Object array. To get
    * the replacement value this method will call .toString() on each Object.
    * 
-   * @param params The params to replace in the groups
+   * @param params
+   *          The params to replace in the groups
    * @return a relative URL as a string. (Excludes Protocol, host, port)
    */
   public String getLink(Object[] params)
