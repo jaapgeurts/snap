@@ -200,7 +200,7 @@ public class Route
           .getAnnotations();
       for (Annotation annotation : assignedAnnotations)
       {
-        AnnotationHandler handler = registeredAnnotations.get(annotation.getClass());
+        AnnotationHandler handler = registeredAnnotations.get(annotation.annotationType());
         if (handler != null)
           handler.execute(getController(), actionMethod, annotation, context);
       }
@@ -209,7 +209,7 @@ public class Route
       assignedAnnotations = actionMethod.getAnnotations();
       for (Annotation annotation : assignedAnnotations)
       {
-        AnnotationHandler handler = registeredAnnotations.get(annotation.getClass());
+        AnnotationHandler handler = registeredAnnotations.get(annotation.annotationType());
         if (handler != null)
           handler.execute(getController(), actionMethod, annotation, context);
       }
