@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -76,11 +77,23 @@ public abstract class Form
 
     mLocale = mContext.getLocale();
 
-    if (mLocale == null)
-      mResourceBundle = ResourceBundle.getBundle(WebApplication.RESOURCE_BUNDLE_NAME);
-    else
-      mResourceBundle = ResourceBundle.getBundle(WebApplication.RESOURCE_BUNDLE_NAME, mLocale);
-
+    try
+    {
+      if (mLocale == null)
+        mResourceBundle = ResourceBundle.getBundle(WebApplication.RESOURCE_BUNDLE_NAME);
+      else
+        mResourceBundle = ResourceBundle.getBundle(WebApplication.RESOURCE_BUNDLE_NAME, mLocale);
+    }
+    catch (MissingResourceException mre)
+    {
+      if (mLocale != null)
+      {
+        log.warn("Locale resource bundle: " + WebApplication.RESOURCE_BUNDLE_NAME
+            + " can't be loaded. No translation is available for language " + mLocale.getLanguage());
+        mLocale = null;
+      }
+      // else ignore because no language was set
+    }
   }
 
   /**
@@ -494,6 +507,10 @@ public abstract class Form
    */
   public String parseAnnotationString(String text)
   {
+    if (mResourceBundle == null)
+    {
+      return text;
+    }
     if (text.charAt(0) == '{' && text.charAt(text.length() - 1) == '}')
     {
       text = mResourceBundle.getString(text.substring(1, text.length() - 1));
