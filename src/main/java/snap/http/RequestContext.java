@@ -547,6 +547,21 @@ public class RequestContext
   }
 
   /**
+   * Same as getRedirect(String alias) but also appends getParams as parameters
+   * to the end of the URL in the form of ?K1=V1&amp;K2=V2
+   * 
+   * @param alias
+   *          The route identified by the alias name
+   * @param getParams
+   *          The dictionary of the get params
+   * @return the redirect object
+   */
+  public HttpRedirect getRedirect(String alias, Map<String, String> getParams)
+  {
+    return getRouter().redirectForRoute(alias, getParams);
+  }
+
+  /**
    * Returns the current generated CSRF token
    * 
    * @return the CSRF token
