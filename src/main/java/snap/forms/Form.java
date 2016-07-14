@@ -120,7 +120,7 @@ public abstract class Form
       if (entry.getValue() instanceof FileField)
       {
         String contentType = mContext.getRequest().getContentType();
-        if (contentType != null && "multipart/form-data".equals(contentType.toLowerCase()))
+        if (contentType == null || "multipart/form-data".equals(contentType.toLowerCase()))
           continue;
 
         FileField ff = (FileField)entry.getValue();
