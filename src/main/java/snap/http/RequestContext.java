@@ -502,7 +502,8 @@ public class RequestContext
   }
 
   /**
-   * Get a Redirect to the same route that this request was routed to.
+   * Get a Redirect to the same route that this request was routed to, will send
+   * a default /TEMPORARY_ALLOW_CHANGE=SC_FOUND
    * 
    * @param params
    *          The params to replace in the route URL
@@ -510,7 +511,21 @@ public class RequestContext
    */
   public HttpRedirect getRedirectSelf(Object... params)
   {
-    return getRoute().getRedirect(params);
+    return getRoute().getRedirect(params, RedirectType.TEMPORARY_ALLOW_CHANGE);
+  }
+
+  /**
+   * Get a Redirect to the same route that this request was routed to.
+   * 
+   * @param type
+   *          Redirect type to send back to the client
+   * @param params
+   *          The params to replace in the route URL
+   * @return the redirect object
+   */
+  public HttpRedirect getRedirectSelf(RedirectType type, Object... params)
+  {
+    return getRoute().getRedirect(params, type);
   }
 
   /**
@@ -518,13 +533,30 @@ public class RequestContext
    * 
    * @param alias
    *          the route identified by alias name
+   * 
    * @param params
    *          the parameters to replace in the URL
    * @return the redirect object
    */
   public HttpRedirect getRedirect(String alias, Object... params)
   {
-    return getRouter().redirectForRoute(alias, params);
+    return getRouter().redirectForRoute(alias, RedirectType.TEMPORARY_ALLOW_CHANGE, params);
+  }
+
+  /**
+   * Gets a Redirect object to the URL router using the alias name.
+   * 
+   * @param alias
+   *          the route identified by alias name
+   * @param type
+   *          Redirect type to send back to the client
+   * @param params
+   *          the parameters to replace in the URL
+   * @return the redirect object
+   */
+  public HttpRedirect getRedirect(String alias, RedirectType type, Object... params)
+  {
+    return getRouter().redirectForRoute(alias, type, params);
   }
 
   /**
@@ -541,9 +573,31 @@ public class RequestContext
    * @return the redirect object
    * 
    */
-  public HttpRedirect getRedirect(String alias, Map<String, String> getParams, Object... params)
+  public HttpRedirect getRedirect(String alias, Map<String, Object> getParams, Object... params)
   {
-    return getRouter().redirectForRoute(alias, getParams, params);
+    return getRouter().redirectForRoute(alias, RedirectType.TEMPORARY_ALLOW_CHANGE, getParams, params);
+  }
+
+  /**
+   * Same as getRedirect(String alias, Object... params) but also appends
+   * getParams as parameters to the end of the URL in the form of
+   * ?K1=V1&amp;K2=V2
+   * 
+   * @param alias
+   *          the route identified by alias name
+   * @param type
+   *          Redirect type to send back to the client
+   * @param getParams
+   *          The dictionary of GET params
+   * @param params
+   *          the parameters to replace in the URL
+   * @return the redirect object
+   * 
+   */
+  public HttpRedirect getRedirect(String alias, RedirectType type, Map<String, Object> getParams,
+      Object... params)
+  {
+    return getRouter().redirectForRoute(alias, type, getParams, params);
   }
 
   /**
@@ -552,13 +606,15 @@ public class RequestContext
    * 
    * @param alias
    *          The route identified by the alias name
+   * @param type
+   *          Redirect type to send back to the client
    * @param getParams
    *          The dictionary of the get params
    * @return the redirect object
    */
-  public HttpRedirect getRedirect(String alias, Map<String, String> getParams)
+  public HttpRedirect getRedirect(String alias, RedirectType type, Map<String, String> getParams)
   {
-    return getRouter().redirectForRoute(alias, getParams);
+    return getRouter().redirectForRoute(alias, type, getParams);
   }
 
   /**

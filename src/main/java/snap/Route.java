@@ -32,6 +32,7 @@ import snap.annotations.RouteOptions;
 import snap.forms.MissingCsrfTokenException;
 import snap.http.HttpMethod;
 import snap.http.HttpRedirect;
+import snap.http.RedirectType;
 import snap.http.RequestContext;
 import snap.http.RequestResult;
 
@@ -361,7 +362,7 @@ public class Route
    *          part after the ?).
    * @return a relative URL as a string. (Excludes Protocol, host, port)
    */
-  public String getLink(Map<String, String> getParams, Object[] params)
+  public String getLink(Map<String, Object> getParams, Object[] params)
   {
     StringBuilder builder = new StringBuilder();
     java.util.regex.Pattern pat = Pattern.compile("\\(.+?\\)");
@@ -405,28 +406,22 @@ public class Route
     }
 
     // add get params if available
-    if (getParams != null)
+    if (getParams != null && getParams.size() > 0)
     {
       builder.append("?");
-      for (Map.Entry<String, String> entry : getParams.entrySet())
-      {
+      String queryString = getParams.entrySet().stream().map(e -> {
         try
         {
-          builder.append(URLEncoder.encode(entry.getKey(), "UTF-8"));
-          builder.append("=");
-          builder.append(URLEncoder.encode(entry.getValue(), "UTF-8"));
-          builder.append("&");
+          return URLEncoder.encode(e.getKey(), "UTF-8") + "="
+              + URLEncoder.encode(e.getValue().toString(), "UTF-8");
         }
-        catch (UnsupportedEncodingException e)
+        catch (UnsupportedEncodingException ex)
         {
-          log.debug("JVM doesn't support UTF-8", e);
+          log.debug("JVM doesn't support UTF-8", ex);
+          throw new UnsupportedOperationException("JVM doesn't support UTF-8", ex);
         }
-      }
-      // just make sure
-      if (builder.length() >= 1)
-        if (builder.charAt(builder.length() - 1) == '&')
-          builder.deleteCharAt(builder.length() - 1);
-
+      }).collect(Collectors.joining("&"));
+      builder.append(queryString);
     }
 
     if (mContextPath == null || "".equals(mContextPath))
@@ -445,9 +440,9 @@ public class Route
     return mRouteListener;
   }
 
-  public HttpRedirect getRedirect(Object[] params)
+  public HttpRedirect getRedirect(Object[] params, RedirectType type)
   {
-    return new HttpRedirect(getLink(params));
+    return new HttpRedirect(getLink(params), type);
   }
 
   /**

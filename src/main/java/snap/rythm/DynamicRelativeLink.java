@@ -1,5 +1,7 @@
 package snap.rythm;
 
+import java.util.Map;
+
 import org.rythmengine.template.JavaTagBase;
 
 import snap.Router;
@@ -28,7 +30,11 @@ public class DynamicRelativeLink extends JavaTagBase
       Object[] plist = new Object[params.size() - 1];
       for (int i = 0; i < plist.length; i++)
         plist[i] = params.get(i + 1).value;
-      p(router.linkForRoute(alias, plist));
+      Map<String, Object> map = params.asMap();
+      if (map != null && map.size() > 0)
+        p(router.linkForRoute(alias, map, plist));
+      else
+        p(router.linkForRoute(alias, plist));
     }
   }
 }

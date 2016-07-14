@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 
 import snap.http.HttpMethod;
 import snap.http.HttpRedirect;
+import snap.http.RedirectType;
 
 public class Router
 {
@@ -144,14 +145,15 @@ public class Router
     return Settings.siteRootUrl;
   }
 
-  public HttpRedirect redirectForRoute(String alias, Object... params)
+  public HttpRedirect redirectForRoute(String alias, RedirectType type, Object... params)
   {
-    return new HttpRedirect(linkForRoute(alias, params));
+    return new HttpRedirect(linkForRoute(alias, params), type);
   }
 
-  public HttpRedirect redirectForRoute(String alias, Map<String, String> getParams, Object... params)
+  public HttpRedirect redirectForRoute(String alias, RedirectType type,
+      Map<String, Object> getParams, Object... params)
   {
-    return new HttpRedirect(linkForRoute(alias, getParams, params));
+    return new HttpRedirect(linkForRoute(alias, getParams, params), type);
   }
 
   /**
@@ -186,7 +188,7 @@ public class Router
    * @throws RouteNotFoundException
    *           When the route can't be found.
    */
-  public String linkForRoute(String alias, Map<String, String> getParams, Object... params)
+  public String linkForRoute(String alias, Map<String, Object> getParams, Object... params)
   {
     Route route = getRoute(alias);
     return route.getLink(getParams, params);
