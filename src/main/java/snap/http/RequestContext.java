@@ -1,7 +1,5 @@
 package snap.http;
 
-import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.security.SecureRandom;
@@ -17,8 +15,6 @@ import javax.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.alibaba.fastjson.JSONObject;
-
 import snap.Route;
 import snap.Router;
 import snap.Settings;
@@ -30,7 +26,7 @@ import snap.WebApplication;
  * applications will use this object to get access to the HTTP parameters, URL
  * parameters, Cookies and the current Authenticated User. It contains the
  * original HttpServletRequest and HttpServletResponse objects.
- * 
+ *
  * @author Jaap Geurts
  *
  */
@@ -53,7 +49,7 @@ public class RequestContext
   /**
    * Construct a RequestContext. You should never need to construct this object,
    * it is constructed by the Snap framework.
-   * 
+   *
    * @param method
    *          The HTTP Method of the request.
    * @param servletRequest
@@ -77,29 +73,12 @@ public class RequestContext
   }
 
   /**
-   * If the content sent to the server was in Json Format you can use this
-   * method to get a parsed Json object
-   * 
-   * @return The Json Object for the data
-   * @throws IOException
-   *           The error thrown.
-   */
-  public JSONObject getContentAsJson() throws IOException
-  {
-
-    BufferedReader reader = mServletRequest.getReader();
-
-    return JSONObject.parseObject(reader.toString());
-
-  }
-
-  /**
    * Returns a Map of all parameters. GET and POST parameters are merged into
    * the same dictionary.
-   * 
+   *
    * WARNING: if you have a post parameter with the name name as a GET parameter
    * you will only see one of them. This is a limitation of the Servlet spec
-   * 
+   *
    * @return the parameters a Map
    */
   public Map<String, String[]> getParamsPostGet()
@@ -109,7 +88,7 @@ public class RequestContext
 
   /**
    * Return post or get variable identified by name
-   * 
+   *
    * @param name
    *          the parameter to find
    * @return returns null when parameter is not available.
@@ -122,7 +101,7 @@ public class RequestContext
   /**
    * Returns a variable from the decoded URL identified by name. These are
    * values that appear regex expression in the Route.
-   * 
+   *
    * @param name
    *          the param to find.
    * @return Null if the parameter is not available
@@ -134,7 +113,7 @@ public class RequestContext
 
   /**
    * Return all params and the values that were extracted from the URL
-   * 
+   *
    * @return all params name/value in the URL
    */
   public Map<String, String> getParamUrls()
@@ -149,7 +128,7 @@ public class RequestContext
   /**
    * Returns a list of all cookies sent with this request Forwards the request
    * to the HttpServletRequest
-   * 
+   *
    * @return An array of cookies or null of there were no cookies sent
    */
   public Cookie[] getCookies()
@@ -159,7 +138,7 @@ public class RequestContext
 
   /**
    * Returns a cookie identified by name.
-   * 
+   *
    * @param name
    *          The name of the cookie
    * @return the cookie of null if there was no cookie by that name
@@ -180,7 +159,7 @@ public class RequestContext
 
   /**
    * Get the string of the cookie by name
-   * 
+   *
    * @param name
    *          The name of the cookie
    * @return The value or null or null if no cookie exists by that name
@@ -196,7 +175,7 @@ public class RequestContext
 
   /**
    * Adds a cookie to HttpServeletResponse
-   * 
+   *
    * @param cookie
    *          The cookie to add to the response
    */
@@ -208,7 +187,7 @@ public class RequestContext
   /**
    * Removes the cookie from the user browser. This is the same as calling
    * cookie.setMaxAge(0) and adding the cookie to the response
-   * 
+   *
    * @param cookie
    *          The cookie to remove from the client
    */
@@ -220,7 +199,7 @@ public class RequestContext
 
   /**
    * Get the value for an HTTP Header.
-   * 
+   *
    * @param header
    *          the name of the header
    * @return The value or null if header doesn't exist
@@ -232,7 +211,7 @@ public class RequestContext
 
   /**
    * Returns the HTTP referer header, if available, else NULL
-   * 
+   *
    * @return The referer value
    */
   public String getReferrerURL()
@@ -258,7 +237,7 @@ public class RequestContext
 
   /**
    * Gets the HTTP Method by which this request was called.
-   * 
+   *
    * @return The method
    */
   public HttpMethod getMethod()
@@ -268,7 +247,7 @@ public class RequestContext
 
   /**
    * Gets the route object that led to this request.
-   * 
+   *
    * @return the route for this request
    */
   public Route getRoute()
@@ -278,7 +257,7 @@ public class RequestContext
 
   /**
    * Used by the framework. Sets the route object for this request
-   * 
+   *
    * @param route
    *          the route for this request. Set by the framework.
    */
@@ -292,7 +271,7 @@ public class RequestContext
 
   /**
    * Get the Framework Router.
-   * 
+   *
    * @return the Router
    */
   public Router getRouter()
@@ -302,7 +281,7 @@ public class RequestContext
 
   /**
    * Sets the Framework Router
-   * 
+   *
    * @param router
    *          the router in use
    */
@@ -313,7 +292,7 @@ public class RequestContext
 
   /**
    * Gets the Original Servlet request
-   * 
+   *
    * @return the original servlet request
    */
   public HttpServletRequest getRequest()
@@ -323,7 +302,7 @@ public class RequestContext
 
   /**
    * Get the original servlet response
-   * 
+   *
    * @return the original servlet response
    */
   public HttpServletResponse getResponse()
@@ -335,11 +314,11 @@ public class RequestContext
    * Puts the authenticated user in the session under the attribute:
    * 'Snap.AuthorizedUser' Use in combination with @LoginRequired. This method
    * should be called only once per session
-   * 
+   *
    * @param userid
    *          The userid to store in the session. set to null to remove the user
    *          from the session
-   * 
+   *
    */
   public void setAuthenticatedUser(Long userid)
   {
@@ -373,7 +352,7 @@ public class RequestContext
 
   /**
    * Gets the authenticed User if any.
-   * 
+   *
    * @return The user or null if no user is authenticated
    */
   public User getAuthenticatedUser()
@@ -388,14 +367,14 @@ public class RequestContext
    * have to set this once. The language setting will be stored in the user
    * session or a user cookie depending on the 'snap.site.localemode' setting.
    * If you set persist to false the setting is not saved.
-   * 
+   *
    * @param language
    *          Use a standard Locale.getLanguage() value or set to null to remove
    *          and switch back to the default locale
    * @param persist
    *          True - Save the setting to cookie or session False - just save the
    *          setting in the current RequestContext
-   * 
+   *
    */
   public void setLanguage(String language, boolean persist)
   {
@@ -440,7 +419,7 @@ public class RequestContext
    * returned. If setLanguage() was not set and not persisted Snap! will return
    * the value of the Accept-Language header if it was sent. In all remaining
    * cases it returns null
-   * 
+   *
    * @return The language in BCP47 notation or null if no language was set and
    *         no Accept-Language was sent
    */
@@ -470,7 +449,7 @@ public class RequestContext
    * Returns the Locale for this request or null if no language is set. This is
    * a convenience function which creates a local based on the value of
    * getLanguage()
-   * 
+   *
    * @return The locale or null if no language is set
    */
   public Locale getLocale()
@@ -504,7 +483,7 @@ public class RequestContext
   /**
    * Get a Redirect to the same route that this request was routed to, will send
    * a default /TEMPORARY_ALLOW_CHANGE=SC_FOUND
-   * 
+   *
    * @param params
    *          The params to replace in the route URL
    * @return the redirect object
@@ -516,7 +495,7 @@ public class RequestContext
 
   /**
    * Get a Redirect to the same route that this request was routed to.
-   * 
+   *
    * @param type
    *          Redirect type to send back to the client
    * @param params
@@ -530,10 +509,10 @@ public class RequestContext
 
   /**
    * Gets a Redirect object to the URL router using the alias name.
-   * 
+   *
    * @param alias
    *          the route identified by alias name
-   * 
+   *
    * @param params
    *          the parameters to replace in the URL
    * @return the redirect object
@@ -545,7 +524,7 @@ public class RequestContext
 
   /**
    * Gets a Redirect object to the URL router using the alias name.
-   * 
+   *
    * @param alias
    *          the route identified by alias name
    * @param type
@@ -563,7 +542,7 @@ public class RequestContext
    * Same as getRedirect(String alias, Object... params) but also appends
    * getParams as parameters to the end of the URL in the form of
    * ?K1=V1&amp;K2=V2
-   * 
+   *
    * @param alias
    *          the route identified by alias name
    * @param getParams
@@ -571,7 +550,7 @@ public class RequestContext
    * @param params
    *          the parameters to replace in the URL
    * @return the redirect object
-   * 
+   *
    */
   public HttpRedirect getRedirect(String alias, Map<String, Object> getParams, Object... params)
   {
@@ -582,7 +561,7 @@ public class RequestContext
    * Same as getRedirect(String alias, Object... params) but also appends
    * getParams as parameters to the end of the URL in the form of
    * ?K1=V1&amp;K2=V2
-   * 
+   *
    * @param alias
    *          the route identified by alias name
    * @param type
@@ -592,7 +571,7 @@ public class RequestContext
    * @param params
    *          the parameters to replace in the URL
    * @return the redirect object
-   * 
+   *
    */
   public HttpRedirect getRedirect(String alias, RedirectType type, Map<String, Object> getParams,
       Object... params)
@@ -603,7 +582,7 @@ public class RequestContext
   /**
    * Same as getRedirect(String alias) but also appends getParams as parameters
    * to the end of the URL in the form of ?K1=V1&amp;K2=V2
-   * 
+   *
    * @param alias
    *          The route identified by the alias name
    * @param type
@@ -619,7 +598,7 @@ public class RequestContext
 
   /**
    * Returns the current generated CSRF token
-   * 
+   *
    * @return the CSRF token
    */
   public String getServerCsrfToken()
@@ -646,7 +625,7 @@ public class RequestContext
 
   /**
    * Generate a CsrfToken
-   * 
+   *
    * @return the CsrfToken
    */
   private String generateCsrfToken()
@@ -660,7 +639,7 @@ public class RequestContext
 
   /**
    * Convert bytes to a string representation
-   * 
+   *
    * @param array
    * @return the String
    */
