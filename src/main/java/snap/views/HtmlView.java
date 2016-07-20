@@ -8,18 +8,18 @@ import javax.servlet.http.HttpServletResponse;
 import snap.http.RequestContext;
 
 /**
- * A simple view that returns a string as the body
+ * A simple view that returns a String wrapped inside an HTML body.
  */
-public class StringView extends View
+public class HtmlView extends View
 {
   private int mStatus = HttpServletResponse.SC_OK;
 
-  public StringView(String text)
+  public HtmlView(String text)
   {
     mText = text;
   }
 
-  public StringView(String text, int statusCode)
+  public HtmlView(String text, int statusCode)
   {
     mText = text;
     mStatus = statusCode;
@@ -38,7 +38,7 @@ public class StringView extends View
     r.setCharacterEncoding("UTF-8");
 
     ServletOutputStream os = r.getOutputStream();
-    os.print(mText);
+    os.print(String.format("<html><head><title>StringView</title></head><body>%s</body></html>", mText));
   }
 
   private String mText;

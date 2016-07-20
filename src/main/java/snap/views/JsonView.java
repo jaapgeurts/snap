@@ -10,6 +10,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import snap.WebApplication;
 import snap.http.RequestContext;
 
+/**
+ * The default view for returning JSON content.
+ * The default status code is HTTP OK 200
+ * @author Jaap Geurts
+ *
+ * @param <T> The type of object to serialize to JSON
+ */
 public class JsonView<T> extends View
 {
 

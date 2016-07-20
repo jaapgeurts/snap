@@ -2,6 +2,8 @@ package snap.views;
 
 import java.io.IOException;
 
+import javax.servlet.http.HttpServletResponse;
+
 import snap.http.RequestContext;
 
 /**
@@ -22,16 +24,34 @@ public class NullView extends View
    */
   public static NullView INSTANCE = new NullView();
 
-  @Override
-  public void handleResult(RequestContext context) throws IOException
+  private Integer mStatus = null;
+
+  /**
+   * A view that doesn't change anything about the response
+   */
+  public NullView()
   {
-    // do nothing
+  }
+
+  /**
+   * A View that only changes the status code of the response
+   *
+   * @param statusCode
+   *          The status code to return
+   */
+  public NullView(int statusCode)
+  {
+    mStatus = statusCode;
   }
 
   @Override
   public void render(RequestContext context) throws IOException
   {
-    // do nothing
+    if (mStatus != null)
+    {
+      HttpServletResponse r = context.getResponse();
+      r.setStatus(mStatus);
+    }
   }
 
 }
