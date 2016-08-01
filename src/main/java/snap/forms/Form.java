@@ -36,10 +36,10 @@ import snap.http.RequestContext;
  * Subclass this class to create a new form. You can add any field and annotate
  * it with the html input type you wish to use. Only fields that have the
  * annotation in forms.annotations will be used in the HTML.
- * 
+ *
  * It's best to use wrapper objects instead of native types
- * 
- * 
+ *
+ *
  * @author Jaap Geurts
  *
  */
@@ -150,7 +150,7 @@ public abstract class Form
   /**
    * Renders the form as HTML tags. Also renders errors if any. Layout is
    * applied according to the type parameter.
-   * 
+   *
    * @param type
    *          Specifies the way the form should be layed out.
    *          <ul>
@@ -204,7 +204,7 @@ public abstract class Form
 
   /**
    * Renders a specific field as HTML with a value. Also renders errors if any
-   * 
+   *
    * @param fieldName
    *          The field to render
    * @param attributes
@@ -247,7 +247,7 @@ public abstract class Form
 
   /**
    * Renders a label for a specific field
-   * 
+   *
    * @param fieldName
    *          The field to render the label for
    * @param attributes
@@ -262,7 +262,7 @@ public abstract class Form
 
   /**
    * Renders a label for a specific field
-   * 
+   *
    * @param field
    *          The field to render the label for
    * @param attributes
@@ -293,7 +293,7 @@ public abstract class Form
   /**
    * If the field has error information set it will return a rendered error html
    * node. It will return the error enclosed in a SPAN element.
-   * 
+   *
    * @param fieldName
    *          The field name
    * @param attributes
@@ -335,7 +335,7 @@ public abstract class Form
 
   /**
    * Returns a Field Subtype Object that represents the Annotated Form field.
-   * 
+   *
    * @param fieldName
    *          The name of the field you want to get
    * @return The Form field or null if not found
@@ -349,7 +349,7 @@ public abstract class Form
    * Validates the form. Runs the Hibernate Validator to check if the form
    * values are correct. You can override this method if you want to implement
    * extra or different logic.
-   * 
+   *
    * @return True, when there are no errors, false if there are
    */
   public boolean isValid()
@@ -385,7 +385,7 @@ public abstract class Form
   /**
    * Returns true if there are error messages present in this form or in any of
    * the form fields
-   * 
+   *
    * @return true or false
    */
   public boolean hasErrors()
@@ -402,8 +402,9 @@ public abstract class Form
   }
 
   /**
-   * Returns whether this form has form specific errors
-   * 
+   * Returns whether this form has form level errors. Does not check if fields have any errors.
+   * To check if the form and any of the fields have errors use <pre>hasErrors()</pre>
+   *
    * @return true or false
    */
   public boolean hasFormErrors()
@@ -413,7 +414,7 @@ public abstract class Form
 
   /**
    * Returns true if the specified field has an error
-   * 
+   *
    * @param fieldName
    *          the field to query
    * @return true of false
@@ -430,7 +431,7 @@ public abstract class Form
 
   /**
    * Returns the errors of this form
-   * 
+   *
    * @return The error string.
    */
   public List<String> getErrors()
@@ -440,7 +441,7 @@ public abstract class Form
 
   /**
    * Sets the error string of this form
-   * 
+   *
    * @param formError
    *          The error string
    */
@@ -451,11 +452,11 @@ public abstract class Form
 
   /**
    * Set an error on a field. This is a shortcut to calling
-   * 
+   *
    * <pre>
    * getField(fieldName).setError(errorText)
    * </pre>
-   * 
+   *
    * @param fieldName
    *          The name of the field
    * @param errorText
@@ -470,11 +471,11 @@ public abstract class Form
 
   /**
    * Clear the error on a field. This is a shortcut to calling
-   * 
+   *
    * <pre>
    * getField(fieldName).clearError()
    * </pre>
-   * 
+   *
    * @param fieldName
    *          The name of the field
    */
@@ -500,7 +501,7 @@ public abstract class Form
    * string contains text enclosed in { } and replace that with a string from
    * the resource bundle. Note that currently on { } as the first and last char
    * are supported
-   * 
+   *
    * @param text
    *          the text to parse
    * @return if the text was enclosed in { } return the text in localized from
