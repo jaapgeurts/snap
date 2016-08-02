@@ -316,7 +316,7 @@ public class RequestContext
    * should be called only once per session
    *
    * @param userid
-   *          The userid to store in the session. set to null to remove the user
+   *          The userid to store in the session. Set to null to remove the user
    *          from the session
    *
    */

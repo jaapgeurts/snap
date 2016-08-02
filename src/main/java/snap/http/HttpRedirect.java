@@ -1,17 +1,33 @@
 package snap.http;
 
 import java.io.IOException;
+
 import javax.servlet.http.HttpServletResponse;
 
+/**
+ * Because this class implements RequestResult you can return this class from a
+ * router method. There are three ways to obtain this class.
+ * <ol>
+ * <li>Create it directly. - This is useful if you wish to redirect to an user
+ * defined URL.</li>
+ * <li>Call RequestContext.getRoute().getRedirect() and you will get a redirect
+ * to the same URL that invoked the current controller method</li>
+ * <li>Call RequestContext.getRouter().getRedirect() and you can get a redirect
+ * for any route specified in your routes.conf file.</li>
+ * </ol>
+ *
+ * @author Jaap Geurts
+ *
+ */
 public class HttpRedirect implements RequestResult
 {
 
   /**
    * Redirect the user to the url identified by string URL
-   * 
+   *
    * @param url
    *          The url to redirect to
-   * 
+   *
    */
   public HttpRedirect(String url)
   {
@@ -20,7 +36,7 @@ public class HttpRedirect implements RequestResult
 
   /**
    * Redirect the user to the url identified by string URL
-   * 
+   *
    * @param url
    *          The url to redirect to
    * @param redirectType

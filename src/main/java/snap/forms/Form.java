@@ -317,6 +317,12 @@ public abstract class Form
 
   }
 
+  /**
+   * If the form has erros defined this will return a HTML string with the
+   * errors formatted in the UL tag.
+   *
+   * @return
+   */
   public String renderFormErrors()
   {
     if (!hasFormErrors())
@@ -402,8 +408,12 @@ public abstract class Form
   }
 
   /**
-   * Returns whether this form has form level errors. Does not check if fields have any errors.
-   * To check if the form and any of the fields have errors use <pre>hasErrors()</pre>
+   * Returns whether this form has form level errors. Does not check if fields
+   * have any errors. To check if the form and any of the fields have errors use
+   *
+   * <pre>
+   * hasErrors()
+   * </pre>
    *
    * @return true or false
    */

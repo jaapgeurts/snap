@@ -19,6 +19,11 @@ public class Router
 {
   final static Logger log = LoggerFactory.getLogger(Router.class);
 
+  /**
+   * Get the router instance of this application.
+   *
+   * @return
+   */
   public static Router getInstance()
   {
     if (mRouter == null)
@@ -39,7 +44,7 @@ public class Router
 
   /**
    * Initialize the router with the Servlet Container Context Path
-   * 
+   *
    * @param contextPath
    *          - The path under which this servlet runs and this router is
    *          decoding url paths
@@ -102,7 +107,7 @@ public class Router
 
   /**
    * Finds a route in the list for the specified method and path
-   * 
+   *
    * @param method
    *          The HTTP method
    * @param path
@@ -140,18 +145,49 @@ public class Router
         + ", but has incorrect method " + method.toString());
   }
 
+  /**
+   * Get the site base url as defined in the snap.properties resource
+   *
+   * @return
+   */
   public String siteUrl()
   {
     return Settings.siteRootUrl;
   }
 
+  /**
+   * Returns a redirect object for the specified route.
+   *
+   * @param alias
+   *          The Route alias
+   * @param type
+   *          The redirect type
+   * @param params
+   *          The params to replace in the URL of the route.
+   * @return The HttpRedirect object which can be returned as a RequestResult in
+   *         the controller method
+   */
   public HttpRedirect redirectForRoute(String alias, RedirectType type, Object... params)
   {
     return new HttpRedirect(linkForRoute(alias, params), type);
   }
 
-  public HttpRedirect redirectForRoute(String alias, RedirectType type,
-      Map<String, Object> getParams, Object... params)
+  /**
+   * Returns a redirect object for the specified route.
+   *
+   * @param alias
+   *          The Route alias
+   * @param type
+   *          The redirect type
+   * @param getParams
+   *          The query string params to append to the URL
+   * @param params
+   *          The params to replace in the URL of the route.
+   * @return The HttpRedirect object which can be returned as a RequestResult in
+   *         the controller method
+   */
+  public HttpRedirect redirectForRoute(String alias, RedirectType type, Map<String, Object> getParams,
+      Object... params)
   {
     return new HttpRedirect(linkForRoute(alias, getParams, params), type);
   }
@@ -159,7 +195,7 @@ public class Router
   /**
    * Returns the URL string for a route with name alias. Any regex pattern
    * groups will be substituted with the values in the params list*
-   * 
+   *
    * @param alias
    *          The alias name of the route
    * @param params
@@ -177,7 +213,7 @@ public class Router
   /***
    * Returns the URL string for a route with name alias. Any regex pattern
    * groups will be substituted with the values in the params list*
-   * 
+   *
    * @param alias
    *          The alias name of the route
    * @param getParams
@@ -195,7 +231,7 @@ public class Router
   }
 
   /**
-   * 
+   *
    * @param routeAlias
    *          The alias of the route
    * @return The route for this alias
@@ -210,6 +246,13 @@ public class Router
     return route;
   }
 
+  /**
+   * Sets the context path of this router as defined by the web.xml file. Not
+   * meant to be called by users.
+   *
+   * @param contextPath
+   *          The root context path
+   */
   public void setContextPath(String contextPath)
   {
     mContextPath = contextPath;
