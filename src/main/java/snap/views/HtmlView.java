@@ -8,17 +8,32 @@ import javax.servlet.http.HttpServletResponse;
 import snap.http.RequestContext;
 
 /**
- * A simple view that returns a String wrapped inside an HTML body.
+ * A simple view that returns a String wrapped inside an HTML body. By default
+ * it will return a HTTP 200 status code
  */
 public class HtmlView extends View
 {
   private int mStatus = HttpServletResponse.SC_OK;
 
+  /**
+   * Construct a HtmlView with the text to display in the body.
+   *
+   * @param text
+   *          Text to put in the body.
+   */
   public HtmlView(String text)
   {
     mText = text;
   }
 
+  /**
+   * Construct a HtmlView with the text to display in the body.
+   *
+   * @param text
+   *          Text to put in the body
+   * @param statusCode
+   *          Http Status code to return.
+   */
   public HtmlView(String text, int statusCode)
   {
     mText = text;
@@ -26,7 +41,8 @@ public class HtmlView extends View
   }
 
   /**
-   * Renders a plain HTML file with the string as the body.
+   * Renders a plain HTML file with the string as the body. Not meant to be
+   * called directly by the user
    */
   @Override
   public void render(RequestContext context) throws IOException

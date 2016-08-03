@@ -20,10 +20,10 @@ import snap.http.RequestContext;
  * This view renders an HTML template with data passed as parameters. This is
  * the most commonly used View to return for a request. To use this view call
  * its constructor with the name of a HTML template.
- * 
+ *
  * To pass pass data to the template you can add any object as a parameter to
  * this view by calling addParameter().
- * 
+ *
  * @author Jaap Geurts
  *
  */
@@ -33,7 +33,7 @@ public class TemplateView extends View
 
   /**
    * Constructor.
-   * 
+   *
    * @param templateName
    *          The filename of the template. The HTML template is relative to the
    *          src/main/webapp folder.
@@ -46,7 +46,7 @@ public class TemplateView extends View
 
   /**
    * Adds a parameter to the template.
-   * 
+   *
    * @param name
    *          The name by which the parameter will be referenced in the template
    * @param value
@@ -59,7 +59,7 @@ public class TemplateView extends View
 
   /**
    * Gets the HTTP status code that will be set when this view is rendered
-   * 
+   *
    * @return the HTTP status code
    */
   public int getStatusCode()
@@ -69,7 +69,7 @@ public class TemplateView extends View
 
   /**
    * Sets the HTTP status code that will be set when this view is rendered
-   * 
+   *
    * @param statusCode
    *          the HTTP status code
    */
@@ -80,7 +80,7 @@ public class TemplateView extends View
 
   /**
    * Gets the HTTP content type that will be set when this view is rendered
-   * 
+   *
    * @return the HTTP content type header string
    */
   public String getContentType()
@@ -90,7 +90,7 @@ public class TemplateView extends View
 
   /**
    * Sets the HTTP content type that will be set when this view is rendered
-   * 
+   *
    * @param contentType
    *          the HTTP content type header string
    */
@@ -102,7 +102,7 @@ public class TemplateView extends View
   /**
    * Gets the HTTP character encoding that will be set when this view is
    * rendered
-   * 
+   *
    * @return the HTTP encoding string
    */
   public String getCharEncoding()
@@ -113,7 +113,7 @@ public class TemplateView extends View
   /**
    * Sets the HTTP character encoding that will be set when this view is
    * rendered
-   * 
+   *
    * @param charEncoding
    *          the HTTP encoding string
    */
@@ -123,7 +123,8 @@ public class TemplateView extends View
   }
 
   /**
-   * Renders the output to the outputstream.
+   * Renders the output to the servlet outputstream. Not meant to be called
+   * directly by users
    */
   @Override
   public void render(RequestContext context) throws IOException

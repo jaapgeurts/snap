@@ -318,10 +318,10 @@ public abstract class Form
   }
 
   /**
-   * If the form has erros defined this will return a HTML string with the
+   * If the form has errors defined this will return a HTML string with the
    * errors formatted in the UL tag.
    *
-   * @return
+   * @return The list as a HTML string.
    */
   public String renderFormErrors()
   {

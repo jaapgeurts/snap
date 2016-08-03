@@ -26,7 +26,8 @@ public class StringView extends View
   }
 
   /**
-   * Renders a plain HTML file with the string as the body.
+   * Renders a plain HTML file with the string as the body. Not meant to be
+   * called directly by the user.
    */
   @Override
   public void render(RequestContext context) throws IOException

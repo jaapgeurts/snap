@@ -22,7 +22,7 @@ public class Router
   /**
    * Get the router instance of this application.
    *
-   * @return
+   * @return The Router singleton instance
    */
   public static Router getInstance()
   {
@@ -148,7 +148,7 @@ public class Router
   /**
    * Get the site base url as defined in the snap.properties resource
    *
-   * @return
+   * @return the URl as a string
    */
   public String siteUrl()
   {

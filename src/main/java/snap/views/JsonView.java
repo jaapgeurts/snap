@@ -11,17 +11,28 @@ import snap.WebApplication;
 import snap.http.RequestContext;
 
 /**
- * The default view for returning JSON content.
- * The default status code is HTTP OK 200
+ * The default view for returning JSON content. The default status code is HTTP
+ * OK 200.
+ *
+ * This view will use the JsonMapper supplied by WebApplication.getJsonMapper();
+ * By default this is Jackson
+ *
  * @author Jaap Geurts
  *
- * @param <T> The type of object to serialize to JSON
+ * @param <T>
+ *          The type of object to serialize to JSON
  */
 public class JsonView<T> extends View
 {
 
   private int mStatus = HttpServletResponse.SC_OK;
 
+  /**
+   * Construct a JsonView with the root object to serialize.
+   *
+   * @param root
+   *          The object to serialize.
+   */
   public JsonView(T root)
   {
     if (root == null)
@@ -30,12 +41,24 @@ public class JsonView<T> extends View
     mapper = WebApplication.getInstance().getJsonMapper();
   }
 
+  /**
+   * Construct a Json View
+   *
+   * @param root
+   *          The root object to serialize.
+   * @param status
+   *          The HTTP status code to return
+   */
   public JsonView(T root, int status)
   {
     this(root);
     mStatus = status;
   }
 
+  /**
+   * Renders the output to the servlet output stream. Not meant to be called by
+   * end users
+   */
   @Override
   public void render(RequestContext context) throws IOException
   {
