@@ -66,11 +66,11 @@ public class CheckBoxField extends FormFieldBase
     {
       if (values == null)
       {
-        // There were no values submitted to just return
+        // There were no values submitted so just return
         return;
       }
 
-      if (values != null && values.length > 2)
+      if (values.length > 2)
       {
         log.warn("Possible hacking attempt! Expected no more than two values for field '" + mField.getName()
             + "' but found: " + values.length);
