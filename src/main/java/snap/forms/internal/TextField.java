@@ -14,8 +14,9 @@ public class TextField extends FormFieldBase
   {
     super(form, field);
     mAnnotation = annotation;
-    if (!field.getType().equals(String.class))
-      throw new IllegalArgumentException("TextFields must be of type String");
+    if (!field.getType().equals(String.class) && !field.getType().equals(Integer.class)
+        && !field.getType().equals(Long.class))
+      throw new IllegalArgumentException("TextFields must be of type String, Integer or Long");
 
     mLabel = mAnnotation.label();
     addAttribute("placeholder", mAnnotation.placeholder());
