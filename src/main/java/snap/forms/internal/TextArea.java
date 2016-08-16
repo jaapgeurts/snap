@@ -17,7 +17,9 @@ public class TextArea extends FormFieldBase
       throw new IllegalArgumentException("TextAreaFields must be of type String");
 
     mLabel = mAnnotation.label();
-    mHtmlId = mAnnotation.id();
+    if (!mAnnotation.id().isEmpty())
+      mHtmlId = mAnnotation.id();
+
   }
 
   @Override

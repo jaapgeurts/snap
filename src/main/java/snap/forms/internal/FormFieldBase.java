@@ -3,6 +3,7 @@ package snap.forms.internal;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,7 +22,7 @@ public abstract class FormFieldBase implements FormField
 
   /**
    * Constructor
-   * 
+   *
    * @param form
    *          The form this field belongs to
    * @param field
@@ -32,27 +33,34 @@ public abstract class FormFieldBase implements FormField
     this();
     mField = field;
     mForm = form;
+    mHtmlId = field.getName();
   }
 
+  @Override
   public abstract String render();
 
+  @Override
   public abstract String render(Map<String, String> attributes);
 
+  @Override
   public String getError()
   {
     return mErrorText;
   }
 
+  @Override
   public void setError(String errorText)
   {
     mErrorText = errorText;
   }
 
+  @Override
   public void clearError()
   {
     mErrorText = null;
   }
 
+  @Override
   public boolean hasError()
   {
     return mErrorText != null;
@@ -101,11 +109,13 @@ public abstract class FormFieldBase implements FormField
     }
   }
 
+  @Override
   public void setVisible(boolean visible)
   {
     mVisible = visible;
   }
 
+  @Override
   public boolean isVisible()
   {
     return mVisible;
@@ -157,7 +167,7 @@ public abstract class FormFieldBase implements FormField
 
   /**
    * Returns all possible field values for this field
-   * 
+   *
    * @return a list of strings
    */
   @Override

@@ -24,7 +24,9 @@ public class MultiCheckboxField extends FormFieldBase
       throw new IllegalArgumentException(
           "MultiCheckboxFields must be of type Set<String>, Set<Long>, Set<Integer> or Set<ListOption>");
 
-    mHtmlId = mAnnotation.id();
+    if (!mAnnotation.id().isEmpty())
+      mHtmlId = mAnnotation.id();
+
   }
 
   @Override
@@ -62,7 +64,7 @@ public class MultiCheckboxField extends FormFieldBase
 
   /**
    * Returns all possible field values for this field
-   * 
+   *
    * @return a list of strings
    */
   @Override

@@ -18,7 +18,9 @@ public class HiddenField extends FormFieldBase
         || field.getType().equals(Integer.class) || field.getType().equals(Long.class)))
       throw new IllegalArgumentException("HiddenFields must be of type String, Boolean, Integer, Long");
 
-    mHtmlId = mAnnotation.id();
+    if (!mAnnotation.id().isEmpty())
+      mHtmlId = mAnnotation.id();
+
   }
 
   @Override

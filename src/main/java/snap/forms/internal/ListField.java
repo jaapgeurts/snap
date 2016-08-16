@@ -33,7 +33,9 @@ public class ListField extends FormFieldBase
     }
 
     mLabel = mAnnotation.label();
-    mHtmlId = mAnnotation.id();
+    if (!mAnnotation.id().isEmpty())
+      mHtmlId = mAnnotation.id();
+
   }
 
   @Override

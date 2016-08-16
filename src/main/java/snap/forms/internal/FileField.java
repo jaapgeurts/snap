@@ -25,7 +25,9 @@ public class FileField extends FormFieldBase
       throw new IllegalArgumentException("FileFields must be of type Part or Set<Part>");
 
     mLabel = mAnnotation.label();
-    mHtmlId = mAnnotation.id();
+    if (!mAnnotation.id().isEmpty())
+      mHtmlId = mAnnotation.id();
+
   }
 
   @Override

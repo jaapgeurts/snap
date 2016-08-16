@@ -18,7 +18,9 @@ public class PasswordField extends FormFieldBase
 
     mLabel = mAnnotation.label();
     addAttribute("placeholder", mAnnotation.placeholder());
-    mHtmlId = mAnnotation.id();
+    if (!mAnnotation.id().isEmpty())
+      mHtmlId = mAnnotation.id();
+
   }
 
   @Override

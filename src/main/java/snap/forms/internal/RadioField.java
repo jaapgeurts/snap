@@ -21,7 +21,8 @@ public class RadioField extends FormFieldBase
     if (!field.getType().isEnum())
       throw new IllegalArgumentException("RadioFieldsmust be an enum");
 
-    mHtmlId = mAnnotation.id();
+    if (!mAnnotation.id().isEmpty())
+      mHtmlId = mAnnotation.id();
 
   }
 
@@ -63,7 +64,7 @@ public class RadioField extends FormFieldBase
 
   /**
    * Returns all possible field values for this field
-   * 
+   *
    * @return a list of strings
    */
   @Override
@@ -81,7 +82,7 @@ public class RadioField extends FormFieldBase
    * Gets the HTML display label that should be used for this field. This method
    * is used only in fields that hold multiple select values such as radios or
    * lists
-   * 
+   *
    * @param which
    *          the text indicated by the which (the value field)
    * @return the text
@@ -110,6 +111,7 @@ public class RadioField extends FormFieldBase
     return val;
   }
 
+  @Override
   public String getHtmlId(String which)
   {
     getFormFields();

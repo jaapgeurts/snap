@@ -18,7 +18,9 @@ public class CheckBoxField extends FormFieldBase
       throw new IllegalArgumentException("CheckBoxFields must be of type Boolean");
 
     mLabel = mAnnotation.label();
-    mHtmlId = mAnnotation.id();
+    if (!mAnnotation.id().isEmpty())
+      mHtmlId = mAnnotation.id();
+
   }
 
   @Override
