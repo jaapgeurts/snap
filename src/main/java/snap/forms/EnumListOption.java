@@ -24,4 +24,10 @@ public class EnumListOption<T extends Enum<T>> implements ListOption
     return mLabel;
   }
 
+  @Override
+  public Enum<T> getOption()
+  {
+    return mEnumObj;
+  }
+
 }

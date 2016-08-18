@@ -24,13 +24,6 @@ public class ListField extends FormFieldBase
       if (!Set.class.isAssignableFrom(field.getType()))
         throw new IllegalArgumentException("MultiList ListField must be of type Set<?>");
     }
-    else
-    {
-      if (!(field.getType().equals(String.class) || field.getType().equals(Integer.class)
-          || field.getType().equals(Long.class) || field.getType().isEnum()))
-        throw new IllegalArgumentException(
-            "DropDown and Single ListField must be of type String, Integer, Long or Enum");
-    }
 
     mLabel = mAnnotation.label();
     if (!mAnnotation.id().isEmpty())
@@ -49,28 +42,36 @@ public class ListField extends FormFieldBase
         if (mField.getType().equals(String.class))
           super.setFieldValue(values);
         else if (mField.getType().equals(Integer.class))
-          mField.set(mForm, Integer.valueOf(values[0]));
+          mField.set(getFieldOwner(), Integer.valueOf(values[0]));
         else if (mField.getType().equals(Long.class))
-          mField.set(mForm, Long.valueOf(values[0]));
+          mField.set(getFieldOwner(), Long.valueOf(values[0]));
         else if (mField.getType().isEnum())
-          mField.set(mForm, Enum.valueOf((Class<Enum>)mField.getType(), values[0]));
+          mField.set(getFieldOwner(), Enum.valueOf((Class<Enum>)mField.getType(), values[0]));
         else
-          throw new SnapException("Only field types of String, Long, Integer and Enums are supported");
+        {
+          for (ListOption lo : mOptions)
+          {
+            if (lo.getValue().equals(values[0]))
+            {
+              mField.set(getFieldOwner(), lo.getOption());
+              break;
+            }
+          }
+        }
       }
       catch (NumberFormatException nfe)
       {
         log.warn("Possible hacking attempt! Submitted field value '" + values[0]
             + "' can't be converted to numeric type.", nfe);
       }
-      catch (IllegalArgumentException | IllegalAccessException e)
+      catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException e)
       {
-        String message = "Can't access field: " + mField.getName();
+        String message = "Can't access field: " + mFieldName;
         log.debug(message, e);
         throw new SnapException(message, e);
       }
       return;
     }
-    // TODO: implement a multi-select-list
 
     getFormFields();
     mFieldValues.clear();
@@ -133,30 +134,22 @@ public class ListField extends FormFieldBase
     if (!optionsField.getType().isAssignableFrom(List.class))
       throw new SnapException(wrongTypeMessage);
 
-    List<?> options;
+    List<? extends ListOption> options;
     try
     {
-      options = (List<?>)optionsField.get(mForm);
+      options = (List<? extends ListOption>)optionsField.get(mForm);
     }
     catch (IllegalArgumentException | IllegalAccessException e)
     {
       throw new SnapException("Can't access field: " + mAnnotation.options(), e);
     }
 
-    for (Object o : options)
+    for (ListOption lo : options)
     {
       String val, text;
-      if (o instanceof ListOption)
-      {
-        ListOption lo = (ListOption)o;
-        val = lo.getValue();
-        text = lo.getText();
-      }
-      else
-      {
-        val = text = o.toString();
-      }
-      if (val.equals(getFieldValue()))
+      val = lo.getValue();
+      text = lo.getText();
+      if (lo.getOption().equals(getFieldValue()))
         b.append(String.format("\t<option selected value='%1$s'>%2$s</option>\n", val, text));
       else
         b.append(String.format("\t<option value='%1$s'>%2$s</option>\n", val, text));
@@ -169,19 +162,32 @@ public class ListField extends FormFieldBase
   {
     try
     {
-      if (mOptionFieldClass.equals(String.class))
+      if (mListFieldContainerInnerType.equals(String.class))
         mFieldValues.add(value);
-      if (mOptionFieldClass.equals(Long.class))
+      if (mListFieldContainerInnerType.equals(Long.class))
         mFieldValues.add(Long.valueOf(value));
-      else if (mOptionFieldClass.equals(Integer.class))
+      else if (mListFieldContainerInnerType.equals(Integer.class))
         mFieldValues.add(Integer.valueOf(value));
       else
-        throw new SnapException("Currently only Set<String>, Set<Long>, Set<Integer> are supported");
+      {
+        for (ListOption lo : mOptions)
+        {
+          if (lo.getValue().equals(value))
+          {
+            mField.set(getFieldOwner(), lo.getOption());
+            break;
+          }
+        }
+      }
     }
     catch (NumberFormatException nfe)
     {
       log.warn("Possible hacking attempt! Submitted field value '" + value
           + "' can't be converted to numeric type", nfe);
+    }
+    catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException e)
+    {
+      throw new SnapException("Can't access field: " + mFieldName, e);
     }
   }
 
@@ -200,14 +206,18 @@ public class ListField extends FormFieldBase
     // Get the options and the values
     try
     {
-      mOptions = (List<?>)mOptionsField.get(mForm);
+      mOptions = (List<? extends ListOption>)mOptionsField.get(mForm);
       if (mField.getType().isAssignableFrom(Set.class))
+      {
         mFieldValues = (Set<Object>)mField.get(getFieldOwner());
-      if (mFieldValues == null)
-        throw new SnapException("Field " + mFieldName + " is null. Did you forget to initialize it?");
-      // Get the type of the Set container./
-      ParameterizedType pType = (ParameterizedType)mField.getGenericType();
-      mOptionFieldClass = (Class<?>)pType.getActualTypeArguments()[0];
+        // Get the type of the Set container./
+        ParameterizedType pType = (ParameterizedType)mField.getGenericType();
+        mListFieldContainerInnerType = (Class<?>)pType.getActualTypeArguments()[0];
+        // todo: check if the type is the same as the types of the values in the
+        // options list
+        if (mFieldValues == null)
+          throw new SnapException("Field " + mFieldName + " is null. Did you forget to initialize it?");
+      }
 
     }
     catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException e)
@@ -224,7 +234,7 @@ public class ListField extends FormFieldBase
 
   private snap.forms.annotations.ListField mAnnotation;
   private Field mOptionsField;
-  private List<?> mOptions;
+  private List<? extends ListOption> mOptions;
   private Set<Object> mFieldValues;
-  private Class<?> mOptionFieldClass;
+  private Class<?> mListFieldContainerInnerType;
 }

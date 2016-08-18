@@ -6,4 +6,6 @@ public interface ListOption
 
   public String getText();
 
+  public Object getOption();
+
 }

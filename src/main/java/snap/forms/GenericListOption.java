@@ -1,9 +1,12 @@
 package snap.forms;
 
 /**
- * This List option uses toString to get the String representation of the value.
- * If you want to use Enums you should use EnumListOption
- * 
+ * This List option allows you to use any type for a ListField. You will have to
+ * pass the ListField value and text and pass an object, The object it later used
+ * to assign the value back to the field on postback.
+ * If you want to use Enums you should use EnumListOption, if you want to use primitive values such as
+ * Integer, Long, String use PrimitiveListOption.
+ *
  * @author Jaap Geurts
  *
  * @param <T>
@@ -12,19 +15,21 @@ package snap.forms;
 public class GenericListOption<T> implements ListOption
 {
 
-  private T mValue;
+  private String mValue;
   private String mText;
+  private T mOption;
 
-  public GenericListOption(T value, String text)
+  public GenericListOption(String value, String text, T option)
   {
     mValue = value;
     mText = text;
+    mOption = option;
   }
 
   @Override
   public String getValue()
   {
-    return mValue.toString();
+    return mValue;
   }
 
   @Override
@@ -34,10 +39,14 @@ public class GenericListOption<T> implements ListOption
   }
 
   @Override
+  public T getOption()
+  {
+    return mOption;
+  }
+
+  @Override
   public boolean equals(Object obj)
   {
-    if (obj == null)
-      return false;
     if (this == obj)
       return true;
 
