@@ -13,9 +13,9 @@ import snap.forms.Form;
 public class FileField extends FormFieldBase
 {
 
-  public FileField(Form form, Field field, snap.forms.annotations.FileField annotation)
+  public FileField(Form form, Field field, snap.forms.annotations.FileField annotation, String fieldName)
   {
-    super(form, field);
+    super(form, field, fieldName);
     mAnnotation = annotation;
     if (field.getType().equals(Part.class))
       mMultiple = false;
@@ -43,11 +43,11 @@ public class FileField extends FormFieldBase
       return "";
 
     if (mMultiple)
-      return String.format("<input type='file' id='%1$s' name='%2$s' multiple %3$s/>\n", mAnnotation.id(),
-          mField.getName(), Helpers.attrToString(attributes));
+      return String.format("<input type='file' id='%1$s' name='%2$s' multiple %3$s/>\n", mHtmlId, mFieldName,
+          Helpers.attrToString(attributes));
     else
-      return String.format("<input type='file' id='%1$s' name='%2$s' %3$s/>\n", mAnnotation.id(),
-          mField.getName(), Helpers.attrToString(attributes));
+      return String.format("<input type='file' id='%1$s' name='%2$s' %3$s/>\n", mHtmlId, mFieldName,
+          Helpers.attrToString(attributes));
 
   }
 
@@ -63,19 +63,19 @@ public class FileField extends FormFieldBase
     {
       if (mField.getType().equals(Part.class))
       {
-        mField.set(mForm, part);
+        mField.set(getFieldOwner(), part);
       }
       else if (Set.class.isAssignableFrom(mField.getType()))
       {
-        Set<Part> set = (Set<Part>)mField.get(mForm);
+        Set<Part> set = (Set<Part>)mField.get(getFieldOwner());
         set.add(part);
       }
       else
         throw new SnapException("Filefield type must be Part or Set<Part>");
     }
-    catch (IllegalArgumentException | IllegalAccessException e)
+    catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException e)
     {
-      String message = "Can't access field: " + mField.getName();
+      String message = "Can't access field: " + mFieldName;
       log.debug(message, e);
       throw new SnapException(message, e);
     }
@@ -84,7 +84,7 @@ public class FileField extends FormFieldBase
   @Override
   public String toString()
   {
-    return "FileField { " + mField.getName() + " }";
+    return "FileField { " + mFieldName + " }";
   }
 
   private snap.forms.annotations.FileField mAnnotation;

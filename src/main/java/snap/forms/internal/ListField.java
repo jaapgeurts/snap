@@ -15,9 +15,9 @@ import snap.forms.annotations.ListField.ListType;
 public class ListField extends FormFieldBase
 {
 
-  public ListField(Form form, Field field, snap.forms.annotations.ListField annotation)
+  public ListField(Form form, Field field, snap.forms.annotations.ListField annotation, String fieldName)
   {
-    super(form, field);
+    super(form, field, fieldName);
     mAnnotation = annotation;
     if (mAnnotation.type() == ListType.MULTI_LIST)
     {
@@ -104,16 +104,16 @@ public class ListField extends FormFieldBase
     switch(mAnnotation.type())
     {
       case MULTI_LIST:
-        b.append(String.format("\n<select id='%1$s' name='%2$s' size='%3$s' multiple %4$s>\n",
-            mAnnotation.id(), mField.getName(), mAnnotation.size(), Helpers.attrToString(attributes)));
+        b.append(String.format("\n<select id='%1$s' name='%2$s' size='%3$s' multiple %4$s>\n", mHtmlId,
+            mFieldName, mAnnotation.size(), Helpers.attrToString(attributes)));
         break;
       case DROPDOWN_LIST:
-        b.append(String.format("\n<select id='%1$s' name='%2$s' %3$s>\n", mAnnotation.id(), mField.getName(),
+        b.append(String.format("\n<select id='%1$s' name='%2$s' %3$s>\n", mHtmlId, mFieldName,
             Helpers.attrToString(attributes)));
         break;
       case SINGLE_LIST:
-        b.append(String.format("\n<select id='%1$s' name='%2$s' size='%3$s' %4$s>\n", mAnnotation.id(),
-            mField.getName(), mAnnotation.size(), Helpers.attrToString(attributes)));
+        b.append(String.format("\n<select id='%1$s' name='%2$s' size='%3$s' %4$s>\n", mHtmlId, mFieldName,
+            mAnnotation.size(), Helpers.attrToString(attributes)));
     }
 
     // Check if the field is present
@@ -202,15 +202,15 @@ public class ListField extends FormFieldBase
     {
       mOptions = (List<?>)mOptionsField.get(mForm);
       if (mField.getType().isAssignableFrom(Set.class))
-        mFieldValues = (Set<Object>)mField.get(mForm);
+        mFieldValues = (Set<Object>)mField.get(getFieldOwner());
       if (mFieldValues == null)
-        throw new SnapException("Field " + mField.getName() + " is null. Did you forget to initialize it?");
+        throw new SnapException("Field " + mFieldName + " is null. Did you forget to initialize it?");
       // Get the type of the Set container./
       ParameterizedType pType = (ParameterizedType)mField.getGenericType();
       mOptionFieldClass = (Class<?>)pType.getActualTypeArguments()[0];
 
     }
-    catch (IllegalArgumentException | IllegalAccessException e)
+    catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException e)
     {
       throw new SnapException("Can't access field: " + mAnnotation.options(), e);
     }
@@ -219,7 +219,7 @@ public class ListField extends FormFieldBase
   @Override
   public String toString()
   {
-    return "ListField { " + mField.getName() + " }";
+    return "ListField { " + mFieldName + " }";
   }
 
   private snap.forms.annotations.ListField mAnnotation;

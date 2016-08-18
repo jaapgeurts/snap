@@ -591,7 +591,7 @@ public class RequestContext
    *          The dictionary of the get params
    * @return the redirect object
    */
-  public HttpRedirect getRedirect(String alias, RedirectType type, Map<String, String> getParams)
+  public HttpRedirect getRedirect(String alias, RedirectType type, Map<String, Object> getParams)
   {
     return getRouter().redirectForRoute(alias, type, getParams);
   }

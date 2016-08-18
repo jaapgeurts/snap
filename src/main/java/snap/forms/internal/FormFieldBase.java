@@ -27,13 +27,17 @@ public abstract class FormFieldBase implements FormField
    *          The form this field belongs to
    * @param field
    *          the field
+   * @param fieldName
+   *          The name of the field, includes the full path to the root of the
+   *          form
    */
-  public FormFieldBase(Form form, Field field)
+  public FormFieldBase(Form form, Field field, String fieldName)
   {
     this();
     mField = field;
     mForm = form;
     mHtmlId = field.getName();
+    mFieldName = fieldName;
   }
 
   @Override
@@ -70,26 +74,62 @@ public abstract class FormFieldBase implements FormField
   {
     try
     {
+      Object obj = getFieldOwner();
       if (values == null)
       {
-        mField.set(mForm, null);
+        mField.set(obj, null);
       }
       else
       {
         if (values.length > 1)
         {
-          log.warn("Possible hacking attempt! Expected one value for field '" + mField.getName()
-              + "' but found: " + values.length);
+          log.warn("Possible hacking attempt! Expected one value for field '" + mFieldName + "' but found: "
+              + values.length);
         }
-        mField.set(mForm, values[0]);
+        mField.set(obj, values[0]);
       }
     }
-    catch (IllegalArgumentException | IllegalAccessException e)
+    catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException e)
     {
-      String message = "Can't access field: " + mField.getName();
+      String message = "Can't access field: " + mFieldName;
       log.debug(message, e);
       throw new SnapException(message, e);
     }
+  }
+
+  /**
+   * Returns the owner object that owns this field.
+   *
+   * @return The object that owns the field. In most cases it will be the Form
+   *         object.
+   * @throws NoSuchFieldException
+   *           Thrown when the field doesn't exist
+   * @throws SecurityException
+   *           Thrown when access to the field is denied
+   * @throws IllegalArgumentException
+   *           Throws in the field argument is wrong
+   * @throws IllegalAccessException
+   *           thrown when access to the field is denied
+   */
+  protected Object getFieldOwner()
+      throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException
+  {
+    String[] paths = mFieldName.split("\\.");
+    Object obj = mForm;
+
+    // skip the last part since we are interested in the owner object of the
+    // field
+    for (int i = 0; i < paths.length - 1; i++)
+    {
+      String path = paths[i];
+      Class<?> clazz = obj.getClass();
+      Field field = clazz.getField(path);
+      obj = field.get(obj);
+      if (obj == null)
+        throw new SnapException("Can't descend down path '" + mFieldName + "'. Field '" + path + "' is NULL");
+    }
+
+    return obj;
   }
 
   protected String getFieldValue()
@@ -204,6 +244,7 @@ public abstract class FormFieldBase implements FormField
   protected String mHtmlId;
   protected String mLabel;
   protected Field mField;
+  protected String mFieldName;
   protected Form mForm;
   private String mErrorText = null;
   protected Map<String, String> mAttributes;

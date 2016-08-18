@@ -14,9 +14,9 @@ import snap.forms.ListOption;
 public class RadioField extends FormFieldBase
 {
 
-  public RadioField(Form form, Field field, snap.forms.annotations.RadioField annotation)
+  public RadioField(Form form, Field field, snap.forms.annotations.RadioField annotation, String fieldName)
   {
-    super(form, field);
+    super(form, field, fieldName);
     mAnnotation = annotation;
     if (!field.getType().isEnum())
       throw new IllegalArgumentException("RadioFieldsmust be an enum");
@@ -50,7 +50,7 @@ public class RadioField extends FormFieldBase
       Optional<?> optional = mOptions.stream().filter(o -> isValue(o, which)).findFirst();
       if (!optional.isPresent())
         throw new SnapException(
-            String.format("Can't render field for value %1$s of field %2$s", which, mField.getName()));
+            String.format("Can't render field for value %1$s of field %2$s", which, mFieldName));
       return doRender(optional.get(), defaultValue, attributes);
 
     }
@@ -144,38 +144,39 @@ public class RadioField extends FormFieldBase
     // Object[] enums = classField.getType().getEnumConstants();
     if (values == null)
     {
-      log.warn("Possible hacking attempt! Expected return value for Radio button field '" + mField.getName()
+      log.warn("Possible hacking attempt! Expected return value for Radio button field '" + mFieldName
           + "' but found nothing");
     }
     else
     {
       if (values.length > 1)
       {
-        log.warn("Possible hacking attempt! Expected one value for field '" + mField.getName()
-            + "' but found: " + values.length);
+        log.warn("Possible hacking attempt! Expected one value for field '" + mFieldName + "' but found: "
+            + values.length);
       }
       try
       {
-        mField.set(mForm, Enum.valueOf((Class<Enum>)mField.getType(), values[0]));
+        mField.set(getFieldOwner(), Enum.valueOf((Class<Enum>)mField.getType(), values[0]));
       }
       catch (IllegalArgumentException iae)
       {
         log.warn("Possible hacking attempt! Expected legal value for enum: " + mField.getType().getName()
             + " but found: " + values[0]);
       }
-      catch (IllegalAccessException e)
+      catch (IllegalAccessException | NoSuchFieldException | SecurityException e)
       {
-        String message = "Can't access field: " + mField.getName();
+        String message = "Can't access field: " + mFieldName;
         log.debug(message, e);
         throw new SnapException(message, e);
       }
+
     }
   }
 
   @Override
   public String toString()
   {
-    return "RadioField { " + mField.getName() + " }";
+    return "RadioField { " + mFieldName + " }";
   }
 
   private boolean isValue(Object o, String key)
@@ -210,10 +211,10 @@ public class RadioField extends FormFieldBase
 
     if (val.equals(defaultValue))
       return String.format("<input id='%1$s-%3$s' type='radio' name='%2$s' value='%3$s' checked %4$s/>",
-          mAnnotation.id(), mField.getName(), val, Helpers.attrToString(attributes));
+          mHtmlId, mFieldName, val, Helpers.attrToString(attributes));
     else
       return String.format("<input id='%1$s-%3$s' type='radio' name='%2$s' value='%3$s' %4$s/>",
-          mAnnotation.id(), mField.getName(), val, Helpers.attrToString(attributes));
+          mHtmlId, mFieldName, val, Helpers.attrToString(attributes));
 
   }
 
@@ -245,14 +246,14 @@ public class RadioField extends FormFieldBase
     String defaultValue = null;
     try
     {
-      if (mField.get(mForm) == null)
+      if (mField.get(getFieldOwner()) == null)
         throw new SnapException(
-            "Enum formfield: " + mField.getName() + " can't be null and must be assigned a value.");
-      defaultValue = ((Enum<?>)mField.get(mForm)).name();
+            "Enum formfield: " + mFieldName + " can't be null and must be assigned a value.");
+      defaultValue = ((Enum<?>)mField.get(getFieldOwner())).name();
     }
-    catch (IllegalArgumentException | IllegalAccessException e)
+    catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException e)
     {
-      String message = "Form field " + mField.getName() + " can't be accessed.";
+      String message = "Form field " + mFieldName + " can't be accessed.";
       log.debug(message, e);
       throw new SnapException(message, e);
     }

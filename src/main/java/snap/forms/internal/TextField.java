@@ -10,9 +10,9 @@ import snap.forms.Form;
 public class TextField extends FormFieldBase
 {
 
-  public TextField(Form form, Field field, snap.forms.annotations.TextField annotation)
+  public TextField(Form form, Field field, snap.forms.annotations.TextField annotation, String fieldName)
   {
-    super(form, field);
+    super(form, field, fieldName);
     mAnnotation = annotation;
     if (!field.getType().equals(String.class) && !field.getType().equals(Integer.class)
         && !field.getType().equals(Long.class))
@@ -38,8 +38,8 @@ public class TextField extends FormFieldBase
       return "";
     String value = getFieldValue();
 
-    return String.format("<input type='text' id='%1$s' name='%2$s' value='%3$s' %4$s/>\n", mAnnotation.id(),
-        mField.getName(), value, Helpers.attrToString(attributes));
+    return String.format("<input type='text' id='%1$s' name='%2$s' value='%3$s' %4$s/>\n", mHtmlId,
+        mFieldName, value, Helpers.attrToString(attributes));
 
   }
 
@@ -63,9 +63,9 @@ public class TextField extends FormFieldBase
       if (mField.getType().equals(String.class))
         super.setFieldValue(values);
       else if (mField.getType().equals(Integer.class))
-        mField.set(mForm, Integer.valueOf(values[0]));
+        mField.set(getFieldOwner(), Integer.valueOf(values[0]));
       else if (mField.getType().equals(Long.class))
-        mField.set(mForm, Long.valueOf(values[0]));
+        mField.set(getFieldOwner(), Long.valueOf(values[0]));
       else
         throw new SnapException("Only field types of String, Long and Integer are supported");
     }
@@ -74,18 +74,19 @@ public class TextField extends FormFieldBase
       log.warn("Possible hacking attempt! Submitted field value '" + values[0]
           + "' can't be converted to numeric value.", nfe);
     }
-    catch (IllegalArgumentException | IllegalAccessException e)
+    catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException e)
     {
-      String message = "Can't access field: " + mField.getName();
+      String message = "Can't access field: " + mFieldName;
       log.debug(message, e);
       throw new SnapException(message, e);
     }
+
   }
 
   @Override
   public String toString()
   {
-    return "TextField { " + mField.getName() + " }";
+    return "TextField { " + mFieldName + " }";
   }
 
   private snap.forms.annotations.TextField mAnnotation;

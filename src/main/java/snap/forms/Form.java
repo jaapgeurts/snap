@@ -70,10 +70,11 @@ public abstract class Form
     mFieldMap = new HashMap<String, FormField>();
     mFormErrors = new ArrayList<String>();
 
-    mFormName = getClass().getCanonicalName();
+    Class<?> clazz = getClass();
+    mFormName = clazz.getCanonicalName();
     mFormName = mFormName.substring(mFormName.lastIndexOf('.') + 1, mFormName.length());
 
-    initFields();
+    initFields("", clazz);
 
     mLocale = mContext.getLocale();
 
@@ -530,75 +531,83 @@ public abstract class Form
     return text;
   }
 
-  private void initFields()
+  private void initFields(String prefix, Class<?> clazz)
   {
 
-    Field[] classFields = getClass().getDeclaredFields();
+    Field[] classFields = clazz.getDeclaredFields();
     for (Field classField : classFields)
     {
       Annotation[] annotations = classField.getAnnotations();
+      if (annotations.length == 1 && annotations[0] instanceof snap.forms.annotations.FollowField)
+        initFields(prefix + classField.getName() + ".", classField.getType());
+      else
+        processAnnotations(prefix, classField, annotations);
+    }
+  }
 
-      // Loop throw all the annotations on the class and create a field
-      // according to its declared kind
-      for (Annotation annotation : annotations)
+  private void processAnnotations(String prefix, Field classField, Annotation[] annotations)
+  {
+
+    // Loop throw all the annotations on the class and create a field
+    // according to its declared kind
+    for (Annotation annotation : annotations)
+    {
+      FormField field = null;
+      String fieldName = prefix + classField.getName();
+      if (annotation instanceof snap.forms.annotations.TextField)
       {
-        FormField field = null;
-        String fieldName = classField.getName();
-        if (annotation instanceof snap.forms.annotations.TextField)
-        {
-          snap.forms.annotations.TextField tfa = (snap.forms.annotations.TextField)annotation;
-          field = new snap.forms.internal.TextField(this, classField, tfa);
-        }
-        else if (annotation instanceof snap.forms.annotations.TextArea)
-        {
-          snap.forms.annotations.TextArea taa = (snap.forms.annotations.TextArea)annotation;
-          field = new snap.forms.internal.TextArea(this, classField, taa);
-        }
-        else if (annotation instanceof snap.forms.annotations.CheckBoxField)
-        {
-          snap.forms.annotations.CheckBoxField cba = (snap.forms.annotations.CheckBoxField)annotation;
-          field = new snap.forms.internal.CheckBoxField(this, classField, cba);
-        }
-        else if (annotation instanceof snap.forms.annotations.RadioField)
-        {
-          snap.forms.annotations.RadioField rfa = (snap.forms.annotations.RadioField)annotation;
-          field = new snap.forms.internal.RadioField(this, classField, rfa);
-        }
-        else if (annotation instanceof snap.forms.annotations.MultiCheckboxField)
-        {
-          snap.forms.annotations.MultiCheckboxField msfa = (snap.forms.annotations.MultiCheckboxField)annotation;
-          field = new snap.forms.internal.MultiCheckboxField(this, classField, msfa);
-        }
-        else if (annotation instanceof snap.forms.annotations.ListField)
-        {
-          snap.forms.annotations.ListField ddla = (snap.forms.annotations.ListField)annotation;
-          field = new snap.forms.internal.ListField(this, classField, ddla);
-        }
-        else if (annotation instanceof snap.forms.annotations.SubmitField)
-        {
-          snap.forms.annotations.SubmitField sfa = (snap.forms.annotations.SubmitField)annotation;
-          field = new snap.forms.internal.SubmitButton(this, classField, sfa);
-        }
-        else if (annotation instanceof snap.forms.annotations.HiddenField)
-        {
-          snap.forms.annotations.HiddenField hfa = (snap.forms.annotations.HiddenField)annotation;
-          field = new snap.forms.internal.HiddenField(this, classField, hfa);
-        }
-        else if (annotation instanceof snap.forms.annotations.FileField)
-        {
-          snap.forms.annotations.FileField ffa = (snap.forms.annotations.FileField)annotation;
-          field = new snap.forms.internal.FileField(this, classField, ffa);
-        }
-        else if (annotation instanceof snap.forms.annotations.PasswordField)
-        {
-          snap.forms.annotations.PasswordField pwfa = (snap.forms.annotations.PasswordField)annotation;
-          field = new snap.forms.internal.PasswordField(this, classField, pwfa);
-        }
-        if (field != null)
-        {
-          mFieldList.add(field);
-          mFieldMap.put(fieldName, field);
-        }
+        snap.forms.annotations.TextField tfa = (snap.forms.annotations.TextField)annotation;
+        field = new snap.forms.internal.TextField(this, classField, tfa, fieldName);
+      }
+      else if (annotation instanceof snap.forms.annotations.TextArea)
+      {
+        snap.forms.annotations.TextArea taa = (snap.forms.annotations.TextArea)annotation;
+        field = new snap.forms.internal.TextArea(this, classField, taa, fieldName);
+      }
+      else if (annotation instanceof snap.forms.annotations.CheckBoxField)
+      {
+        snap.forms.annotations.CheckBoxField cba = (snap.forms.annotations.CheckBoxField)annotation;
+        field = new snap.forms.internal.CheckBoxField(this, classField, cba, fieldName);
+      }
+      else if (annotation instanceof snap.forms.annotations.RadioField)
+      {
+        snap.forms.annotations.RadioField rfa = (snap.forms.annotations.RadioField)annotation;
+        field = new snap.forms.internal.RadioField(this, classField, rfa, fieldName);
+      }
+      else if (annotation instanceof snap.forms.annotations.MultiCheckboxField)
+      {
+        snap.forms.annotations.MultiCheckboxField msfa = (snap.forms.annotations.MultiCheckboxField)annotation;
+        field = new snap.forms.internal.MultiCheckboxField(this, classField, msfa, fieldName);
+      }
+      else if (annotation instanceof snap.forms.annotations.ListField)
+      {
+        snap.forms.annotations.ListField ddla = (snap.forms.annotations.ListField)annotation;
+        field = new snap.forms.internal.ListField(this, classField, ddla, fieldName);
+      }
+      else if (annotation instanceof snap.forms.annotations.SubmitField)
+      {
+        snap.forms.annotations.SubmitField sfa = (snap.forms.annotations.SubmitField)annotation;
+        field = new snap.forms.internal.SubmitButton(this, classField, sfa, fieldName);
+      }
+      else if (annotation instanceof snap.forms.annotations.HiddenField)
+      {
+        snap.forms.annotations.HiddenField hfa = (snap.forms.annotations.HiddenField)annotation;
+        field = new snap.forms.internal.HiddenField(this, classField, hfa, fieldName);
+      }
+      else if (annotation instanceof snap.forms.annotations.FileField)
+      {
+        snap.forms.annotations.FileField ffa = (snap.forms.annotations.FileField)annotation;
+        field = new snap.forms.internal.FileField(this, classField, ffa, fieldName);
+      }
+      else if (annotation instanceof snap.forms.annotations.PasswordField)
+      {
+        snap.forms.annotations.PasswordField pwfa = (snap.forms.annotations.PasswordField)annotation;
+        field = new snap.forms.internal.PasswordField(this, classField, pwfa, fieldName);
+      }
+      if (field != null)
+      {
+        mFieldList.add(field);
+        mFieldMap.put(fieldName, field);
       }
     }
   }

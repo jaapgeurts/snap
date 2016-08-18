@@ -16,9 +16,10 @@ import snap.forms.ListOption;
 public class MultiCheckboxField extends FormFieldBase
 {
 
-  public MultiCheckboxField(Form form, Field field, snap.forms.annotations.MultiCheckboxField annotation)
+  public MultiCheckboxField(Form form, Field field, snap.forms.annotations.MultiCheckboxField annotation,
+      String fieldName)
   {
-    super(form, field);
+    super(form, field, fieldName);
     mAnnotation = annotation;
     if (!Set.class.isAssignableFrom(field.getType()))
       throw new IllegalArgumentException(
@@ -53,7 +54,7 @@ public class MultiCheckboxField extends FormFieldBase
         return doRender(optional.get(), attributes);
       else
         throw new SnapException(
-            String.format("Can't render field for value %1$s of field %2$s", which, mField.getName()));
+            String.format("Can't render field for value %1$s of field %2$s", which, mFieldName));
     }
     else
     {
@@ -100,7 +101,7 @@ public class MultiCheckboxField extends FormFieldBase
   @Override
   public String toString()
   {
-    return "MultiCheckBoxField { " + mField.getName() + " }";
+    return "MultiCheckBoxField { " + mFieldName + " }";
   }
 
   private boolean isValue(Object o, String key)
@@ -139,10 +140,10 @@ public class MultiCheckboxField extends FormFieldBase
     // check type here.
     if (mFieldValues.contains(val))
       return String.format("\t<input id='%1$s-%5$s' type='checkbox' name='%2$s' value='%3$s' checked %4$s/>",
-          mAnnotation.id(), mField.getName(), val, text, htmlid, Helpers.attrToString(attributes));
+          mHtmlId, mFieldName, val, text, htmlid, Helpers.attrToString(attributes));
     else
       return String.format("\t<input id='%1$s-%5$s' type='checkbox' name='%2$s' value='%3$s' %4$s/>",
-          mAnnotation.id(), mField.getName(), val, text, htmlid, Helpers.attrToString(attributes));
+          mHtmlId, mFieldName, val, text, htmlid, Helpers.attrToString(attributes));
   }
 
   private void addValueToFormFieldSet(String value)
@@ -182,15 +183,15 @@ public class MultiCheckboxField extends FormFieldBase
     {
       mOptions = (List<?>)mOptionsField.get(mForm);
       if (mField.getType().isAssignableFrom(Set.class))
-        mFieldValues = (Set<Object>)mField.get(mForm);
+        mFieldValues = (Set<Object>)mField.get(getFieldOwner());
       if (mFieldValues == null)
-        throw new SnapException("Field " + mField.getName() + " is null. Did you forget to initialize it?");
+        throw new SnapException("Field " + mFieldName + " is null. Did you forget to initialize it?");
       // Get the type of the Set container./
       ParameterizedType pType = (ParameterizedType)mField.getGenericType();
       mOptionFieldClass = (Class<?>)pType.getActualTypeArguments()[0];
 
     }
-    catch (IllegalArgumentException | IllegalAccessException e)
+    catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException e)
     {
       throw new SnapException("Can't access field: " + mAnnotation.options(), e);
     }

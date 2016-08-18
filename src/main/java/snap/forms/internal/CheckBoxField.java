@@ -10,9 +10,10 @@ import snap.forms.Form;
 public class CheckBoxField extends FormFieldBase
 {
 
-  public CheckBoxField(Form form, Field field, snap.forms.annotations.CheckBoxField annotation)
+  public CheckBoxField(Form form, Field field, snap.forms.annotations.CheckBoxField annotation,
+      String fieldName)
   {
-    super(form, field);
+    super(form, field, fieldName);
     mAnnotation = annotation;
     if (!field.getType().equals(Boolean.class))
       throw new IllegalArgumentException("CheckBoxFields must be of type Boolean");
@@ -54,7 +55,7 @@ public class CheckBoxField extends FormFieldBase
 
     return String.format(
         "<input type='checkbox' id='%1$s' name='%2$s' value='true' %3$s%4$s/>\n<input type='hidden' value='false' name='%2$s'/>\n",
-        mAnnotation.id(), mField.getName(), val ? "checked " : "", Helpers.attrToString(attributes));
+        mHtmlId, mFieldName, val ? "checked " : "", Helpers.attrToString(attributes));
 
   }
 
@@ -72,7 +73,7 @@ public class CheckBoxField extends FormFieldBase
 
       if (values.length > 2)
       {
-        log.warn("Possible hacking attempt! Expected no more than two values for field '" + mField.getName()
+        log.warn("Possible hacking attempt! Expected no more than two values for field '" + mFieldName
             + "' but found: " + values.length);
       }
 
@@ -83,12 +84,12 @@ public class CheckBoxField extends FormFieldBase
       // according to this link:
       // http://stackoverflow.com/questions/4027635/do-browsers-preserve-order-of-inputs-with-same-name-on-get-post
       // the order is preserved
-      mField.set(mForm, Boolean.valueOf(values[0]));
+      mField.set(getFieldOwner(), Boolean.valueOf(values[0]));
 
     }
-    catch (IllegalArgumentException | IllegalAccessException e)
+    catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException e)
     {
-      String message = "Can't access field: " + mField.getName();
+      String message = "Can't access field: " + mFieldName;
       log.debug(message, e);
       throw new SnapException(message, e);
     }
@@ -97,7 +98,7 @@ public class CheckBoxField extends FormFieldBase
   @Override
   public String toString()
   {
-    return "CheckBoxField { " + mField.getName() + " }";
+    return "CheckBoxField { " + mFieldName + " }";
   }
 
   private snap.forms.annotations.CheckBoxField mAnnotation;

@@ -49,7 +49,7 @@ public class Route
 
   /**
    * Constructs a new route
-   * 
+   *
    * @param contextPath
    *          The context path under which the servlet is registered
    * @param alias
@@ -68,7 +68,7 @@ public class Route
 
   /**
    * Constructs a new route.
-   * 
+   *
    * @param contextPath
    *          The context path under which the servlet is registered
    * @param alias
@@ -118,7 +118,7 @@ public class Route
 
   /**
    * Returns true if the urlPath matches this route's rule and method
-   * 
+   *
    * @param method
    *          The HTTP method
    * @param urlPath
@@ -149,7 +149,7 @@ public class Route
 
   /**
    * Returns true if the urlPath matches this route's rule
-   * 
+   *
    * @param urlPath
    *          the path to match
    * @return true if matched, false otherwise
@@ -166,7 +166,7 @@ public class Route
 
   /**
    * Execute this route
-   * 
+   *
    * @param context
    *          The context of the current request
    * @return A request result
@@ -327,7 +327,7 @@ public class Route
   /**
    * Reverse a link for this route. Get a link that you can use in HTML for this
    * route. It is assumed that this link has no replaceable groups.
-   * 
+   *
    * @return a relative URL as a string. (Excludes Protocol, host, port)
    */
   public String getLink()
@@ -339,7 +339,7 @@ public class Route
    * Reverse a link for this route. Get a link that you can use in HTML for this
    * route. Pass any groups that need to be replaced as an Object array. To get
    * the replacement value this method will call .toString() on each Object.
-   * 
+   *
    * @param params
    *          The params to replace in the groups
    * @return a relative URL as a string. (Excludes Protocol, host, port)
@@ -354,7 +354,7 @@ public class Route
    * route. Pass any groups that need to be replaced as an Object array in
    * params. To get the replacement value this method will call .toString() on
    * each Object.
-   * 
+   *
    * @param params
    *          The params to replace in the groups.
    * @param getParams.
@@ -447,7 +447,7 @@ public class Route
 
   /**
    * Return all the parameters that appear in the URL for this route
-   * 
+   *
    * @param path
    *          the Path to decode
    * @return A map of decoded parameters
@@ -487,19 +487,19 @@ public class Route
   /**
    * If enabled and authentication fails this route will redirect to the
    * redirect url. see settings:
-   * 
+   *
    * <pre>
    * snap.login.redirect.url
    * </pre>
-   * 
+   *
    * and
-   * 
+   *
    * <pre>
    * snap.login.redirect
    * </pre>
-   * 
+   *
    * Change with @LoginRedirect annotation
-   * 
+   *
    * @return true if redirect is enabled, false otherwise
    */
   public boolean isRedirectEnabled()
@@ -514,7 +514,7 @@ public class Route
   /**
    * Get the HTTP methods supported by this route. Change this by adding
    * HttpMethods in the @RouteOptions annotation
-   * 
+   *
    * @return the list of supported HttpMethods
    */
   public HttpMethod[] getHttpMethods()
@@ -524,7 +524,7 @@ public class Route
 
   /**
    * Get the alias by which this route is known.
-   * 
+   *
    * @return the alias
    */
   public String getAlias()
@@ -534,7 +534,7 @@ public class Route
 
   /**
    * Get the URL path of this route as found in the routes.conf file
-   * 
+   *
    * @return the path of this route
    */
   public String getPath()
@@ -553,7 +553,7 @@ public class Route
 
   /**
    * Returns whether this route is a static route or not
-   * 
+   *
    * @return true or false
    */
   public boolean isStatic()
@@ -569,7 +569,7 @@ public class Route
     {
       try
       {
-        return (Object)Class.forName(mController).newInstance();
+        return Class.forName(mController).newInstance();
       }
       catch (InstantiationException | IllegalAccessException | ClassNotFoundException e)
       {
@@ -585,7 +585,7 @@ public class Route
     {
       try
       {
-        Object mControllerInstance = (Object)Class.forName(mController).newInstance();
+        Object mControllerInstance = Class.forName(mController).newInstance();
         mControllerRef = new SoftReference<Object>(mControllerInstance);
       }
       catch (InstantiationException | ClassNotFoundException | IllegalAccessException e)
@@ -613,10 +613,18 @@ public class Route
         List<Method> methodList = Arrays.stream(methods).filter(x -> x.getName().equals(mMethodName))
             .collect(Collectors.toList());
         if (methodList.size() == 0)
-          log.error(
-              "Route " + getAlias() + " has no method " + mMethodName + " in controller " + mController);
+        {
+          String message = "Route " + getAlias() + " has no method '" + mMethodName + "()' in controller "
+              + mController;
+          log.error(message);
+          return null;
+        }
         else if (methodList.size() > 1)
-          log.error("More than one method '" + mMethodName + "' found for route " + getAlias());
+        {
+          String message = "More than one method '" + mMethodName + "' found for route " + getAlias();
+          log.error(message);
+          return null;
+        }
         else
         {
           m = methodList.get(0);
