@@ -36,7 +36,7 @@ public class TextField extends FormFieldBase
   {
     if (!isVisible())
       return "";
-    String value = getFieldValue();
+    String value = getFieldValueString();
 
     return String.format("<input type='text' id='%1$s' name='%2$s' value='%3$s' %4$s/>\n", mHtmlId,
         mFieldName, value, Helpers.attrToString(attributes));

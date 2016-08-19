@@ -147,7 +147,8 @@ public class ListField extends FormFieldBase
 
     try
     {
-      Object fieldValue = mField.get(getFieldOwner());
+      Object fieldValue = getFieldValue();
+
       for (ListOption lo : options)
       {
         String val, text;
@@ -160,7 +161,7 @@ public class ListField extends FormFieldBase
           b.append(String.format("\t<option value='%1$s'>%2$s</option>\n", val, text));
       }
     }
-    catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException e)
+    catch (IllegalArgumentException | SecurityException e)
     {
       throw new SnapException("Can't access field: " + mFieldName, e);
     }

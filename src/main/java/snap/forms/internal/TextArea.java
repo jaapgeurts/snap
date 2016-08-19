@@ -34,7 +34,7 @@ public class TextArea extends FormFieldBase
     if (!isVisible())
       return "";
 
-    String value = getFieldValue();
+    String value = getFieldValueString();
     String cols = "";
     String rows = "";
 

@@ -36,7 +36,7 @@ public abstract class FormFieldBase implements FormField
     this();
     mField = field;
     mForm = form;
-    mHtmlId = fieldName.replace('.', '-');
+    mHtmlId = fieldName.replace('.', '-').toLowerCase();
     mFieldName = fieldName;
   }
 
@@ -137,7 +137,7 @@ public abstract class FormFieldBase implements FormField
    *
    * @return The field.toString() value of the field
    */
-  protected String getFieldValue()
+  protected String getFieldValueString()
   {
     try
     {
@@ -146,6 +146,25 @@ public abstract class FormFieldBase implements FormField
         return o.toString();
       else
         return "";
+    }
+    catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException e)
+    {
+      log.debug("Can't access value of form field: " + mFieldName, e);
+      throw new SnapException("Form field " + mFieldName + " can't be accessed.", e);
+    }
+  }
+
+  /**
+   * Returns the value of the field
+   *
+   * @return The value of the field
+   */
+  protected Object getFieldValue()
+  {
+    try
+    {
+      Object o = mField.get(getFieldOwner());
+      return o;
     }
     catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException e)
     {

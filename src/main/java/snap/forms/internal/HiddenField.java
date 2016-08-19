@@ -36,7 +36,7 @@ public class HiddenField extends FormFieldBase
       return "";
 
     return String.format("<input type='hidden' id='%1$s' name='%2$s' value='%3$s' %4$s/>", mHtmlId,
-        mFieldName, getFieldValue(), Helpers.attrToString(attributes));
+        mFieldName, getFieldValueString(), Helpers.attrToString(attributes));
   }
 
   @Override

@@ -537,17 +537,19 @@ public abstract class Form
     Field[] classFields = clazz.getDeclaredFields();
     for (Field classField : classFields)
     {
-      Annotation[] annotations = classField.getAnnotations();
-      if (annotations.length == 1 && annotations[0] instanceof snap.forms.annotations.FollowField)
+      Annotation[] annotations = classField.getAnnotationsByType(snap.forms.annotations.FollowField.class);
+      if (annotations.length > 1)
+        throw new SnapException("The @FollowField annotation can only be applied once");
+      if (annotations.length == 1)
         initFields(prefix + classField.getName() + ".", classField.getType());
       else
-        processAnnotations(prefix, classField, annotations);
+        processAnnotations(prefix, classField);
     }
   }
 
-  private void processAnnotations(String prefix, Field classField, Annotation[] annotations)
+  private void processAnnotations(String prefix, Field classField)
   {
-
+    Annotation[] annotations = classField.getAnnotations();
     // Loop throw all the annotations on the class and create a field
     // according to its declared kind
     for (Annotation annotation : annotations)
@@ -603,6 +605,11 @@ public abstract class Form
       {
         snap.forms.annotations.PasswordField pwfa = (snap.forms.annotations.PasswordField)annotation;
         field = new snap.forms.internal.PasswordField(this, classField, pwfa, fieldName);
+      }
+      else if (annotation instanceof snap.forms.annotations.DateField)
+      {
+        snap.forms.annotations.DateField dfa = (snap.forms.annotations.DateField)annotation;
+        field = new snap.forms.internal.DateField(this, classField, dfa, fieldName);
       }
       if (field != null)
       {
