@@ -34,6 +34,8 @@ public class ListField extends FormFieldBase
   @Override
   public void setFieldValue(String[] values)
   {
+    getFormFields();
+
     // Dropdown just returns a single value. set the String value;
     if (mAnnotation.type() == ListType.SINGLE_LIST || mAnnotation.type() == ListType.DROPDOWN_LIST)
     {
@@ -73,7 +75,6 @@ public class ListField extends FormFieldBase
       return;
     }
 
-    getFormFields();
     mFieldValues.clear();
 
     if (values == null)
@@ -144,15 +145,24 @@ public class ListField extends FormFieldBase
       throw new SnapException("Can't access field: " + mAnnotation.options(), e);
     }
 
-    for (ListOption lo : options)
+    try
     {
-      String val, text;
-      val = lo.getValue();
-      text = lo.getText();
-      if (lo.getOption().equals(getFieldValue()))
-        b.append(String.format("\t<option selected value='%1$s'>%2$s</option>\n", val, text));
-      else
-        b.append(String.format("\t<option value='%1$s'>%2$s</option>\n", val, text));
+      Object fieldValue = mField.get(getFieldOwner());
+      for (ListOption lo : options)
+      {
+        String val, text;
+        val = lo.getValue();
+        text = lo.getText();
+
+        if (lo.getOption().equals(fieldValue))
+          b.append(String.format("\t<option selected value='%1$s'>%2$s</option>\n", val, text));
+        else
+          b.append(String.format("\t<option value='%1$s'>%2$s</option>\n", val, text));
+      }
+    }
+    catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException e)
+    {
+      throw new SnapException("Can't access field: " + mFieldName, e);
     }
     b.append("</select>");
     return b.toString();

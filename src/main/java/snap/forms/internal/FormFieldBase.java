@@ -132,6 +132,11 @@ public abstract class FormFieldBase implements FormField
     return obj;
   }
 
+  /**
+   * Returns the value of the field represented as a string.
+   *
+   * @return The field.toString() value of the field
+   */
   protected String getFieldValue()
   {
     try

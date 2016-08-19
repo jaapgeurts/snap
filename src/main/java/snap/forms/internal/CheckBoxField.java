@@ -43,14 +43,14 @@ public class CheckBoxField extends FormFieldBase
     boolean val;
     try
     {
-      if (mField.get(mForm) == null)
-        throw new SnapException("Checkbox field: " + mField.getName() + " can't be null.");
-      val = (Boolean)mField.get(mForm);
+      if (mField.get(getFieldOwner()) == null)
+        throw new SnapException("Checkbox field: " + mFieldName + " can't be null.");
+      val = (Boolean)mField.get(getFieldOwner());
     }
-    catch (IllegalArgumentException | IllegalAccessException e)
+    catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException e)
     {
-      log.debug("Can't access value of form field: " + mField.getName(), e);
-      throw new SnapException("Form field " + mField.getName() + " can't be accessed.", e);
+      log.debug("Can't access value of form field: " + mFieldName, e);
+      throw new SnapException("Form field " + mFieldName + " can't be accessed.", e);
     }
 
     return String.format(
