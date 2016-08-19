@@ -7,6 +7,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Map;
@@ -50,10 +51,12 @@ public class DateField extends FormFieldBase
       return "";
     Object fieldValue = getFieldValue();
 
-    String value = "";
+    String value;
     // check the type
     // TODO: add the application or user selected locale here.
-    if (fieldValue instanceof String)
+    if (fieldValue == null)
+      value = "";
+    else if (fieldValue instanceof String)
       value = (String)fieldValue;
     else if (fieldValue instanceof java.util.Date)
       value = mDateFormatter.format(fieldValue);
@@ -110,9 +113,9 @@ public class DateField extends FormFieldBase
         throw new SnapException(
             "Only field types of String, java.util.Date, LocalDate, LocalDateTime, ZonedDateTime or Calendar are supported");
     }
-    catch (ParseException pe)
+    catch (ParseException | DateTimeParseException e)
     {
-      log.warn("Submitted field value '" + values[0] + "' can't be converted to date time value.", pe);
+      log.warn("Submitted field value '" + values[0] + "' can't be converted to date time value.", e);
     }
     catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException e)
     {
