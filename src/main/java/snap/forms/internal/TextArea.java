@@ -44,7 +44,7 @@ public class TextArea extends FormFieldBase
       rows = " rows='" + mAnnotation.rows() + "' ";
 
     return String.format("<textarea id='%1$s' name='%2$s'%3$s%4$s %6$s>%5$s</textarea>\n", mHtmlId,
-        mFieldName, cols, rows, value, Helpers.attrToString(attributes));
+        mFieldName, cols, rows, Helpers.escapeHtml(value), Helpers.attrToString(attributes));
 
   }
 

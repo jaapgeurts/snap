@@ -156,9 +156,10 @@ public class ListField extends FormFieldBase
         text = lo.getText();
 
         if (lo.getOption().equals(fieldValue))
-          b.append(String.format("\t<option selected value='%1$s'>%2$s</option>\n", val, text));
+          b.append(String.format("\t<option selected value='%1$s'>%2$s</option>\n", Helpers.escapeHtml(val),
+              text));
         else
-          b.append(String.format("\t<option value='%1$s'>%2$s</option>\n", val, text));
+          b.append(String.format("\t<option value='%1$s'>%2$s</option>\n", Helpers.escapeHtml(val), text));
       }
     }
     catch (IllegalArgumentException | SecurityException e)

@@ -140,10 +140,10 @@ public class MultiCheckboxField extends FormFieldBase
     // check type here.
     if (mFieldValues.contains(val))
       return String.format("\t<input id='%1$s-%5$s' type='checkbox' name='%2$s' value='%3$s' checked %4$s/>",
-          mHtmlId, mFieldName, val, text, htmlid, Helpers.attrToString(attributes));
+          mHtmlId, mFieldName, Helpers.escapeHtml(val), text, htmlid, Helpers.attrToString(attributes));
     else
       return String.format("\t<input id='%1$s-%5$s' type='checkbox' name='%2$s' value='%3$s' %4$s/>",
-          mHtmlId, mFieldName, val, text, htmlid, Helpers.attrToString(attributes));
+          mHtmlId, mFieldName, Helpers.escapeHtml(val), text, htmlid, Helpers.attrToString(attributes));
   }
 
   private void addValueToFormFieldSet(String value)

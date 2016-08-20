@@ -211,10 +211,10 @@ public class RadioField extends FormFieldBase
 
     if (val.equals(defaultValue))
       return String.format("<input id='%1$s-%3$s' type='radio' name='%2$s' value='%3$s' checked %4$s/>",
-          mHtmlId, mFieldName, val, Helpers.attrToString(attributes));
+          mHtmlId, mFieldName, Helpers.escapeHtml(val), Helpers.attrToString(attributes));
     else
       return String.format("<input id='%1$s-%3$s' type='radio' name='%2$s' value='%3$s' %4$s/>",
-          mHtmlId, mFieldName, val, Helpers.attrToString(attributes));
+          mHtmlId, mFieldName, Helpers.escapeHtml(val), Helpers.attrToString(attributes));
 
   }
 

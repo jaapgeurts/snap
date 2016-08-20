@@ -57,7 +57,7 @@ public class DateField extends FormFieldBase
     if (fieldValue == null)
       value = "";
     else if (fieldValue instanceof String)
-      value = (String)fieldValue;
+      value = Helpers.escapeHtml((String)fieldValue);
     else if (fieldValue instanceof java.util.Date)
       value = mDateFormatter.format(fieldValue);
     else if (fieldValue instanceof Calendar)
