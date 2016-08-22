@@ -1,9 +1,10 @@
 package snap.forms;
 
 /**
- * This List option uses toString to get the String representation of the value.
- * If you want to use Enums you should use EnumListOption, if you want to use
- * other classes use GenericListOption
+ * This List option is meant for use with primitive wrapper types like Integer,
+ * Long, etc and String for its containing type. It uses toString to get the
+ * String representation of the value. If you want to use Enums you should use
+ * EnumListOption, if you want to use other classes use GenericListOption
  *
  * @author Jaap Geurts
  *
