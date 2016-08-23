@@ -280,9 +280,9 @@ public class Mailer
   }
 
   /**
-   * Get a Builder to construct a message
+   * Get a builder to construct a message
    *
-   * @return
+   * @return The builder
    */
   public MessageBuilder getMessageBuilder()
   {

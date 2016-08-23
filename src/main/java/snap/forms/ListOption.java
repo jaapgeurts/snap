@@ -12,21 +12,21 @@ public interface ListOption
    * Should return the value that is assigned to the 'value' attribute of the
    * html tag. This value is posted back to the server and used by your code.
    *
-   * @return
+   * @return The value
    */
   String getValue();
 
   /**
    * Should return the text that is presented to the user.
    *
-   * @return
+   * @return The ui text
    */
   String getText();
 
   /**
    * You can optionally return an object that represents this ListOption
    *
-   * @return
+   * @return the object related to this option
    */
   Object getOption();
 

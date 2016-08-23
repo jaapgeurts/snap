@@ -155,7 +155,7 @@ public interface FormField
    * Gets a map of all the attributes. Only returns the attributes that were
    * added with addAttributes()
    *
-   * @return
+   * @return the map with the attributes and values
    */
   Map<String, String> getAttributes();
 
