@@ -10,7 +10,7 @@ public interface AnnotationHandler
   /**
    * This method is executed when the matching registered annotation is
    * processed.
-   * 
+   *
    * @param controller
    *          The current controller object
    * @param method
@@ -20,5 +20,5 @@ public interface AnnotationHandler
    * @param context
    *          The current request context.
    */
-  public void execute(Object controller, Method method, Annotation annotation, RequestContext context);
+  void execute(Object controller, Method method, Annotation annotation, RequestContext context);
 }

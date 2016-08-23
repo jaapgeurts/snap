@@ -6,17 +6,17 @@ public interface RequestListener
 {
   /**
    * Perform processing before a route is processed
-   * 
+   *
    * @param context
    *          The Request Context.
    */
-  public void onBeforeRequest(RequestContext context) throws AuthenticationException, AuthorizationException;
+  void onBeforeRequest(RequestContext context) throws AuthenticationException, AuthorizationException;
 
   /**
    * Perform processing after a route is processed
-   * 
+   *
    * @param context
    *          The Request Context.
    */
-  public void onAfterRequest(RequestContext context);
+  void onAfterRequest(RequestContext context);
 }

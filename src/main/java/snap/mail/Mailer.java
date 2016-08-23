@@ -37,7 +37,7 @@ public class Mailer
    * This is builder is used to create messages which use Rythm templates as the
    * body. It automatically generates multipart email for both HTML and plain
    * text viewing.
-   * 
+   *
    * In snap.properties you should specify the "snap.mail.templatepath" to set
    * the email path. This template path is relative to the webroot.
    */
@@ -54,7 +54,7 @@ public class Mailer
      * Set the filename to use as the template for this message. The mailer will
      * append ".html" and ".txt" to the file name and expects both files to be
      * present.
-     * 
+     *
      * @param templateName
      *          the filename relative to the "snap.mail.templatepath" property
      * @return This builder for chaining calls.
@@ -69,7 +69,7 @@ public class Mailer
      * Set the sender. Most mail servers require that the From is the same as
      * the login user. (See property mail.smtp.user) However if your mail server
      * supports anonymous sending then you can enter anything here.
-     * 
+     *
      * @param address
      *          The from email address: "name@example.com" or
      *          "name &lt;name@example.com&gt;"
@@ -87,7 +87,7 @@ public class Mailer
      * Set the sender. Most mail servers require that the From is the same as
      * the login user. (See property mail.smtp.user) However if your mail server
      * supports anonymous sending then you can enter anything here.
-     * 
+     *
      * @param address
      *          The from email address "name@example.com"
      * @param name
@@ -109,7 +109,7 @@ public class Mailer
      * Adds a recipient to the list. If the name parameter is specified as
      * "John Doe" then the recipient will be in the form of
      * "John Doe &lt;name@example.com&gt;"
-     * 
+     *
      * @param address
      *          The internet email address in the form of "name@example.com" or
      *          "name &lt;name@example.com&gt;" if name is specified then you
@@ -129,7 +129,7 @@ public class Mailer
 
     /**
      * Adds a list of recipients.
-     * 
+     *
      * @param recipients
      *          The recpients.
      * @return This builder for chaining calls.
@@ -143,7 +143,7 @@ public class Mailer
     /**
      * Convenience function to create an InternetAddress. Can be used with
      * addRecipients
-     * 
+     *
      * @param address
      *          The address: "name@example.com"
      * @param name
@@ -179,7 +179,7 @@ public class Mailer
 
     /**
      * Get the list of recipients as an array
-     * 
+     *
      * @return The recipients
      */
     public Address[] getRecipients()
@@ -190,7 +190,7 @@ public class Mailer
 
     /**
      * The the message subject
-     * 
+     *
      * @param subject
      *          The subject line. Officially 7-bit ascii only.
      * @return This builder for chaining calls
@@ -204,7 +204,7 @@ public class Mailer
     /**
      * Build the message with the Rythm context for the template that will be
      * used to generate this email.
-     * 
+     *
      * @param context
      *          The Rythm parameter list context.
      * @return The built message to pass to Mailer.
@@ -279,11 +279,24 @@ public class Mailer
     mSession = Session.getInstance(Settings.asProperties(), null);
   }
 
+  /**
+   * Get a Builder to construct a message
+   *
+   * @return
+   */
   public MessageBuilder getMessageBuilder()
   {
     return new MessageBuilder();
   }
 
+  /**
+   * Opens the connection to the mail transport and creates a session. This
+   * normally means connecting to an SMTP server. Should be paired with a
+   * close() call.
+   *
+   * @throws MessagingException
+   *           When a connection can't be made
+   */
   public void open() throws MessagingException
   {
     mTransport = mSession.getTransport("smtp");
@@ -292,7 +305,7 @@ public class Mailer
 
   /**
    * Send a message.
-   * 
+   *
    * @param msg
    *          The message to send.
    * @throws MessagingException
@@ -301,13 +314,16 @@ public class Mailer
   public void send(Message msg) throws MessagingException
   {
     if (mTransport == null)
-      throw new IllegalStateException("You must call open() before sending.");
+      throw new IllegalStateException("You must call open() to create a transport.");
     if (!mTransport.isConnected())
-      throw new IllegalStateException("Mail connection not open. Can't send");
+      throw new IllegalStateException("Mail transport created but not open. Can't send");
 
     mTransport.sendMessage(msg, msg.getAllRecipients());
   }
 
+  /**
+   * Close the transport connection.
+   */
   public void close()
   {
     try

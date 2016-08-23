@@ -5,5 +5,5 @@ import snap.http.RequestResult;
 
 public interface Controller
 {
-  public RequestResult handleRequest(RequestContext context);
+  RequestResult handleRequest(RequestContext context);
 }
