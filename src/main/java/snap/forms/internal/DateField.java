@@ -30,7 +30,8 @@ public class DateField extends FormFieldBase
           "TextFields must be of type String, java.util.Date, LocalDate, LocalDateTime, ZonedDateTime or Calendar");
 
     mLabel = mAnnotation.label();
-    addAttribute("placeholder", mAnnotation.placeholder());
+    if (!mAnnotation.placeholder().isEmpty())
+      addAttribute("placeholder", mAnnotation.placeholder());
 
     if (!mAnnotation.id().isEmpty())
       mHtmlId = mAnnotation.id();

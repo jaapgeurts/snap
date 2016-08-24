@@ -18,7 +18,8 @@ public class PasswordField extends FormFieldBase
       throw new IllegalArgumentException("PasswordFields must be of type String");
 
     mLabel = mAnnotation.label();
-    addAttribute("placeholder", mAnnotation.placeholder());
+    if(!mAnnotation.placeholder().isEmpty())
+      addAttribute("placeholder", mAnnotation.placeholder());
     if (!mAnnotation.id().isEmpty())
       mHtmlId = mAnnotation.id();
 
