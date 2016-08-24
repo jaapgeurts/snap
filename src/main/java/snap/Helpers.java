@@ -1,5 +1,7 @@
 package snap;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -50,6 +52,17 @@ public class Helpers
       }
     }
     return builder.toString();
+  }
+
+  public static String encodeURL(String str){
+    try
+    {
+      return URLEncoder.encode(str,"UTF-8");
+    }
+    catch (UnsupportedEncodingException e)
+    {
+      return "<UnsupportedEncodingException>";
+    }
   }
 
   public static SimpleImmutableEntry<String, String> splitQueryParam(String param)

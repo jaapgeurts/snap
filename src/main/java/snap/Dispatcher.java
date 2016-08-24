@@ -188,7 +188,7 @@ public class Dispatcher extends HttpServlet
       {
         log.debug("User not logged in, redirecting: {}", uae.getMessage());
         // redirect to redirect URL
-        Map<String, String> queryParams = new HashMap<>();
+        Map<String, String> redirParams = new HashMap<>();
         String[] pathQuery = Settings.redirectUrl.split("\\?");
         if (pathQuery.length == 0)
         {
@@ -200,20 +200,23 @@ public class Dispatcher extends HttpServlet
         // Decode the query string parts from the redirectUrl
         if (pathQuery.length > 1)
         {
-          queryParams.putAll(Arrays.stream(pathQuery[1].split("&")).map(Helpers::splitQueryParam)
-              .collect(Collectors.toMap(SimpleImmutableEntry::getKey, SimpleImmutableEntry::getValue)));
+          redirParams.putAll(Arrays.stream(pathQuery[1].split("&")).map(Helpers::splitQueryParam)
+              .collect(Collectors.toMap(SimpleImmutableEntry::getKey, e -> Helpers.encodeURL(e.getValue()))));
         }
+        Map<String, String> nextParams = new HashMap<>();
+
         // decode the query string parts from the request string
         String query = request.getQueryString();
         if (query != null)
         {
-          queryParams.putAll(Arrays.stream(query.split("&")).map(Helpers::splitQueryParam)
+          nextParams.putAll(Arrays.stream(query.split("&")).map(Helpers::splitQueryParam)
               .collect(Collectors.toMap(SimpleImmutableEntry::getKey, SimpleImmutableEntry::getValue)));
         }
-        queryParams.put("next", URLEncoder.encode(path, "UTF-8"));
+        String next = path + "?" + nextParams.entrySet().stream().map(e -> e.getKey() + "=" + e.getValue())
+            .collect(Collectors.joining("&"));
         // no need to encode as getQueryString() returns encoded values
-        response.sendRedirect(newPath + "?" + queryParams.entrySet().stream()
-            .map(e -> e.getKey() + "=" + e.getValue()).collect(Collectors.joining("&")));
+        response.sendRedirect(newPath + "?next=" + URLEncoder.encode(next, "UTF-8") + "&" + redirParams
+            .entrySet().stream().map(e -> e.getKey() + "=" + e.getValue()).collect(Collectors.joining("&")));
       }
       else
       {
