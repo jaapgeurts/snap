@@ -323,30 +323,28 @@ public class RequestContext
   public void setAuthenticatedUser(Long userid)
   {
     mAuthenticatedUser = userid;
-    if (mSession != null)
+    if (mSession == null)
     {
-      if (userid == null)
-      {
-        mSession.removeAttribute(SNAP_AUTHENTICATED_USER);
-        mSession.removeAttribute(SNAP_CSRF_TOKEN);
-        mSession.invalidate();
-        Cookie cookie = new Cookie(SNAP_CSRF_COOKIE_NAME, getServerCsrfToken());
-        // cookie.setDomain("snappix.thaloi.com");
-        cookie.setMaxAge(0); // expire now
-        cookie.setPath("/");
-        addCookie(cookie);
-      }
-      else
-      {
-        mSession.setAttribute(SNAP_AUTHENTICATED_USER, userid);
-        mSession.setAttribute(SNAP_CSRF_TOKEN, generateCsrfToken());
-        Cookie cookie = new Cookie(SNAP_CSRF_COOKIE_NAME, getServerCsrfToken());
-        // cookie.setDomain("com.snap");
-        cookie.setMaxAge(CSRF_COOKIE_EXPIRY);
-        cookie.setPath("/");
-        addCookie(cookie);
-      }
+      log.warn("Attempt to set authenticated user without an active session");
+      return;
+    }
 
+    if (userid == null)
+    {
+      mSession.removeAttribute(SNAP_AUTHENTICATED_USER);
+      mSession.removeAttribute(SNAP_CSRF_TOKEN);
+      mSession.invalidate();
+      Cookie cookie = new Cookie(SNAP_CSRF_COOKIE_NAME, getServerCsrfToken());
+      removeCookie(cookie);
+    }
+    else
+    {
+      mSession.setAttribute(SNAP_AUTHENTICATED_USER, userid);
+      mSession.setAttribute(SNAP_CSRF_TOKEN, generateCsrfToken());
+      Cookie cookie = new Cookie(SNAP_CSRF_COOKIE_NAME, getServerCsrfToken());
+      cookie.setMaxAge(CSRF_COOKIE_EXPIRY);
+      cookie.setPath("/");
+      addCookie(cookie);
     }
   }
 
@@ -473,11 +471,21 @@ public class RequestContext
   }
 
   /**
-   * Start a new session for this browser.
+   * Start a new session for this browser. Calling multiple times has no effect.
    */
   public void startSession()
   {
-    mServletRequest.getSession(true);
+    mSession = mServletRequest.getSession();
+  }
+
+  /**
+   * Ends the session for a user. Calling multiple times has no effect.
+   */
+  public void endSession()
+  {
+    HttpSession s = mServletRequest.getSession(false);
+    if (s != null)
+      s.invalidate();
   }
 
   /**
