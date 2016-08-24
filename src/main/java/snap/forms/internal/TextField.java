@@ -19,7 +19,8 @@ public class TextField extends FormFieldBase
       throw new IllegalArgumentException("TextFields must be of type String, Integer or Long");
 
     mLabel = mAnnotation.label();
-    addAttribute("placeholder", mAnnotation.placeholder());
+    if (!mAnnotation.placeholder().isEmpty())
+      addAttribute("placeholder", mAnnotation.placeholder());
 
     if (!mAnnotation.id().isEmpty())
       mHtmlId = mAnnotation.id();

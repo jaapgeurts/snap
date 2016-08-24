@@ -9,8 +9,17 @@ public class Helpers
 
   public static String attrToString(Map<String, String> attribs)
   {
-    return attribs.entrySet().stream().map(e -> e.getKey() + "='" + e.getValue() + "'")
-        .collect(Collectors.joining(" "));
+    return attribs.entrySet().stream().map(Helpers::attribToString).collect(Collectors.joining(" "));
+  }
+
+  private static String attribToString(Map.Entry<String, String> e)
+  {
+    String key = e.getKey();
+    String val = e.getValue();
+    if (val.isEmpty())
+      return key;
+
+    return key + "='" + escapeHtml(val) + "'";
   }
 
   public static String escapeHtml(String str)

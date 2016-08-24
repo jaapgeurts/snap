@@ -241,10 +241,13 @@ public abstract class FormFieldBase implements FormField
   }
 
   @Override
+  /**
+   * Add an attribute and value to this field. You can specify empty ""
+   * attributes. They will be added without the quotes
+   */
   public void addAttribute(String attrib, String value)
   {
-    if (!"".equals(value))
-      mAttributes.put(attrib, value);
+    mAttributes.put(attrib, value);
   }
 
   @Override
