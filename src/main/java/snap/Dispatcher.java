@@ -3,6 +3,11 @@ package snap;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URLEncoder;
+import java.util.AbstractMap.SimpleImmutableEntry;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -181,17 +186,34 @@ public class Dispatcher extends HttpServlet
       // check if user wants redirects
       if (context.getRoute().isRedirectEnabled())
       {
-        // redirect to redirect URL
         log.debug("User not logged in, redirecting: {}", uae.getMessage());
-        String url = Settings.redirectUrl;
+        // redirect to redirect URL
+        Map<String, String> queryParams = new HashMap<>();
+        String[] pathQuery = Settings.redirectUrl.split("\\?");
+        if (pathQuery.length == 0)
+        {
+          log.warn("Redirect requested but 'snap.login.redirect.url' not set");
+          throw uae;
+        }
+        String newPath = pathQuery[0];
+
+        // Decode the query string parts from the redirectUrl
+        if (pathQuery.length > 1)
+        {
+          queryParams.putAll(Arrays.stream(pathQuery[1].split("&")).map(Helpers::splitQueryParam)
+              .collect(Collectors.toMap(SimpleImmutableEntry::getKey, SimpleImmutableEntry::getValue)));
+        }
+        // decode the query string parts from the request string
         String query = request.getQueryString();
-        String next;
         if (query != null)
-          next = path + "?" + query;
-        else
-          next = path;
-        // encode the path
-        response.sendRedirect(url + "?next=" + URLEncoder.encode(next, "UTF-8"));
+        {
+          queryParams.putAll(Arrays.stream(query.split("&")).map(Helpers::splitQueryParam)
+              .collect(Collectors.toMap(SimpleImmutableEntry::getKey, SimpleImmutableEntry::getValue)));
+        }
+        queryParams.put("next", URLEncoder.encode(path, "UTF-8"));
+        // no need to encode as getQueryString() returns encoded values
+        response.sendRedirect(newPath + "?" + queryParams.entrySet().stream()
+            .map(e -> e.getKey() + "=" + e.getValue()).collect(Collectors.joining("&")));
       }
       else
       {

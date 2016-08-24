@@ -1,5 +1,6 @@
 package snap;
 
+import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -40,6 +41,16 @@ public class Helpers
       }
     }
     return builder.toString();
+  }
+
+  public static SimpleImmutableEntry<String, String> splitQueryParam(String param)
+  {
+    String[] keyVal = param.split("=");
+    if (keyVal.length == 1)
+      return new SimpleImmutableEntry<String, String>(keyVal[1], null);
+    if (keyVal.length > 1)
+      return new SimpleImmutableEntry<String, String>(keyVal[0], keyVal[1]);
+    throw new IllegalArgumentException("The param doesn't contain any value");
   }
 
 }
