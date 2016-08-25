@@ -203,17 +203,11 @@ public class Dispatcher extends HttpServlet
           redirParams.putAll(Arrays.stream(pathQuery[1].split("&")).map(Helpers::splitQueryParam)
               .collect(Collectors.toMap(SimpleImmutableEntry::getKey, e -> Helpers.encodeURL(e.getValue()))));
         }
-        Map<String, String> nextParams = new HashMap<>();
 
         // decode the query string parts from the request string
         String query = request.getQueryString();
-        if (query != null)
-        {
-          nextParams.putAll(Arrays.stream(query.split("&")).map(Helpers::splitQueryParam)
-              .collect(Collectors.toMap(SimpleImmutableEntry::getKey, SimpleImmutableEntry::getValue)));
-        }
-        String next = path + "?" + nextParams.entrySet().stream().map(e -> e.getKey() + "=" + e.getValue())
-            .collect(Collectors.joining("&"));
+
+        String next = path + "?" + query;
         // no need to encode as getQueryString() returns encoded values
         response.sendRedirect(newPath + "?next=" + URLEncoder.encode(next, "UTF-8") + "&" + redirParams
             .entrySet().stream().map(e -> e.getKey() + "=" + e.getValue()).collect(Collectors.joining("&")));
