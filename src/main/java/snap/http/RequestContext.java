@@ -521,6 +521,19 @@ public class RequestContext
    * @param alias
    *          the route identified by alias name
    *
+   * @return the redirect object
+   */
+  public HttpRedirect getRedirect(String alias)
+  {
+    return getRouter().redirectForRoute(alias, RedirectType.TEMPORARY_ALLOW_CHANGE);
+  }
+
+  /**
+   * Gets a Redirect object to the URL router using the alias name.
+   *
+   * @param alias
+   *          the route identified by alias name
+   *
    * @param params
    *          the parameters to replace in the URL
    * @return the redirect object

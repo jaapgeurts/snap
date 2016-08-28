@@ -207,7 +207,7 @@ public class Dispatcher extends HttpServlet
         // decode the query string parts from the request string
         String query = request.getQueryString();
 
-        String next = path + "?" + query;
+        String next = query != null ? path + "?" + query : path;
         // no need to encode as getQueryString() returns encoded values
         response.sendRedirect(newPath + "?next=" + URLEncoder.encode(next, "UTF-8") + "&" + redirParams
             .entrySet().stream().map(e -> e.getKey() + "=" + e.getValue()).collect(Collectors.joining("&")));

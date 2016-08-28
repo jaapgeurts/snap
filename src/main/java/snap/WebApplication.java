@@ -88,7 +88,7 @@ public abstract class WebApplication
 
   /**
    * Default error handling
-   * 
+   *
    * @param context
    *          The request context
    * @param errorCode
@@ -125,7 +125,7 @@ public abstract class WebApplication
 
   /**
    * Return the user object from your persistance store.
-   * 
+   *
    * @param userid
    *          The ID of the user to fetch
    * @return the User or NULL
@@ -137,7 +137,7 @@ public abstract class WebApplication
 
   /**
    * Adds an authenticator to the web application. These are authenticators that
-   * 
+   *
    * @param authenticator
    *          The authenticator to add
    */
@@ -148,7 +148,7 @@ public abstract class WebApplication
 
   /**
    * Returns the list of all authenticators known to the webapp
-   * 
+   *
    * @return a list of all authenticators
    */
   public List<Authenticator> getAuthenticators()
@@ -159,7 +159,7 @@ public abstract class WebApplication
   /**
    * Register an annotation for use with controllers. This annotation can be
    * applied to either methods or controller classes
-   * 
+   *
    * @param annotation
    *          The annotation that you want to use
    * @param handler
@@ -182,7 +182,7 @@ public abstract class WebApplication
 
   /**
    * Return the Web app properties
-   * 
+   *
    * @return The properties of the application
    */
   public static Properties getProperties()
@@ -194,7 +194,7 @@ public abstract class WebApplication
 
   /**
    * Returns the installed Rythm engine
-   * 
+   *
    * @return The current rendering engine
    */
   public RythmEngine getRenderEngine()
@@ -204,7 +204,7 @@ public abstract class WebApplication
 
   /**
    * Gets the application servlet context
-   * 
+   *
    * @return the servlet context
    */
   public ServletContext getContext()
@@ -216,7 +216,7 @@ public abstract class WebApplication
    * Returns the default Jackson JSON mapper. This is used by the Snap!'s
    * JsonView TODO: make this a factory method that can return any kind of json
    * mapper
-   * 
+   *
    * @return the Jackson JSON mapper
    */
   public ObjectMapper getJsonMapper()
@@ -229,7 +229,7 @@ public abstract class WebApplication
   /**
    * Setup a listener for request pre post processing hooks. You must set this
    * listiner in the Init() call. Setting it after Init() has no effect.
-   * 
+   *
    * @param listener
    *          the listener to add
    */
@@ -240,7 +240,7 @@ public abstract class WebApplication
 
   /**
    * Returns the install request listener
-   * 
+   *
    * @return the installed listener
    */
   public RequestListener getRequestListener()
@@ -250,7 +250,7 @@ public abstract class WebApplication
 
   /**
    * Reads the properties of the web app. By default names "webapp.properties"
-   * 
+   *
    * @return the properies
    */
   protected Properties readProperties()
@@ -261,7 +261,7 @@ public abstract class WebApplication
   /**
    * Reads properties from the system path (ie. your resources in WEB-INF
    * classes
-   * 
+   *
    * @param filePath
    *          The path to read the properties from
    * @return The properties
