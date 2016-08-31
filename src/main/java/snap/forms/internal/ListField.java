@@ -8,6 +8,7 @@ import java.util.Set;
 
 import snap.Helpers;
 import snap.SnapException;
+import snap.forms.EnumListOption;
 import snap.forms.Form;
 import snap.forms.ListOption;
 import snap.forms.annotations.ListField.ListType;
@@ -48,9 +49,14 @@ public class ListField extends FormFieldBase
         else if (mField.getType().equals(Long.class))
           mField.set(getFieldOwner(), Long.valueOf(values[0]));
         else if (mField.getType().isEnum())
-          mField.set(getFieldOwner(), Enum.valueOf((Class<Enum>)mField.getType(), values[0]));
-        else
         {
+          if (EnumListOption.NULL_ID.equals(values[0]))
+            mField.set(getFieldOwner(), null);
+          else
+            mField.set(getFieldOwner(), Enum.valueOf((Class<Enum>)mField.getType(), values[0]));
+        }
+        else
+        { // attemtp to assign a listoption.
           for (ListOption lo : mOptions)
           {
             if (lo.getValue().equals(values[0]))
@@ -154,8 +160,11 @@ public class ListField extends FormFieldBase
         String val, text;
         val = lo.getValue();
         text = lo.getText();
+        Object obj = lo.getOption();
 
-        if (lo.getOption().equals(fieldValue))
+        // If both the option and the fieldValue == null shown as selected.
+        // or if the option eq the fieldValue
+        if ((obj == null && fieldValue == null) || (obj != null && obj.equals(fieldValue)))
           b.append(String.format("\t<option selected value='%1$s'>%2$s</option>\n", Helpers.escapeHtml(val),
               text));
         else

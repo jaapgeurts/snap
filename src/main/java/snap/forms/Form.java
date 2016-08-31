@@ -303,10 +303,7 @@ public abstract class Form
    */
   public String renderFieldError(String fieldName, Map<String, Object> attributes)
   {
-    FormField field = mFieldMap.get(fieldName);
-
-    if (field == null)
-      throw new SnapException("Rendering of non-existing field " + fieldName);
+    FormField field = getField(fieldName);
 
     if (!field.hasError())
       return "";
@@ -349,7 +346,10 @@ public abstract class Form
    */
   public FormField getField(String fieldName)
   {
-    return mFieldMap.get(fieldName);
+    FormField field = mFieldMap.get(fieldName);
+    if (field == null)
+      throw new SnapException("Request access to non-existing field: " + fieldName);
+    return field;
   }
 
   /**
@@ -471,13 +471,28 @@ public abstract class Form
    * @param fieldName
    *          The name of the field
    * @param errorText
-   *          The error text
+   *          The error text. Throws an exception in case of a nonexisting field
    */
   public void setFieldError(String fieldName, String errorText)
   {
     FormField f = getField(fieldName);
-    if (f != null)
-      f.setError(errorText);
+
+    f.setError(errorText);
+  }
+
+  /**
+   * Return the error for a field.
+   *
+   * @param fieldName
+   *          The field name
+   * @return The error or NULL if there was no error. Throws an exception in
+   *         case of a nonexisting field
+   */
+  public String getFieldError(String fieldName)
+  {
+    FormField field = getField(fieldName);
+
+    return field.getError();
   }
 
   /**
@@ -489,12 +504,14 @@ public abstract class Form
    *
    * @param fieldName
    *          The name of the field
+   *
+   *          Throws an exception in case of a nonexisting field
    */
   public void clearFieldError(String fieldName)
   {
+
     FormField f = getField(fieldName);
-    if (f != null)
-      f.clearError();
+    f.clearError();
   }
 
   /**
