@@ -58,6 +58,19 @@ public class TemplateView extends View
   }
 
   /**
+   * Returns a parameter that was previously added with
+   * addParameter(String,Object);
+   *
+   * @param name
+   *          The name to look up
+   * @return The object or null if not available
+   */
+  public Object getParameter(String name)
+  {
+    return mContext.get(name);
+  }
+
+  /**
    * Gets the HTTP status code that will be set when this view is rendered
    *
    * @return the HTTP status code
