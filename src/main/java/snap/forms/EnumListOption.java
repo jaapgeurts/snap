@@ -3,7 +3,6 @@ package snap.forms;
 public class EnumListOption<T extends Enum<T>> implements ListOption
 {
 
-  public static final String NULL_ID = "$NULL$";
   private Enum<T> mEnumObj;
   private String mLabel;
 
@@ -17,7 +16,7 @@ public class EnumListOption<T extends Enum<T>> implements ListOption
   public String getValue()
   {
     if (mEnumObj == null)
-      return NULL_ID;
+      return null;
     else
       return mEnumObj.name();
   }

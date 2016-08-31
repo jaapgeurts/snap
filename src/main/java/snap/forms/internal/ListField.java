@@ -8,7 +8,6 @@ import java.util.Set;
 
 import snap.Helpers;
 import snap.SnapException;
-import snap.forms.EnumListOption;
 import snap.forms.Form;
 import snap.forms.ListOption;
 import snap.forms.annotations.ListField.ListType;
@@ -50,7 +49,7 @@ public class ListField extends FormFieldBase
           mField.set(getFieldOwner(), Long.valueOf(values[0]));
         else if (mField.getType().isEnum())
         {
-          if (EnumListOption.NULL_ID.equals(values[0]))
+          if (mAnnotation.nullOptionValue().equals(values[0]))
             mField.set(getFieldOwner(), null);
           else
             mField.set(getFieldOwner(), Enum.valueOf((Class<Enum>)mField.getType(), values[0]));
@@ -59,7 +58,10 @@ public class ListField extends FormFieldBase
         { // attemtp to assign a listoption.
           for (ListOption lo : mOptions)
           {
-            if (lo.getValue().equals(values[0]))
+            String val = lo.getValue();
+            if (val == null)
+              val = mAnnotation.nullOptionValue();
+            if (val.equals(values[0]))
             {
               mField.set(getFieldOwner(), lo.getOption());
               break;
@@ -162,13 +164,17 @@ public class ListField extends FormFieldBase
         text = lo.getText();
         Object obj = lo.getOption();
 
+        if (val == null)
+          val = mAnnotation.nullOptionValue();
+        else
+          val = Helpers.escapeHtml(val);
+
         // If both the option and the fieldValue == null shown as selected.
         // or if the option eq the fieldValue
         if ((obj == null && fieldValue == null) || (obj != null && obj.equals(fieldValue)))
-          b.append(String.format("\t<option selected value='%1$s'>%2$s</option>\n", Helpers.escapeHtml(val),
-              text));
+          b.append(String.format("\t<option selected value='%1$s'>%2$s</option>\n", val, text));
         else
-          b.append(String.format("\t<option value='%1$s'>%2$s</option>\n", Helpers.escapeHtml(val), text));
+          b.append(String.format("\t<option value='%1$s'>%2$s</option>\n", val, text));
       }
     }
     catch (IllegalArgumentException | SecurityException e)
@@ -193,7 +199,10 @@ public class ListField extends FormFieldBase
       {
         for (ListOption lo : mOptions)
         {
-          if (lo.getValue().equals(value))
+          String val = lo.getValue();
+          if (val == null)
+            val = mAnnotation.nullOptionValue();
+          if (val.equals(value))
           {
             mField.set(getFieldOwner(), lo.getOption());
             break;

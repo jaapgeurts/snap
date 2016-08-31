@@ -11,7 +11,7 @@ import java.lang.annotation.Target;
  * object List&lt;Object&gt; or field of type List&lt;ListOption&gt;. In case of
  * Object toString() will be used for both value and text. In case of ListOption
  * you can set separate values and text
- * 
+ *
  * @author Jaap Geurts
  *
  */
@@ -21,16 +21,18 @@ public @interface ListField
 {
   public enum ListType {
     DROPDOWN_LIST, SINGLE_LIST, MULTI_LIST
-  };
+  }
 
-  public ListType type() default ListType.DROPDOWN_LIST;
+  String nullOptionValue() default "$NULL$";
 
-  public String id() default "";
+  ListType type() default ListType.DROPDOWN_LIST;
 
-  public String label() default "";
+  String id() default "";
 
-  public String options() default "";
+  String label() default "";
 
-  public int size() default 5;
+  String options() default "";
+
+  int size() default 5;
 
 }
