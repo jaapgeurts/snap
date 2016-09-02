@@ -141,15 +141,15 @@ public class Dispatcher extends HttpServlet
     try
     {
 
-      Route route = mRouter.findRouteForPath(method, path);
+      RouteMatcher routeMatcher = mRouter.findRouteMatcherForPath(method, path);
 
-      context.setRoute(route);
+      context.setRouteMatcher(routeMatcher);
 
       if (mRequestListener != null)
         mRequestListener.onBeforeRequest(context);
 
       // Ask the controller to process the request
-      requestResult = route.handleRoute(context);
+      requestResult = routeMatcher.handleRoute(context);
       // Process the returned result of the controller.
       requestResult.handleResult(context);
 

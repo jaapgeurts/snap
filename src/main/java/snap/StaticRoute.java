@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -29,7 +30,7 @@ import snap.http.RequestContext;
 import snap.http.RequestResult;
 import snap.views.NullView;
 
-public class StaticRoute extends Route
+public class StaticRoute implements Route
 {
 
   private class Range
@@ -50,12 +51,12 @@ public class StaticRoute extends Route
   final Logger log = LoggerFactory.getLogger(StaticRoute.class);
   final DateTimeFormatter mHttpDateFormat = DateTimeFormatter.ofPattern("EEE, dd MMM yyyy HH:mm:ss z",
       Locale.US);
-
-  public StaticRoute(String contextPath, String path, String alias, String directory)
+  @Override
+  public void init(String contextPath, String alias, String url, String directory)
   {
-    super(contextPath, alias, path);
-
     mLocation = directory;
+    mContextPath = contextPath;
+    mPath = url;
     // Only allow GET, HEAD method for static media
     mHttpMethods = new HttpMethod[] { HttpMethod.GET, HttpMethod.HEAD };
   }
@@ -81,8 +82,40 @@ public class StaticRoute extends Route
     return NullView.INSTANCE;
   }
 
+  public String getDirectory()
+  {
+    return mLocation;
+  }
+
   @Override
-  public String getLink(Object[] params)
+  public boolean isRedirectEnabled()
+  {
+    return false;
+  }
+
+  public void setRouteListener(RouteListener listener)
+  {
+    mRouteListener = listener;
+  }
+
+  public RouteListener getRouteListener()
+  {
+    return mRouteListener;
+  }
+
+  @Override
+  public HttpMethod[] getHttpMethods()
+  {
+   return mHttpMethods;
+  }
+
+  @Override
+  public String getLink(String original, Map<String, Object> getParams, Object[] params)
+  {
+    return getLink(params);
+  }
+
+  private String getLink(Object[] params)
   {
     int begin = 0, end = mPath.length();
     if (mPath.charAt(0) == '^')
@@ -96,17 +129,6 @@ public class StaticRoute extends Route
       return mContextPath + path + params[0].toString();
   }
 
-  public String getDirectory()
-  {
-    return mLocation;
-  }
-
-  @Override
-  public boolean isStatic()
-  {
-    return true;
-  }
-
   private void processRequest(RequestContext context) throws IOException
   {
     boolean shouldSendData = true;
@@ -116,6 +138,8 @@ public class StaticRoute extends Route
     // TODO: add gzip compression
 
     // Fetch the actual file and serve it directly
+    // remove the path in the routes.conf from the request url path segments.
+    // The remainder is the file name
     Pattern p = Pattern.compile(mPath);
     Matcher m = p.matcher(context.getRequestURI());
     String fileName = m.replaceAll("");
@@ -439,5 +463,9 @@ public class StaticRoute extends Route
         || Arrays.binarySearch(acceptValues, "*/*") > -1;
   }
 
+  private HttpMethod[] mHttpMethods;
+  private String mContextPath;
+  private String mPath;
   private String mLocation;
+  private RouteListener mRouteListener;
 }

@@ -37,9 +37,8 @@ public class Router
    */
   private Router()
   {
-    mRouteList = new ArrayList<Route>();
-    mRouteMap = new HashMap<String, Route>();
-
+    mRouteList = new ArrayList<>();
+    mRouteMap = new HashMap<>();
   }
 
   /**
@@ -64,7 +63,7 @@ public class Router
       {
         String line = in.readLine();
         // comment line: skip it.
-        if (line.charAt(0) == '#')
+        if (line.isEmpty() || line.charAt(0) == '#')
           continue;
 
         String[] parts = line.split("\\s+");
@@ -72,25 +71,26 @@ public class Router
         String alias = parts[2];
         Route route = null;
 
-        if ("ACTION".equals(parts[0]))
+        try
         {
-          try
+          if ("ACTION".equals(parts[0]))
+            route = new ActionRoute();
+          else if ("STATIC".equals(parts[0]))
+            route = new StaticRoute();
+          else if ("CUSTOM".equals(parts[0]))
+            route = (Route)Class.forName(parts[3]).newInstance();
+
+          if (route != null)
           {
-            route = new Route(mContextPath, alias, parts[1], parts[3]);
-            mRouteList.add(route);
-            mRouteMap.put(alias, route);
-          }
-          catch (SnapException e)
-          {
-            log.warn("Error creating route " + alias);
-            log.warn(e.getMessage());
+            route.init(mContextPath, alias, parts[1], parts[3]);
+            RouteMatcher routeMatcher = new RouteMatcher(contextPath, alias, parts[1], route);
+            mRouteList.add(routeMatcher);
+            mRouteMap.put(alias, routeMatcher);
           }
         }
-        else if ("STATIC".equals(parts[0]))
+        catch (SnapException | InstantiationException | IllegalAccessException | ClassNotFoundException e)
         {
-          route = new StaticRoute(mContextPath, parts[1], parts[2], parts[3]);
-          mRouteList.add(route);
-          mRouteMap.put(alias, route);
+          log.warn("Error creating route " + alias, e);
         }
 
         i++;
@@ -112,36 +112,36 @@ public class Router
    *          The HTTP method
    * @param path
    *          The requested URL path
-   * @return the route that matched the method and path
+   * @return the route matcher that matched the method and path
    * @throws RouteNotFoundException
    *           when the method and path don't match any route rules
    * @throws HttpMethodException
    *           when a rule was found but with an incorrect http method
    */
-  public Route findRouteForPath(HttpMethod method, String path)
+  public RouteMatcher findRouteMatcherForPath(HttpMethod method, String path)
   {
-    Route route = null;
-    for (Route r : mRouteList)
+    RouteMatcher routeMatcher = null;
+    for (RouteMatcher r : mRouteList)
     {
       if (r.match(path))
       {
-        route = r;
+        routeMatcher = r;
         break;
       }
     }
-    if (route == null)
+    if (routeMatcher == null)
       throw new RouteNotFoundException(
           "Can't find route for Method: " + method.toString() + " path: " + path);
 
-    HttpMethod[] methods = route.getHttpMethods();
+    HttpMethod[] methods = routeMatcher.getRoute().getHttpMethods();
     if (methods == null)
-      throw new SnapException("Route '" + route.getAlias() + "' has no methods to call");
+      throw new SnapException("Route '" + routeMatcher.getAlias() + "' has no methods to call");
 
     for (HttpMethod m : methods)
       if (method == m)
-        return route;
+        return routeMatcher;
 
-    throw new HttpMethodException("Route " + route.getAlias() + " matches path " + path
+    throw new HttpMethodException("Route " + routeMatcher.getAlias() + " matches path " + path
         + ", but has incorrect method " + method.toString());
   }
 
@@ -206,8 +206,8 @@ public class Router
    */
   public String linkForRoute(String alias, Object... params)
   {
-    Route route = getRoute(alias);
-    return route.getLink(params);
+    RouteMatcher routeMatcher = getRouteMatcher(alias);
+    return routeMatcher.getLink(params);
   }
 
   /***
@@ -226,24 +226,39 @@ public class Router
    */
   public String linkForRoute(String alias, Map<String, Object> getParams, Object... params)
   {
-    Route route = getRoute(alias);
-    return route.getLink(getParams, params);
+    RouteMatcher routeMatcher = getRouteMatcher(alias);
+    return routeMatcher.getLink(getParams, params);
   }
 
   /**
    *
    * @param routeAlias
-   *          The alias of the route
+   *          The name by which this route is known
    * @return The route for this alias
    * @throws RouteNotFoundException
    *           When the route can't be found.
    */
   public Route getRoute(String routeAlias)
   {
-    Route route = mRouteMap.get(routeAlias);
+    RouteMatcher route = mRouteMap.get(routeAlias);
     if (route == null)
       throw new RouteNotFoundException("Can't redirect: Unknown route: " + routeAlias);
-    return route;
+    return route.getRoute();
+  }
+
+  /**
+   * Returns the route matcher for a specific route alias
+   *
+   * @param routeAlias
+   *          the name by which this route is known
+   * @return The matcher
+   */
+  private RouteMatcher getRouteMatcher(String routeAlias)
+  {
+    RouteMatcher routeMatcher = mRouteMap.get(routeAlias);
+    if (routeMatcher == null)
+      throw new RouteNotFoundException("Can't find route matcher for alias: " + routeAlias);
+    return routeMatcher;
   }
 
   /**
@@ -258,8 +273,8 @@ public class Router
     mContextPath = contextPath;
   }
 
-  private ArrayList<Route> mRouteList;
-  private HashMap<String, Route> mRouteMap;
+  private ArrayList<RouteMatcher> mRouteList;
+  private HashMap<String, RouteMatcher> mRouteMap;
   private String mContextPath;
 
   private static Router mRouter = null;

@@ -16,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import snap.Route;
+import snap.RouteMatcher;
 import snap.Router;
 import snap.Settings;
 import snap.User;
@@ -252,20 +253,30 @@ public class RequestContext
    */
   public Route getRoute()
   {
+    return mRoute.getRoute();
+  }
+
+  /**
+   * Gets the route matcher object that led to this request.
+   *
+   * @return the route for this request
+   */
+  public RouteMatcher getRouteMatcher()
+  {
     return mRoute;
   }
 
   /**
    * Used by the framework. Sets the route object for this request
    *
-   * @param route
-   *          the route for this request. Set by the framework.
+   * @param routeMatcher
+   *          the route matcher for this request. Set by the framework.
    */
-  public void setRoute(Route route)
+  public void setRouteMatcher(RouteMatcher routeMatcher)
   {
-    mRoute = route;
+    mRoute = routeMatcher;
     // set the parameters
-    mUrlParams = route.getParameters(getRequestURI());
+    mUrlParams = routeMatcher.getParameters(getRequestURI());
 
   }
 
@@ -498,7 +509,7 @@ public class RequestContext
    */
   public HttpRedirect getRedirectSelf(Object... params)
   {
-    return getRoute().getRedirect(params, RedirectType.TEMPORARY_ALLOW_CHANGE);
+    return getRouteMatcher().getRedirect(params, RedirectType.TEMPORARY_ALLOW_CHANGE);
   }
 
   /**
@@ -512,7 +523,7 @@ public class RequestContext
    */
   public HttpRedirect getRedirectSelf(RedirectType type, Object... params)
   {
-    return getRoute().getRedirect(params, type);
+    return getRouteMatcher().getRedirect(params, type);
   }
 
   /**
@@ -667,7 +678,7 @@ public class RequestContext
   private HttpServletResponse mServletResponse;
 
   private HttpMethod mMethod;
-  private Route mRoute;
+  private RouteMatcher mRoute;
   private Long mAuthenticatedUser;
   private Router mRouter;
 
