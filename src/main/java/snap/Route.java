@@ -38,6 +38,7 @@ public interface Route
    *          The request context
    * @return The result your wish to return
    * @throws Throwable
+   *           any exception thrown will be caught by the framework
    */
   RequestResult handleRoute(RequestContext context) throws Throwable;
 
@@ -60,7 +61,7 @@ public interface Route
    *          The get params to be appended to this url
    * @param params
    *          the params to be replaced in the path section of the URL
-   * @return
+   * @return the new url
    */
   String getLink(String original, Map<String, Object> getParams, Object[] params);
 }

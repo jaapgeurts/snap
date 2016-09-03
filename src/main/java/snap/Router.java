@@ -78,8 +78,13 @@ public class Router
           else if ("STATIC".equals(parts[0]))
             route = new StaticRoute();
           else if ("CUSTOM".equals(parts[0]))
-            route = (Route)Class.forName(parts[3]).newInstance();
+          {
+            String className = parts[3];
+            if (className.charAt(0) == '.')
+              className = Settings.packagePrefix + className;
 
+            route = (Route)Class.forName(className).newInstance();
+          }
           if (route != null)
           {
             route.init(mContextPath, alias, parts[1], parts[3]);
@@ -98,9 +103,11 @@ public class Router
       in.close();
       // res.close();
     }
-    catch (IOException e)
+    catch (
+
+    IOException e)
     {
-      log.error("An error happened during parsing route.conf. Line: " + i, e);
+      log.error("An error happened during parsing route.conf at line: " + i, e);
     }
 
   }
