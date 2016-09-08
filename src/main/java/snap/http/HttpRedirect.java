@@ -33,7 +33,7 @@ public class HttpRedirect implements RequestResult
    */
   public HttpRedirect(String url)
   {
-    this(url, RedirectType.TEMPORARY_ALLOW_CHANGE);
+    this(URI.create(url));
   }
 
   /**
@@ -46,10 +46,7 @@ public class HttpRedirect implements RequestResult
    */
   public HttpRedirect(String url, RedirectType redirectType)
   {
-    if (url == null)
-      throw new IllegalArgumentException();
-    mUrl = url;
-    mRedirectType = redirectType;
+    this(URI.create(url), redirectType);
   }
 
   /**
@@ -60,7 +57,7 @@ public class HttpRedirect implements RequestResult
    */
   public HttpRedirect(URL url)
   {
-    this(url.toString());
+    this(URI.create(url.toExternalForm()));
   }
 
   /**
@@ -73,7 +70,7 @@ public class HttpRedirect implements RequestResult
    */
   public HttpRedirect(URL url, RedirectType redirectType)
   {
-    this(url.toString(), redirectType);
+    this(URI.create(url.toExternalForm()), redirectType);
   }
 
   /**
@@ -84,7 +81,8 @@ public class HttpRedirect implements RequestResult
    */
   public HttpRedirect(URI uri)
   {
-    this(uri.toString());
+    mUri = uri;
+    mRedirectType = RedirectType.TEMPORARY_ALLOW_CHANGE;
   }
 
   /**
@@ -98,7 +96,24 @@ public class HttpRedirect implements RequestResult
    */
   public HttpRedirect(URI uri, RedirectType redirectType)
   {
-    this(uri.toString(), redirectType);
+    mUri = uri;
+    mRedirectType = redirectType;
+  }
+
+  public URI getURI()
+  {
+    return mUri;
+  }
+
+  public RedirectType getRedirectType()
+  {
+    return mRedirectType;
+  }
+
+  @Override
+  public String toString()
+  {
+    return "Status: " + getRedirectCode() + ", Location: " + mUri.toString();
   }
 
   @Override
@@ -110,6 +125,17 @@ public class HttpRedirect implements RequestResult
     int code;
 
     HttpServletResponse response = context.getResponse();
+    code = getRedirectCode();
+
+    response.resetBuffer();
+    response.setHeader("Location", mUri.normalize().toString());
+    response.setStatus(code);
+  }
+
+  private int getRedirectCode()
+  {
+    int code;
+
     switch(mRedirectType)
     {
       case PERMANENT_ALLOW_CHANGE:
@@ -130,12 +156,10 @@ public class HttpRedirect implements RequestResult
         break;
     }
 
-    response.resetBuffer();
-    response.setHeader("Location", mUrl);
-    response.setStatus(code);
+    return code;
   }
 
-  private String mUrl;
+  private URI mUri;
   private RedirectType mRedirectType;
 
 }

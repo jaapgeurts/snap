@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -192,9 +193,9 @@ public class Router
   /**
    * Get the site base url as defined in the snap.properties resource
    *
-   * @return the URl as a string
+   * @return the URL
    */
-  public String siteUrl()
+  public URL siteUrl()
   {
     return Settings.siteRootUrl;
   }

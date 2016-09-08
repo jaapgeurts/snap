@@ -284,6 +284,7 @@ public class RequestContext
   {
     RouteMatcher matcher = Router.getInstance().findNextRouteMatcherForPath(getMethod(), getPath(),
         getRouteMatcher());
+    setRouteMatcher(matcher);
     return matcher.handleRoute(this);
   }
 
@@ -363,6 +364,16 @@ public class RequestContext
   }
 
   /**
+   * For internal use. If the language should be persisted for next requests
+   *
+   * @return whether to persist the language or not
+   */
+  public boolean isPersistLanguage()
+  {
+    return mPersistLanguage;
+  }
+
+  /**
    * Puts the authenticated user in the session under the attribute:
    * 'Snap.AuthorizedUser' Use in combination with @LoginRequired. This method
    * should be called only once per session
@@ -416,7 +427,11 @@ public class RequestContext
    * Set the language for this request. If you set persist to true then you only
    * have to set this once. The language setting will be stored in the user
    * session or a user cookie depending on the 'snap.site.localemode' setting.
-   * If you set persist to false the setting is not saved.
+   * If you set persist to false the setting is not saved. If
+   * snap.site.localemode = cookie or session, then the cookie or session state
+   * for the language is managed by the framework. If the snap.site.localemode =
+   * subdomain then when you change the language a redirect will be forced. If
+   * snap.site.localemode = custom then you can specify behaviour yourself
    *
    * @param language
    *          Use a standard Locale.getLanguage() value or set to null to remove
@@ -432,6 +447,8 @@ public class RequestContext
   public void setLanguage(String language, boolean persist)
   {
     mLanguage = language;
+
+    mPersistLanguage = persist;
 
     if (!persist)
       return;
@@ -458,8 +475,10 @@ public class RequestContext
           addCookie(cookie);
         }
         break;
-      case CUSTOM:
-        WebApplication.getInstance().storeLanguage(this, language);
+      case SUBDOMAIN:
+        // this functionality lives in Dispatcher.java because changing the
+        // subdomain requires
+        // the framework to send a redirect URL. We can't do that from here.
         break;
       default:
         log.warn("RequestContext::setLanguage(localeMode) " + Settings.localeMode.toString()
@@ -491,6 +510,20 @@ public class RequestContext
         Cookie cookie = getCookie(SNAP_USER_LANGUAGE);
         if (cookie != null)
           mLanguage = cookie.getValue();
+        break;
+      case SUBDOMAIN:
+        String host = getRequest().getServerName();
+        // host could be an IP address. ignore for now
+        String[] hostParts = host.split("\\.");
+        Locale.Builder builder = new Locale.Builder();
+        try
+        {
+          builder.setLanguageTag(hostParts[0]);
+          mLanguage = hostParts[0];
+        }
+        catch (IllformedLocaleException ile)
+        {
+        }
         break;
       case CUSTOM:
         mLanguage = WebApplication.getInstance().retrieveLanguage(this);
@@ -724,6 +757,8 @@ public class RequestContext
 
   private HttpServletRequest mServletRequest;
   private HttpServletResponse mServletResponse;
+
+  private boolean mPersistLanguage = false;
 
   private HttpMethod mMethod;
   private RouteMatcher mRoute;

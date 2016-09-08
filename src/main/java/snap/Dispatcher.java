@@ -2,11 +2,13 @@ package snap;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.URI;
 import java.net.URLEncoder;
 import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import javax.servlet.ServletConfig;
@@ -18,9 +20,12 @@ import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.mikael.urlbuilder.UrlBuilder;
+import snap.Settings.LocaleMode;
 import snap.forms.MissingCsrfTokenException;
 import snap.http.HttpError;
 import snap.http.HttpMethod;
+import snap.http.HttpRedirect;
 import snap.http.RequestContext;
 import snap.http.RequestResult;
 
@@ -140,16 +145,48 @@ public class Dispatcher extends HttpServlet
 
     try
     {
-
-      RouteMatcher routeMatcher = mRouter.findRouteMatcherForPath(method, path);
-
-      context.setRouteMatcher(routeMatcher);
+      String oldLanguage = context.getLanguage();
 
       if (mRequestListener != null)
         mRequestListener.onBeforeRequest(context);
 
+      RouteMatcher routeMatcher = mRouter.findRouteMatcherForPath(method, path);
+      context.setRouteMatcher(routeMatcher);
+
       // Ask the controller to process the request
       requestResult = routeMatcher.handleRoute(context);
+
+      // If the user changed the language during the request and the language
+      // should be in the subdomain and the user wanted to switch domains, then
+      // redirect to the new domain
+      String newLanguage = context.getLanguage();
+      if (Settings.localeMode == LocaleMode.SUBDOMAIN && !Objects.equals(newLanguage, oldLanguage)
+          && context.isPersistLanguage())
+      {
+        // the user wants the language string in the subdomain, then handle
+        // it here
+        UrlBuilder ub1 = UrlBuilder.fromUrl(Settings.siteRootUrl);
+        String hostname = context.getLanguage() + "." + ub1.hostName;
+        ub1 = ub1.withHost(hostname);
+
+        if (requestResult instanceof HttpRedirect)
+        {
+          HttpRedirect redirect = (HttpRedirect)requestResult;
+          URI uri = redirect.getURI();
+          ub1 = ub1.withPath(uri.getPath()).withQuery(uri.getQuery());
+          requestResult = new HttpRedirect(ub1.toUrl(), redirect.getRedirectType());
+        }
+        else
+        {
+          log.warn(
+              "Expected HttpRedirect instead of View. Not showing view, sending redirect to same page instead.");
+          log.info(
+              "When you change the language using RequestContext.setLanguage() you must return a HttpRedirect result.");
+          ub1 = ub1.withPath(context.getPath()).withQuery(context.getQuery());
+          requestResult = new HttpRedirect(ub1.toUrl());
+        }
+      }
+
       // Process the returned result of the controller.
       requestResult.handleResult(context);
 

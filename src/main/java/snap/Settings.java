@@ -2,6 +2,8 @@ package snap;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Properties;
 
 import org.slf4j.Logger;
@@ -11,27 +13,26 @@ public class Settings
 {
   final static Logger log = LoggerFactory.getLogger(Settings.class);
 
-  public enum LocaleStorageMode {
-    COOKIE, SESSION, CUSTOM
+  public enum LocaleMode {
+    COOKIE, SESSION, SUBDOMAIN, CUSTOM
   };
 
-  public static String routesFile = "routes.conf";
-  public static String packagePrefix;
-  public static String webAppClass = null;
-  public static String redirectUrl = "/";
-  public static String siteRootUrl = "http://localhost";
+  static String routesFile = "routes.conf";
+  static String packagePrefix;
+  static String webAppClass = null;
+  static String redirectUrl = "/";
+  static boolean threadSafeController = false;
+  static boolean redirectEnabled = false;
+  static String defaultLanguage = "en-US";
+  static URL siteRootUrl;
+
+  // These should not be public (they are public for the parent package
   public static boolean debug = true;
   public static String emailTemplatePath;
   public static String rythmEngineMode = "dev"; // defaults to dev mode
-  public static LocaleStorageMode localeMode = LocaleStorageMode.COOKIE;
-
-  public static boolean threadSafeController = false;
+  public static LocaleMode localeMode = LocaleMode.COOKIE;
 
   public static String rootPath;
-
-  public static boolean redirectEnabled = false;
-
-  public static String defaultLanguage = "en-US";
 
   static
   {
@@ -62,7 +63,17 @@ public class Settings
 
         t = p.getProperty("snap.site.rooturl");
         if (t != null)
-          siteRootUrl = new String(t);
+        {
+          try
+          {
+            siteRootUrl = new URL(t);
+          }
+          catch (MalformedURLException mue)
+          {
+            log.warn("Invalid url for 'snap.site.rooturl': " + siteRootUrl);
+            throw new IllegalArgumentException(mue);
+          }
+        }
 
         t = p.getProperty("snap.mail.templatepath");
         if (t != null)
@@ -89,12 +100,12 @@ public class Settings
         t = p.getProperty("snap.site.localemode");
         try
         {
-          localeMode = LocaleStorageMode.valueOf(t.toUpperCase());
+          localeMode = LocaleMode.valueOf(t.toUpperCase());
         }
         catch (NullPointerException | IllegalArgumentException e)
         {
           log.warn(
-              "Missing or invalid value for 'snap.site.localemode'. legal values are 'cookie', 'session' or 'custom'. Defaulting to 'cookie'");
+              "Missing or invalid value for 'snap.site.localemode'. legal values are 'cookie', 'session', 'subdomain' or 'custom'. Defaulting to 'cookie'");
         }
 
         t = p.getProperty("snap.site.locale.default");

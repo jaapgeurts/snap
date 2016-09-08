@@ -150,21 +150,6 @@ public abstract class WebApplication
   }
 
   /**
-   * Sets the language for this user. You should persist the language somewhere.
-   * The context is sent with this request so you can determine the current
-   * authenticated user or set a custom cookie etc
-   *
-   * @param context
-   *          the context under which storage request was made
-   * @param language
-   *          The language string in BCP47 notation
-   */
-  public void storeLanguage(RequestContext context, String language)
-  {
-
-  }
-
-  /**
    * Adds an authenticator to the web application. These are authenticators that
    *
    * @param authenticator
