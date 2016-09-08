@@ -89,7 +89,7 @@ public class Settings
         t = p.getProperty("snap.site.localemode");
         try
         {
-          LocaleStorageMode.valueOf(t.toUpperCase());
+          localeMode = LocaleStorageMode.valueOf(t.toUpperCase());
         }
         catch (NullPointerException | IllegalArgumentException e)
         {
