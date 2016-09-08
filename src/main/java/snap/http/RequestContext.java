@@ -220,6 +220,12 @@ public class RequestContext
     return mServletRequest.getHeader("referer");
   }
 
+  /**
+   * Returns the decoded url path of this url. call getQuery to get the query
+   * string
+   *
+   * @return the decoded url path
+   */
   public String getPath()
   {
     String uri = mServletRequest.getRequestURI();
@@ -237,6 +243,26 @@ public class RequestContext
   }
 
   /**
+   * Returns the decoded query string
+   *
+   * @return the decoded query
+   */
+  public String getQuery()
+  {
+    String query = mServletRequest.getQueryString();
+    try
+    {
+      return URLDecoder.decode(query, "UTF-8");
+    }
+    catch (UnsupportedEncodingException e)
+    {
+      log.error("JVM Doesn't support UTF8", e);
+    }
+    // if we can't decode it, then just return it.
+    return query;
+  }
+
+  /**
    * Gets the HTTP Method by which this request was called.
    *
    * @return The method
@@ -244,6 +270,21 @@ public class RequestContext
   public HttpMethod getMethod()
   {
     return mMethod;
+  }
+
+  /**
+   * Call this method if you want to forward this request to the next rule in
+   * the list
+   *
+   * @return the result from the next route
+   * @throws Throwable
+   *           Any error thrown
+   */
+  public RequestResult chainNextRoute() throws Throwable
+  {
+    RouteMatcher matcher = Router.getInstance().findNextRouteMatcherForPath(getMethod(), getPath(),
+        getRouteMatcher());
+    return matcher.handleRoute(this);
   }
 
   /**
