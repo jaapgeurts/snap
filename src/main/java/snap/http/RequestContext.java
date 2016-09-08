@@ -220,7 +220,7 @@ public class RequestContext
     return mServletRequest.getHeader("referer");
   }
 
-  public String getRequestURI()
+  public String getPath()
   {
     String uri = mServletRequest.getRequestURI();
     try
@@ -276,7 +276,7 @@ public class RequestContext
   {
     mRoute = routeMatcher;
     // set the parameters
-    mUrlParams = routeMatcher.getParameters(getRequestURI());
+    mUrlParams = routeMatcher.getParameters(getPath());
 
   }
 
@@ -381,8 +381,11 @@ public class RequestContext
    *          Use a standard Locale.getLanguage() value or set to null to remove
    *          and switch back to the default locale
    * @param persist
-   *          True - Save the setting to cookie or session False - just save the
-   *          setting in the current RequestContext
+   *          <ul>
+   *          <li>True - Save the setting to cookie, session or database,</li>
+   *          <li>False - just save the setting in the current RequestContext
+   *          </li>
+   *          </ul>
    *
    */
   public void setLanguage(String language, boolean persist)
@@ -414,6 +417,9 @@ public class RequestContext
           addCookie(cookie);
         }
         break;
+      case CUSTOM:
+        WebApplication.getInstance().storeLanguage(this, language);
+        break;
       default:
         log.warn("RequestContext::setLanguage(localeMode) " + Settings.localeMode.toString()
             + " not implemented.");
@@ -425,9 +431,7 @@ public class RequestContext
    * Returns the language for this request. If the language was previously set
    * with setLanguage(language,persist) then that value will be returned. If
    * persist was true then the language will be saved between requests and
-   * returned. If setLanguage() was not set and not persisted Snap! will return
-   * the value of the Accept-Language header if it was sent. In all remaining
-   * cases it returns null
+   * returned.
    *
    * @return The language in BCP47 notation or null if no language was set and
    *         no Accept-Language was sent
@@ -446,6 +450,9 @@ public class RequestContext
         Cookie cookie = getCookie(SNAP_USER_LANGUAGE);
         if (cookie != null)
           mLanguage = cookie.getValue();
+        break;
+      case CUSTOM:
+        mLanguage = WebApplication.getInstance().retrieveLanguage(this);
         break;
       default:
         log.warn("RequestContext::getLanguage() " + Settings.localeMode.toString() + " not implemented.");

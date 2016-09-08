@@ -136,6 +136,35 @@ public abstract class WebApplication
   }
 
   /**
+   * Returns the language string for this request. You get the language from
+   * your persistence store. The context is sent with this request so you can
+   * determine the current authenticated user or set a custom cookie etc
+   *
+   * @param context
+   *          the context under which the language is needed
+   * @return The language string in BCP47 notation
+   */
+  public String retrieveLanguage(RequestContext context)
+  {
+    return Settings.defaultLanguage;
+  }
+
+  /**
+   * Sets the language for this user. You should persist the language somewhere.
+   * The context is sent with this request so you can determine the current
+   * authenticated user or set a custom cookie etc
+   *
+   * @param context
+   *          the context under which storage request was made
+   * @param language
+   *          The language string in BCP47 notation
+   */
+  public void storeLanguage(RequestContext context, String language)
+  {
+
+  }
+
+  /**
    * Adds an authenticator to the web application. These are authenticators that
    *
    * @param authenticator
@@ -207,7 +236,7 @@ public abstract class WebApplication
    *
    * @return the servlet context
    */
-  public ServletContext getContext()
+  public ServletContext getServletContext()
   {
     return mServletContext;
   }

@@ -30,10 +30,10 @@ public class RouteMatcher
   public RouteMatcher(String contextPath, String alias, String url, Route route)
   {
     mServletContextPath = contextPath;
-    mPath = url;
+    mUrlRegEx = url;
     mAlias = alias;
 
-    byte[] re = mPath.getBytes();
+    byte[] re = mUrlRegEx.getBytes();
     mRegex = new Regex(re, 0, re.length, Option.NONE, UTF8Encoding.INSTANCE);
 
     mRoute = route;
@@ -135,10 +135,10 @@ public class RouteMatcher
   {
     StringBuilder builder = new StringBuilder();
     java.util.regex.Pattern pat = Pattern.compile("\\(.+?\\)");
-    java.util.regex.Matcher m = pat.matcher(mPath);
-    int regExLength = mPath.length();
+    java.util.regex.Matcher m = pat.matcher(mUrlRegEx);
+    int regExLength = mUrlRegEx.length();
     int start = 0;
-    if (mPath.charAt(0) == '^')
+    if (mUrlRegEx.charAt(0) == '^')
       start++;
     int i = 0;
     // TODO: check for missing parameters and report
@@ -146,14 +146,14 @@ public class RouteMatcher
     {
       try
       {
-        builder.append(mPath.substring(start, m.start()));
+        builder.append(mUrlRegEx.substring(start, m.start()));
         if (i < params.length)
         {
           builder.append(URLEncoder.encode(params[i].toString(), "UTF-8"));
         }
         else
         {
-          String message = "Not enough parameters when reversing link: " + mPath;
+          String message = "Not enough parameters when reversing link: " + mUrlRegEx;
           log.error(message);
           throw new SnapException(message);
         }
@@ -165,12 +165,12 @@ public class RouteMatcher
         log.debug("JVM doesn't support UTF-8", e);
       }
     }
-    if (mPath.charAt(regExLength - 1) == '$')
+    if (mUrlRegEx.charAt(regExLength - 1) == '$')
     {
       regExLength--;
       if (start != regExLength)
       {
-        builder.append(mPath.substring(start, regExLength));
+        builder.append(mUrlRegEx.substring(start, regExLength));
       }
     }
 
@@ -257,13 +257,13 @@ public class RouteMatcher
   }
 
   /**
-   * Get the URL path of this route as found in the routes.conf file
+   * Get the URL regex of this route as found in the routes.conf file
    *
-   * @return the path of this route
+   * @return the url regex of this route
    */
-  public String getPath()
+  public String getUrlRegEx()
   {
-    return mPath;
+    return mUrlRegEx;
   }
 
   /**
@@ -287,8 +287,34 @@ public class RouteMatcher
     return mRoute;
   }
 
+  @Override
+  public int hashCode()
+  {
+    return mAlias.hashCode();
+  }
+
+  @Override
+  public boolean equals(Object other)
+  {
+    if (this == other)
+      return true;
+
+    if (!(other instanceof RouteMatcher))
+      return false;
+
+    RouteMatcher matcher = (RouteMatcher)other;
+
+    return mAlias.equals(matcher.mAlias);
+  }
+
+  @Override
+  public String toString()
+  {
+    return "Alias: " + mAlias + ", UrlRegEx: " + mUrlRegEx;
+  }
+
   private String mServletContextPath;
-  private String mPath;
+  private String mUrlRegEx;
   private String mAlias;
   private Regex mRegex;
 

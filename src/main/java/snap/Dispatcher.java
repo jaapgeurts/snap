@@ -125,7 +125,7 @@ public class Dispatcher extends HttpServlet
     if (request.getCharacterEncoding() == null)
       request.setCharacterEncoding("UTF-8");
     // match the path here and find a route
-    String path = context.getRequestURI();
+    String path = context.getPath();
     if (path == null || "".equals(path))
     {
       String message = "The url-pattern section for this servlet in web.xml should be '/*'";

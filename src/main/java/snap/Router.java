@@ -113,7 +113,8 @@ public class Router
   }
 
   /**
-   * Finds a route in the list for the specified method and path
+   * Finds a route in the list for the specified method and path. Returns the
+   * first match
    *
    * @param method
    *          The HTTP method
@@ -127,28 +128,64 @@ public class Router
    */
   public RouteMatcher findRouteMatcherForPath(HttpMethod method, String path)
   {
-    RouteMatcher routeMatcher = null;
-    for (RouteMatcher r : mRouteList)
+    return internalFindRouteMatcherForPath(method, path, 0);
+  }
+
+  /**
+   * Finds a route in the list for the method and path, but starts at rule after
+   * the rule of the matcher.
+   *
+   * @param method
+   *          the method for which to find a path
+   * @param path
+   *          the path as sent by the http client
+   * @param matcher
+   *          the current matcher
+   * @return the route matcher found or throw exception if not found
+   */
+  public RouteMatcher findNextRouteMatcherForPath(HttpMethod method, String path, RouteMatcher matcher)
+  {
+    // find the current matcher.
+    int start = -1;
+    for (int i = 0; i < mRouteList.size(); i++)
     {
-      if (r.match(path))
+      RouteMatcher m = mRouteList.get(i);
+      if (m.equals(matcher))
       {
-        routeMatcher = r;
+        start = i + 1;
         break;
       }
     }
-    if (routeMatcher == null)
+    if (start == -1)
+      throw new SnapException("Route matcher not found for matcher: " + matcher.toString());
+    return internalFindRouteMatcherForPath(method, path, start);
+  }
+
+  private RouteMatcher internalFindRouteMatcherForPath(HttpMethod method, String path, int start)
+  {
+    RouteMatcher foundRouteMatcher = null;
+    for (int i = start; i < mRouteList.size(); i++)
+    {
+      RouteMatcher matcher = mRouteList.get(i);
+      if (matcher.match(path))
+      {
+        foundRouteMatcher = matcher;
+        break;
+      }
+    }
+    if (foundRouteMatcher == null)
       throw new RouteNotFoundException(
           "Can't find route for Method: " + method.toString() + " path: " + path);
 
-    HttpMethod[] methods = routeMatcher.getRoute().getHttpMethods();
+    HttpMethod[] methods = foundRouteMatcher.getRoute().getHttpMethods();
     if (methods == null)
-      throw new SnapException("Route '" + routeMatcher.getAlias() + "' has no methods to call");
+      throw new SnapException("Route '" + foundRouteMatcher.getAlias() + "' does not allow any HTTP methods");
 
     for (HttpMethod m : methods)
       if (method == m)
-        return routeMatcher;
+        return foundRouteMatcher;
 
-    throw new HttpMethodException("Route " + routeMatcher.getAlias() + " matches path " + path
+    throw new HttpMethodException("Route " + foundRouteMatcher.getAlias() + " matches path " + path
         + ", but has incorrect method " + method.toString());
   }
 

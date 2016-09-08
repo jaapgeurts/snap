@@ -1,6 +1,8 @@
 package snap.http;
 
 import java.io.IOException;
+import java.net.URI;
+import java.net.URL;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -48,6 +50,55 @@ public class HttpRedirect implements RequestResult
       throw new IllegalArgumentException();
     mUrl = url;
     mRedirectType = redirectType;
+  }
+
+  /**
+   * Redirect the user to the url identified by URL
+   *
+   * @param url
+   *          The url
+   */
+  public HttpRedirect(URL url)
+  {
+    this(url.toString());
+  }
+
+  /**
+   * Redirect the user to the url identified by URL
+   *
+   * @param url
+   *          The url to redirect to
+   * @param redirectType
+   *          The type of redirect to use
+   */
+  public HttpRedirect(URL url, RedirectType redirectType)
+  {
+    this(url.toString(), redirectType);
+  }
+
+  /**
+   * Redirect the user to the uri identified by URI
+   *
+   * @param uri
+   *          The URI
+   */
+  public HttpRedirect(URI uri)
+  {
+    this(uri.toString());
+  }
+
+  /**
+   * Redirect the user to the uri identified by URI
+   *
+   * @param uri
+   *          The uri to redirect to
+   * @param redirectType
+   *          The type of redirect to use
+   *
+   */
+  public HttpRedirect(URI uri, RedirectType redirectType)
+  {
+    this(uri.toString(), redirectType);
   }
 
   @Override

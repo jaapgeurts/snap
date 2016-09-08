@@ -141,7 +141,7 @@ public class StaticRoute implements Route
     // remove the path in the routes.conf from the request url path segments.
     // The remainder is the file name
     Pattern p = Pattern.compile(mPath);
-    Matcher m = p.matcher(context.getRequestURI());
+    Matcher m = p.matcher(context.getPath());
     String fileName = m.replaceAll("");
 
     // Get a File object pointing to the correct file.

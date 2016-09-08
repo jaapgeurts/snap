@@ -26,4 +26,5 @@ public interface User
    * @return true, when the user has this right. false otherwise
    */
   boolean hasPermission(String right);
+
 }

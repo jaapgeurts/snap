@@ -12,7 +12,7 @@ public class Settings
   final static Logger log = LoggerFactory.getLogger(Settings.class);
 
   public enum LocaleStorageMode {
-    COOKIE, SESSION, DATABASE
+    COOKIE, SESSION, CUSTOM
   };
 
   public static String routesFile = "routes.conf";
@@ -29,7 +29,9 @@ public class Settings
 
   public static String rootPath;
 
-  public static boolean redirectEnabled;
+  public static boolean redirectEnabled = false;
+
+  public static String defaultLanguage = "en-US";
 
   static
   {
@@ -78,7 +80,8 @@ public class Settings
         if (t != null)
         {
           if (!"dev".equals(t.toLowerCase()) && !"prod".equals(t.toLowerCase()))
-            log.warn("Invalid value for 'rythm.engine.mode'. Legal values are 'dev' or 'prod'. Defaulting to 'dev'");
+            log.warn(
+                "Invalid value for 'rythm.engine.mode'. Legal values are 'dev' or 'prod'. Defaulting to 'dev'");
           else
             rythmEngineMode = new String(t);
         }
@@ -90,8 +93,13 @@ public class Settings
         }
         catch (NullPointerException | IllegalArgumentException e)
         {
-          log.warn("Missing or invalid value for 'snap.site.localemode'. legal values are 'cookie', 'session' or 'database'. Defaulting to 'cookie'");
+          log.warn(
+              "Missing or invalid value for 'snap.site.localemode'. legal values are 'cookie', 'session' or 'custom'. Defaulting to 'cookie'");
         }
+
+        t = p.getProperty("snap.site.locale.default");
+        if (t != null)
+          defaultLanguage = new String(t);
 
         mProperties = p;
       }

@@ -10,7 +10,7 @@ import snap.http.HttpMethod;
 /**
  * Describes the Http Methods that are allowed for this request. Only valid for
  * methods called by the router.
- * 
+ *
  * @author Jaap Geurts
  *
  */
@@ -19,9 +19,9 @@ import snap.http.HttpMethod;
 public @interface RouteOptions
 {
   /**
-   * Specify the methods that are allows. Common ones are: HttpMethod.GET and
+   * Specify the methods that are allowed. Common ones are: HttpMethod.GET and
    * HttpMethod.POST
-   * 
+   *
    * @return A list of methods
    */
   HttpMethod[] methods() default {};
