@@ -6,8 +6,10 @@ import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
+import java.util.ResourceBundle;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
@@ -34,7 +36,6 @@ import snap.views.View;
 public abstract class WebApplication
 {
 
-  public static final String RESOURCE_BUNDLE_NAME = "messages";
   final Logger log = LoggerFactory.getLogger(WebApplication.class);
 
   public static WebApplication getInstance()
@@ -63,8 +64,11 @@ public abstract class WebApplication
     registerAnnotation(LoginRequired.class, new LoginRequiredHandler());
 
     // Setup the template engine
-    Properties conf = new Properties();
-    conf.put("engine.mode", Settings.rythmEngineMode);
+    Properties conf = Settings.asProperties();
+    // conf.put("engine.mode", Settings.get("rythm.engine.mode"));
+    // conf.put("i18n.message.sources",
+    // Settings.get("rythm.i18n.message.sources"));
+
     conf.put("home.template", rootPath);
     mEngine = new RythmEngine(conf);
 
@@ -241,6 +245,58 @@ public abstract class WebApplication
   }
 
   /**
+   * Returns a resource bundle for this application
+   *
+   * @param locale
+   *          The locale for which to get the bundle. May be null and will
+   *          return the locale of the current request (if it has been set) or
+   *          else the default locale of the JVM
+   * @return The bundle
+   */
+  public ResourceBundle getResourceBundle(Locale locale)
+  {
+    if (locale == null)
+      locale = getRequestContext().getLocale();
+
+    if (locale == null)
+      return ResourceBundle.getBundle(Settings.get("snap.i18n.resourcebundle.name", "messages"));
+    else
+      return ResourceBundle.getBundle(Settings.get("snap.i18n.resourcebundle.name", "messages"), locale);
+  }
+
+  /**
+   * Returns the current RequestContext for the current thread. The context is
+   * stored in a ThreadLocal.
+   *
+   * @return RequestContext The context
+   */
+  public RequestContext getRequestContext()
+  {
+    return mRequestContext.get();
+  }
+
+  /**
+   * Sets the current RequestContext for the current thread. The context is
+   * stored in a ThreadLocal. For internal use only!
+   *
+   * @param context
+   *          The RequestContext to set.
+   */
+  public void setRequestContext(RequestContext context)
+  {
+    mRequestContext.set(context);
+  }
+
+  /**
+   * Removes the current RequestContext and frees resources. For internal use
+   * only!
+   */
+  public void removeRequestContext()
+  {
+    mRequestContext.remove();
+  }
+
+  /**
    * Setup a listener for request pre post processing hooks. You must set this
    * listiner in the Init() call. Setting it after Init() has no effect.
    *
@@ -307,6 +363,7 @@ public abstract class WebApplication
     return getProperties();
   }
 
+  private ThreadLocal<RequestContext> mRequestContext = new ThreadLocal<>();
   private RythmEngine mEngine;
   private ServletContext mServletContext;
 

@@ -26,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import snap.Helpers;
+import snap.Settings;
 import snap.SnapException;
 import snap.WebApplication;
 import snap.forms.internal.FileField;
@@ -80,16 +81,13 @@ public abstract class Form
 
     try
     {
-      if (mLocale == null)
-        mResourceBundle = ResourceBundle.getBundle(WebApplication.RESOURCE_BUNDLE_NAME);
-      else
-        mResourceBundle = ResourceBundle.getBundle(WebApplication.RESOURCE_BUNDLE_NAME, mLocale);
+      mResourceBundle = WebApplication.getInstance().getResourceBundle(mLocale);
     }
     catch (MissingResourceException mre)
     {
       if (mLocale != null)
       {
-        log.warn("Locale resource bundle: " + WebApplication.RESOURCE_BUNDLE_NAME
+        log.warn("Locale resource bundle: " + Settings.get("snap.i18n.resourcebundle.name", "messages")
             + " can't be loaded. No translation is available for language " + mLocale.getLanguage());
         mLocale = null;
       }
@@ -538,13 +536,11 @@ public abstract class Form
   public String parseAnnotationString(String text)
   {
     if (mResourceBundle == null)
-    {
       return text;
-    }
+
     if (text.charAt(0) == '{' && text.charAt(text.length() - 1) == '}')
-    {
       text = mResourceBundle.getString(text.substring(1, text.length() - 1));
-    }
+
     return text;
   }
 

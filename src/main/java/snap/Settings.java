@@ -29,7 +29,6 @@ public class Settings
   // These should not be public (they are public for the parent package
   public static boolean debug = true;
   public static String emailTemplatePath;
-  public static String rythmEngineMode = "dev"; // defaults to dev mode
   public static LocaleMode localeMode = LocaleMode.COOKIE;
 
   public static String rootPath;
@@ -86,16 +85,6 @@ public class Settings
         t = p.getProperty("snap.site.debug");
         if (t != null)
           debug = Boolean.parseBoolean(t);
-
-        t = p.getProperty("rythm.engine.mode");
-        if (t != null)
-        {
-          if (!"dev".equals(t.toLowerCase()) && !"prod".equals(t.toLowerCase()))
-            log.warn(
-                "Invalid value for 'rythm.engine.mode'. Legal values are 'dev' or 'prod'. Defaulting to 'dev'");
-          else
-            rythmEngineMode = new String(t);
-        }
 
         t = p.getProperty("snap.site.localemode");
         try

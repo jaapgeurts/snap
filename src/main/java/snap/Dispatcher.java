@@ -128,6 +128,9 @@ public class Dispatcher extends HttpServlet
 
     if (request.getCharacterEncoding() == null)
       request.setCharacterEncoding("UTF-8");
+
+    WebApplication.getInstance().setRequestContext(context);
+
     // match the path here and find a route
     String path = context.getPath();
     if (path == null || "".equals(path))
@@ -259,6 +262,10 @@ public class Dispatcher extends HttpServlet
       // If we really can't handle it then bail
       // Load error view
       errorResult = new HttpError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Internal Server Error", t);
+    }
+    finally
+    {
+      WebApplication.getInstance().removeRequestContext();
     }
 
     // If requestresult != null then an error occurred;
