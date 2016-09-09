@@ -53,10 +53,9 @@ public class Dispatcher extends HttpServlet
       throw new ServletException("Cannot open route file", e);
     }
 
-    // force loading of settings so that the static initializer is called
+    // Load the web application
     try
     {
-      Class.forName("snap.Settings");
       mWebApplication = (WebApplication)Class.forName(Settings.webAppClass).newInstance();
     }
     catch (ClassNotFoundException | InstantiationException | IllegalAccessException e)
@@ -165,26 +164,20 @@ public class Dispatcher extends HttpServlet
       {
         // the user wants the language string in the subdomain, then handle
         // it here
-        UrlBuilder ub1 = UrlBuilder.fromUrl(Settings.siteRootUrl);
-        String hostname = context.getLanguage() + "." + ub1.hostName;
-        ub1 = ub1.withHost(hostname);
 
-        if (requestResult instanceof HttpRedirect)
+        if (!(requestResult instanceof HttpRedirect))
         {
-          HttpRedirect redirect = (HttpRedirect)requestResult;
-          URI uri = redirect.getURI();
-          ub1 = ub1.withPath(uri.getPath()).withQuery(uri.getQuery());
-          requestResult = new HttpRedirect(ub1.toUrl(), redirect.getRedirectType());
-        }
-        else
-        {
-          log.warn(
-              "Expected HttpRedirect instead of View. Not showing view, sending redirect to same page instead.");
-          log.info(
+          log.error(
               "When you change the language using RequestContext.setLanguage() you must return a HttpRedirect result.");
-          ub1 = ub1.withPath(context.getPath()).withQuery(context.getQuery());
-          requestResult = new HttpRedirect(ub1.toUrl());
+          throw new IllegalStateException("Invalid controller result "
+              + requestResult.getClass().getSimpleName() + ". Expected HttpRedirect");
         }
+        HttpRedirect redirect = (HttpRedirect)requestResult;
+        URI uri = redirect.getURI();
+        UrlBuilder ub1 = UrlBuilder.fromUri(Settings.siteRootUri);
+        String hostname = context.getLanguage() + "." + ub1.hostName;
+        ub1 = ub1.withHost(hostname).withPath(uri.getPath()).withQuery(uri.getQuery());
+        requestResult = new HttpRedirect(ub1.toUrl(), redirect.getRedirectType());
       }
 
       // Process the returned result of the controller.

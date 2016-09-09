@@ -195,6 +195,8 @@ public class RequestContext
   public void removeCookie(Cookie cookie)
   {
     cookie.setMaxAge(0);
+    cookie.setValue(null);
+    cookie.setPath("/");
     addCookie(cookie);
   }
 

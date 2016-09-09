@@ -2,8 +2,8 @@ package snap;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Properties;
 
 import org.slf4j.Logger;
@@ -24,7 +24,7 @@ public class Settings
   static boolean threadSafeController = false;
   static boolean redirectEnabled = false;
   static String defaultLanguage = "en-US";
-  static URL siteRootUrl;
+  static URI siteRootUri;
 
   // These should not be public (they are public for the parent package
   public static boolean debug = true;
@@ -66,12 +66,12 @@ public class Settings
         {
           try
           {
-            siteRootUrl = new URL(t);
+            siteRootUri = new URI(t);
           }
-          catch (MalformedURLException mue)
+          catch (URISyntaxException use)
           {
-            log.warn("Invalid url for 'snap.site.rooturl': " + siteRootUrl);
-            throw new IllegalArgumentException(mue);
+            log.warn("Invalid url for 'snap.site.rooturl': " + siteRootUri);
+            throw new IllegalArgumentException(use);
           }
         }
 
@@ -144,5 +144,17 @@ public class Settings
   }
 
   private static Properties mProperties;
+
+  public static String get(String key, String dflt)
+  {
+    String val = get(key);
+    return val == null ? dflt : val;
+  }
+
+  public static int getInt(String key, int dflt)
+  {
+    String val = get(key);
+    return val == null ? dflt : Integer.valueOf(val);
+  }
 
 }
