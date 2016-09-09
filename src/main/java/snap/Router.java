@@ -195,7 +195,7 @@ public class Router
    *
    * @return the URL
    */
-  public URI siteUrl()
+  public URI siteUri()
   {
     return Settings.siteRootUri;
   }
