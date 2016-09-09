@@ -66,7 +66,7 @@ public class Settings
         {
           try
           {
-            siteRootUri = new URI(t);
+            siteRootUri = new URI(t).normalize();
           }
           catch (URISyntaxException use)
           {

@@ -197,6 +197,9 @@ public class RequestContext
     cookie.setMaxAge(0);
     cookie.setValue(null);
     cookie.setPath("/");
+    String domain = Settings.get("snap.session.cookie.domain", Router.getInstance().siteUri().getHost());
+    if (!"localhost".equals(domain) && !".localhost".equals(domain))
+      cookie.setDomain(domain);
     addCookie(cookie);
   }
 
@@ -409,6 +412,9 @@ public class RequestContext
       Cookie cookie = new Cookie(SNAP_CSRF_COOKIE_NAME, getServerCsrfToken());
       cookie.setMaxAge(CSRF_COOKIE_EXPIRY);
       cookie.setPath("/");
+      String domain = Settings.get("snap.session.cookie.domain", mRouter.siteUri().getHost());
+      if (!"localhost".equals(domain) && !".localhost".equals(domain))
+        cookie.setDomain(domain);
       addCookie(cookie);
     }
   }
@@ -705,8 +711,8 @@ public class RequestContext
    */
   public String getServerCsrfToken()
   {
-    HttpSession session = mServletRequest.getSession();
-    if (session.getAttribute(SNAP_CSRF_TOKEN) != null)
+    HttpSession session = mServletRequest.getSession(false);
+    if (session != null && session.getAttribute(SNAP_CSRF_TOKEN) != null)
       return (String)session.getAttribute(SNAP_CSRF_TOKEN);
     else
       log.debug("User not logged in. Not returning CSRF Token");
@@ -718,8 +724,8 @@ public class RequestContext
    */
   public void resetCsrfToken()
   {
-    HttpSession session = mServletRequest.getSession();
-    if (session.getAttribute(SNAP_CSRF_TOKEN) != null)
+    HttpSession session = mServletRequest.getSession(false);
+    if (session != null && session.getAttribute(SNAP_CSRF_TOKEN) != null)
       session.setAttribute(SNAP_CSRF_TOKEN, generateCsrfToken());
     else
       log.warn("User not logged in. Not resetting CSRF Token");

@@ -105,7 +105,8 @@ public class ActionRoute implements Route
       }
 
       // check CSRF
-      if (context.getMethod() == HttpMethod.POST || context.getMethod() == HttpMethod.PUT)
+      // TODO: this should probably include HttpMethod.DELETE
+      if (context.getMethod() == HttpMethod.POST || context.getMethod() == HttpMethod.PUT )
       {
         validateCsrfToken(context);
       }
@@ -318,7 +319,9 @@ public class ActionRoute implements Route
       if (token == null)
       {
         Cookie cookie = context.getCookie(RequestContext.SNAP_CSRF_COOKIE_NAME);
-        token = cookie.getValue();
+        if (cookie != null)
+          token = cookie.getValue();
+
         if (token == null)
         {
           String message = "Csrf Token not found. Did you forget to include it with @csrf_token()";
