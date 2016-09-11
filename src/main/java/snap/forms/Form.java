@@ -535,11 +535,23 @@ public abstract class Form
    */
   public String parseAnnotationString(String text)
   {
-    if (mResourceBundle == null)
-      return text;
 
     if (text.charAt(0) == '{' && text.charAt(text.length() - 1) == '}')
-      text = mResourceBundle.getString(text.substring(1, text.length() - 1));
+    {
+      String key = text.substring(1, text.length() - 1);
+      if (mResourceBundle == null)
+        return key;
+      try
+      {
+        text = mResourceBundle.getString(key);
+      }
+      catch (MissingResourceException mre)
+      {
+        log.warn("Can't find translation for key: " + key);
+        return key;
+      }
+
+    }
 
     return text;
   }
