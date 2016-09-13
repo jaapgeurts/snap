@@ -28,7 +28,6 @@ import org.slf4j.LoggerFactory;
 import snap.Helpers;
 import snap.Settings;
 import snap.SnapException;
-import snap.WebApplication;
 import snap.forms.internal.FileField;
 import snap.forms.internal.FormFieldBase;
 import snap.http.RequestContext;
@@ -81,7 +80,13 @@ public abstract class Form
 
     try
     {
-      mResourceBundle = WebApplication.getInstance().getResourceBundle(mLocale);
+
+      if (mLocale == null)
+        mResourceBundle = ResourceBundle.getBundle(Settings.get("snap.i18n.resourcebundle.name", "messages"));
+      else
+        mResourceBundle = ResourceBundle.getBundle(Settings.get("snap.i18n.resourcebundle.name", "messages"),
+            mLocale);
+
     }
     catch (MissingResourceException mre)
     {

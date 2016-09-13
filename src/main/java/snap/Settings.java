@@ -37,81 +37,88 @@ public class Settings
   {
     try
     {
-      InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream("snap.properties");
       Properties p = new Properties();
-      try
+      mProperties = p;
+
+      InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream("snap.properties");
+      if (in != null)
       {
-        p.load(in);
-        String t = p.getProperty("snap.router.routes");
-        if (t != null)
-          routesFile = new String(t);
-
-        t = p.getProperty("snap.router.packageprefix");
-        if (t != null)
-          packagePrefix = new String(t);
-
-        webAppClass = p.getProperty("snap.applicationclass");
-
-        t = p.getProperty("snap.login.redirect.url");
-        if (t != null)
-          redirectUrl = new String(t);
-
-        t = p.getProperty("snap.login.redirect");
-        if (t != null)
-          redirectEnabled = Boolean.parseBoolean(t);
-
-        t = p.getProperty("snap.site.rooturl");
-        if (t != null)
-        {
-          try
-          {
-            siteRootUri = new URI(t).normalize();
-          }
-          catch (URISyntaxException use)
-          {
-            log.warn("Invalid url for 'snap.site.rooturl': " + siteRootUri);
-            throw new IllegalArgumentException(use);
-          }
-        }
-
-        t = p.getProperty("snap.mail.templatepath");
-        if (t != null)
-          emailTemplatePath = new String(t);
-
-        t = p.getProperty("snap.controller.threadsafe");
-        if (t != null)
-          threadSafeController = Boolean.valueOf(t);
-
-        t = p.getProperty("snap.site.debug");
-        if (t != null)
-          debug = Boolean.parseBoolean(t);
-
-        t = p.getProperty("snap.site.localemode");
         try
         {
-          localeMode = LocaleMode.valueOf(t.toUpperCase());
+          p.load(in);
+          String t = p.getProperty("snap.router.routes");
+          if (t != null)
+            routesFile = new String(t);
+
+          t = p.getProperty("snap.router.packageprefix");
+          if (t != null)
+            packagePrefix = new String(t);
+
+          webAppClass = p.getProperty("snap.applicationclass");
+
+          t = p.getProperty("snap.login.redirect.url");
+          if (t != null)
+            redirectUrl = new String(t);
+
+          t = p.getProperty("snap.login.redirect");
+          if (t != null)
+            redirectEnabled = Boolean.parseBoolean(t);
+
+          t = p.getProperty("snap.site.rooturl");
+          if (t != null)
+          {
+            try
+            {
+              siteRootUri = new URI(t).normalize();
+            }
+            catch (URISyntaxException use)
+            {
+              log.warn("Invalid url for 'snap.site.rooturl': " + siteRootUri);
+              throw new IllegalArgumentException(use);
+            }
+          }
+
+          t = p.getProperty("snap.mail.templatepath");
+          if (t != null)
+            emailTemplatePath = new String(t);
+
+          t = p.getProperty("snap.controller.threadsafe");
+          if (t != null)
+            threadSafeController = Boolean.valueOf(t);
+
+          t = p.getProperty("snap.site.debug");
+          if (t != null)
+            debug = Boolean.parseBoolean(t);
+
+          t = p.getProperty("snap.site.localemode");
+          try
+          {
+            localeMode = LocaleMode.valueOf(t.toUpperCase());
+          }
+          catch (NullPointerException | IllegalArgumentException e)
+          {
+            log.warn(
+                "Missing or invalid value for 'snap.site.localemode'. legal values are 'cookie', 'session', 'subdomain' or 'custom'. Defaulting to 'cookie'");
+          }
+
+          t = p.getProperty("snap.site.locale.default");
+          if (t != null)
+            defaultLanguage = new String(t);
+
         }
-        catch (NullPointerException | IllegalArgumentException e)
+        finally
         {
-          log.warn(
-              "Missing or invalid value for 'snap.site.localemode'. legal values are 'cookie', 'session', 'subdomain' or 'custom'. Defaulting to 'cookie'");
-        }
-
-        t = p.getProperty("snap.site.locale.default");
-        if (t != null)
-          defaultLanguage = new String(t);
-
-        mProperties = p;
-      }
-      finally
-      {
-        if (in != null)
           in.close();
+        }
+      }
+      else
+      {
+        log.error("Configuration file 'snap.settings' can't be opened");
       }
     }
     catch (IOException e)
     {
-      log.warn("Can't read settings.", e);
+      log.error("Can't read settings.", e);
     }
   }
 
