@@ -4,6 +4,7 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.time.format.FormatStyle;
 
 /**
  * Marks this field as a DateInput. The field type must be a String,
@@ -18,11 +19,25 @@ import java.lang.annotation.Target;
 @Target(ElementType.FIELD)
 public @interface DateField
 {
-  public String id() default "";
+  String id() default "";
 
-  public String label() default "";
+  String label() default "";
 
-  public String placeholder() default "";
+  String placeholder() default "";
 
-  public String format() default "MM/dd/yyyy";
+  /**
+   * Used when no Locale(language) is set for the current RequestContext.
+   * Defaults to "MM/dd/yyyy"
+   *
+   * @return The pattern
+   */
+  String pattern() default "MM/dd/yyyy";
+
+  /**
+   * Used when a Locale(language) is set for the current RequestContext.
+   * defaults to FormatStyle.MEDIUM
+   *
+   * @return the format style
+   */
+  FormatStyle formatStyle() default FormatStyle.MEDIUM;
 }
