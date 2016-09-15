@@ -40,7 +40,7 @@ public class TextField extends FormFieldBase
     String value = getFieldValueString();
 
     return String.format("<input type='text' id='%1$s' name='%2$s' value='%3$s' %4$s/>\n", mHtmlId,
-        mFieldName, Helpers.escapeHtml(value), Helpers.attrToString(attributes));
+                         mFieldName, Helpers.escapeHtml(value), Helpers.attrToString(attributes));
 
   }
 
@@ -72,8 +72,7 @@ public class TextField extends FormFieldBase
     }
     catch (NumberFormatException nfe)
     {
-      log.warn("Possible hacking attempt! Submitted field value '" + values[0]
-          + "' can't be converted to numeric value.", nfe);
+      mForm.onFieldAssignmentError(mFieldName, values[0], nfe);
     }
     catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException e)
     {

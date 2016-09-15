@@ -85,7 +85,7 @@ public abstract class Form
         mResourceBundle = ResourceBundle.getBundle(Settings.get("snap.i18n.resourcebundle.name", "messages"));
       else
         mResourceBundle = ResourceBundle.getBundle(Settings.get("snap.i18n.resourcebundle.name", "messages"),
-            mLocale);
+                                                   mLocale);
 
     }
     catch (MissingResourceException mre)
@@ -149,6 +149,22 @@ public abstract class Form
           ((FormFieldBase)entry.getValue()).setFieldValue(params.get(entry.getKey()));
       }
     }
+  }
+
+  /**
+   * Called when an error occured when assigning a value to a field. Most
+   * usually these are type conversion errors
+   *
+   * @param fieldName
+   *          The name of the field where the error happened
+   * @param submittedValue
+   *          Value The valued that was submitted for this field
+   * @param exception
+   *          the exception that occurred
+   */
+  public void onFieldAssignmentError(String fieldName, String submittedValue, Exception exception)
+  {
+    log.debug("Field assignment error for field: " + fieldName, exception);
   }
 
   /**
@@ -291,7 +307,7 @@ public abstract class Form
     attributes.entrySet().stream().forEach(e -> attribs.put(e.getKey(), e.getValue().toString()));
 
     return String.format("<label for='%1$s' %3$s>%2$s</label>\n", htmlId, label,
-        Helpers.attrToString(attribs));
+                         Helpers.attrToString(attribs));
   }
 
   /**
@@ -374,7 +390,8 @@ public abstract class Form
     if (mLocale != null)
       validator = validatorFactory.usingContext()
           .messageInterpolator(
-              new ForcedLocaleMessageInterpolator(validatorFactory.getMessageInterpolator(), mLocale))
+                               new ForcedLocaleMessageInterpolator(validatorFactory.getMessageInterpolator(),
+                                   mLocale))
           .getValidator();
     else
       validator = validatorFactory.getValidator();

@@ -71,8 +71,7 @@ public class ListField extends FormFieldBase
       }
       catch (NumberFormatException nfe)
       {
-        log.warn("Possible hacking attempt! Submitted field value '" + values[0]
-            + "' can't be converted to numeric type.", nfe);
+        mForm.onFieldAssignmentError(mFieldName, values[0], nfe);
       }
       catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException e)
       {
@@ -115,15 +114,15 @@ public class ListField extends FormFieldBase
     {
       case MULTI_LIST:
         b.append(String.format("\n<select id='%1$s' name='%2$s' size='%3$s' multiple %4$s>\n", mHtmlId,
-            mFieldName, mAnnotation.size(), Helpers.attrToString(attributes)));
+                               mFieldName, mAnnotation.size(), Helpers.attrToString(attributes)));
         break;
       case DROPDOWN_LIST:
         b.append(String.format("\n<select id='%1$s' name='%2$s' %3$s>\n", mHtmlId, mFieldName,
-            Helpers.attrToString(attributes)));
+                               Helpers.attrToString(attributes)));
         break;
       case SINGLE_LIST:
         b.append(String.format("\n<select id='%1$s' name='%2$s' size='%3$s' %4$s>\n", mHtmlId, mFieldName,
-            mAnnotation.size(), Helpers.attrToString(attributes)));
+                               mAnnotation.size(), Helpers.attrToString(attributes)));
     }
 
     // Check if the field is present

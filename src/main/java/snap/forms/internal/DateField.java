@@ -23,6 +23,8 @@ import snap.forms.Form;
 public class DateField extends FormFieldBase
 {
 
+  private static final String DEFAULT_DATE_PATTERN = "MM/dd/yyyy";
+
   public DateField(Form form, Field field, snap.forms.annotations.DateField annotation, String fieldName)
   {
     super(form, field, fieldName);
@@ -39,6 +41,8 @@ public class DateField extends FormFieldBase
 
     if (!mAnnotation.id().isEmpty())
       mHtmlId = mAnnotation.id();
+
+    setPattern(mAnnotation.pattern());
 
   }
 
@@ -62,16 +66,25 @@ public class DateField extends FormFieldBase
     Locale locale = WebApplication.getInstance().getRequestContext().getLocale();
     if (locale != null)
     {
-      FormatStyle style = mAnnotation.formatStyle();
-      dtFormatter = DateTimeFormatter.ofLocalizedDate(style);
-      int java7Style = convertJava8StyleToJava7Style(style);
-      sdFormat = (SimpleDateFormat)DateFormat.getDateInstance(java7Style, locale);
+      if (getPattern().isEmpty())
+      {
+        FormatStyle style = mAnnotation.formatStyle();
+        dtFormatter = DateTimeFormatter.ofLocalizedDate(style).withLocale(locale);
+        int java7Style = convertJava8StyleToJava7Style(style);
+        sdFormat = (SimpleDateFormat)DateFormat.getDateInstance(java7Style, locale);
+      }
+      else
+      {
+        dtFormatter = DateTimeFormatter.ofPattern(getPattern(), locale);
+        sdFormat = new SimpleDateFormat(getPattern(), locale);
+      }
     }
     else
     {
-      String pattern = mAnnotation.pattern();
-      dtFormatter = DateTimeFormatter.ofPattern(pattern);
-      sdFormat = new SimpleDateFormat(pattern);
+      if (getPattern().isEmpty())
+        setPattern(DEFAULT_DATE_PATTERN);
+      dtFormatter = DateTimeFormatter.ofPattern(getPattern());
+      sdFormat = new SimpleDateFormat(getPattern());
     }
     // check the type
     // TODO: add the application or user selected locale here.
@@ -121,16 +134,25 @@ public class DateField extends FormFieldBase
       Locale locale = WebApplication.getInstance().getRequestContext().getLocale();
       if (locale != null)
       {
-        FormatStyle style = mAnnotation.formatStyle();
-        dtFormatter = DateTimeFormatter.ofLocalizedDate(style);
-        int java7Style = convertJava8StyleToJava7Style(style);
-        sdFormat = (SimpleDateFormat)DateFormat.getDateInstance(java7Style, locale);
+        if (getPattern().isEmpty())
+        {
+          FormatStyle style = mAnnotation.formatStyle();
+          dtFormatter = DateTimeFormatter.ofLocalizedDate(style).withLocale(locale);
+          int java7Style = convertJava8StyleToJava7Style(style);
+          sdFormat = (SimpleDateFormat)DateFormat.getDateInstance(java7Style, locale);
+        }
+        else
+        {
+          dtFormatter = DateTimeFormatter.ofPattern(getPattern(), locale);
+          sdFormat = new SimpleDateFormat(getPattern(), locale);
+        }
       }
       else
       {
-        String pattern = mAnnotation.pattern();
-        dtFormatter = DateTimeFormatter.ofPattern(pattern);
-        sdFormat = new SimpleDateFormat(pattern);
+        if (getPattern().isEmpty())
+          setPattern(DEFAULT_DATE_PATTERN);
+        dtFormatter = DateTimeFormatter.ofPattern(getPattern());
+        sdFormat = new SimpleDateFormat(getPattern());
       }
 
       if (mField.getType().equals(String.class))
@@ -151,7 +173,7 @@ public class DateField extends FormFieldBase
     }
     catch (ParseException | DateTimeParseException e)
     {
-      log.warn("Submitted field value '" + values[0] + "' can't be converted to date time value.", e);
+      mForm.onFieldAssignmentError(mFieldName, values[0], e);
     }
     catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException e)
     {
@@ -159,13 +181,22 @@ public class DateField extends FormFieldBase
       log.debug(message, e);
       throw new SnapException(message, e);
     }
-
   }
 
   @Override
   public String toString()
   {
     return "DateField { " + mFieldName + " }";
+  }
+
+  public String getPattern()
+  {
+    return mPattern;
+  }
+
+  public void setPattern(String mPattern)
+  {
+    this.mPattern = mPattern;
   }
 
   /**
@@ -193,5 +224,6 @@ public class DateField extends FormFieldBase
   }
 
   private snap.forms.annotations.DateField mAnnotation;
+  private String mPattern;
 
 }

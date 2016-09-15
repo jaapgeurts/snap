@@ -26,16 +26,17 @@ public @interface DateField
   String placeholder() default "";
 
   /**
-   * Used when no Locale(language) is set for the current RequestContext.
-   * Defaults to "MM/dd/yyyy"
+   * If set this is used regardless of whether the Locale on the RequestContext
+   * is set. If set then formatStyle is ignored. If Locale is not set and this
+   * is not specified than the pattern defaults to "MM/dd/yyyy"
    *
    * @return The pattern
    */
-  String pattern() default "MM/dd/yyyy";
+  String pattern() default "";
 
   /**
-   * Used when a Locale(language) is set for the current RequestContext.
-   * defaults to FormatStyle.MEDIUM
+   * Used when a Locale(language) is set for the current RequestContext and
+   * pattern is not set defaults to FormatStyle.MEDIUM
    *
    * @return the format style
    */
