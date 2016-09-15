@@ -4,6 +4,8 @@ import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.validation.constraints.NotNull;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,6 +40,8 @@ public abstract class FormFieldBase implements FormField
     mForm = form;
     mHtmlId = fieldName.replace('.', '-').toLowerCase();
     mFieldName = fieldName;
+
+    mIsRequired = field.isAnnotationPresent(NotNull.class);
   }
 
   @Override
@@ -186,6 +190,12 @@ public abstract class FormFieldBase implements FormField
   }
 
   @Override
+  public boolean isRequired()
+  {
+    return mIsRequired;
+  }
+
+  @Override
   public void setHtmlId(String htmlId)
   {
     mHtmlId = htmlId;
@@ -276,5 +286,6 @@ public abstract class FormFieldBase implements FormField
   private String mErrorText = null;
   protected Map<String, String> mAttributes;
   protected boolean mVisible = true;
+  protected boolean mIsRequired;
 
 }

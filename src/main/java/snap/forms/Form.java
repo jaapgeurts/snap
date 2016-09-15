@@ -306,8 +306,14 @@ public abstract class Form
     Map<String, String> attribs = new HashMap<>();
     attributes.entrySet().stream().forEach(e -> attribs.put(e.getKey(), e.getValue().toString()));
 
-    return String.format("<label for='%1$s' %3$s>%2$s</label>\n", htmlId, label,
-                         Helpers.attrToString(attribs));
+    // check if the fields are required and insert a star
+
+    String required = "";
+    if (field.isRequired())
+      required = " <span class='required'>*</span>";
+
+    return String.format("<label for='%1$s' %3$s>%2$s%4$s</label>\n", htmlId, label,
+                         Helpers.attrToString(attribs),required);
   }
 
   /**

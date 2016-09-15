@@ -64,6 +64,14 @@ public interface FormField
   boolean isVisible();
 
   /**
+   * Returns true if this is a required field. (This is marked by settings the
+   * javax validation annotation: @NotNull
+   *
+   * @return true or false
+   */
+  boolean isRequired();
+
+  /**
    * Set the HTML Id for this field. You would normally set this trough its
    * corresponding annotation
    *
