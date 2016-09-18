@@ -41,17 +41,6 @@ public class Dispatcher extends HttpServlet
   @Override
   public void init(ServletConfig config) throws ServletException
   {
-    // Setup the router
-    mRouter = Router.getInstance();
-
-    try
-    {
-      mRouter.init(config.getServletContext().getContextPath());
-    }
-    catch (FileNotFoundException e)
-    {
-      throw new ServletException("Cannot open route file", e);
-    }
 
     // Load the web application
     try
@@ -64,6 +53,18 @@ public class Dispatcher extends HttpServlet
     }
 
     mWebApplication.init(config);
+
+    // Setup the router
+    mRouter = Router.getInstance();
+
+    try
+    {
+      mRouter.init(config.getServletContext().getContextPath());
+    }
+    catch (FileNotFoundException e)
+    {
+      throw new ServletException("Cannot open route file", e);
+    }
 
     // cache the field here so we don't have to do a lookup each time
     mRequestListener = mWebApplication.getRequestListener();
@@ -170,15 +171,17 @@ public class Dispatcher extends HttpServlet
 
         if (!(requestResult instanceof HttpRedirect))
         {
-          log.error(
-              "When you change the language using RequestContext.setLanguage() you must return a HttpRedirect result.");
+          log.error("When you change the language using RequestContext.setLanguage() you must return a HttpRedirect result.");
           throw new IllegalStateException("Invalid controller result "
               + requestResult.getClass().getSimpleName() + ". Expected HttpRedirect");
         }
         HttpRedirect redirect = (HttpRedirect)requestResult;
         URI uri = redirect.getURI();
         UrlBuilder ub1 = UrlBuilder.fromUri(Settings.siteRootUri);
-        String hostname = context.getLanguage() + "." + ub1.hostName;
+        String lang = context.getLanguage();
+        String hostname = ub1.hostName;
+        if (lang != null && !lang.isEmpty())
+          hostname = lang + "." + ub1.hostName;
         ub1 = ub1.withHost(hostname).withPath(uri.getPath()).withQuery(uri.getQuery());
         requestResult = new HttpRedirect(ub1.toUrl(), redirect.getRedirectType());
       }

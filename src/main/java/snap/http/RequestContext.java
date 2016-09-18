@@ -59,7 +59,7 @@ public class RequestContext
    *          The original servlet response
    */
   public RequestContext(HttpMethod method, HttpServletRequest servletRequest,
-      HttpServletResponse servletResponse)
+                        HttpServletResponse servletResponse)
   {
     mServletRequest = servletRequest;
     mServletResponse = servletResponse;
@@ -255,6 +255,9 @@ public class RequestContext
   public String getQuery()
   {
     String query = mServletRequest.getQueryString();
+    if (query == null)
+      return null;
+
     try
     {
       return URLDecoder.decode(query, "UTF-8");
@@ -288,7 +291,7 @@ public class RequestContext
   public RequestResult chainNextRoute() throws Throwable
   {
     RouteMatcher matcher = Router.getInstance().findNextRouteMatcherForPath(getMethod(), getPath(),
-        getRouteMatcher());
+                                                                            getRouteMatcher());
     setRouteMatcher(matcher);
     return matcher.handleRoute(this);
   }
@@ -682,7 +685,7 @@ public class RequestContext
    *
    */
   public HttpRedirect getRedirect(String alias, RedirectType type, Map<String, Object> getParams,
-      Object... params)
+                                  Object... params)
   {
     return getRouter().redirectForRoute(alias, type, getParams, params);
   }
