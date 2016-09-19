@@ -5,6 +5,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import javax.mail.Address;
@@ -63,6 +64,21 @@ public class Mailer
     {
       this.templateName = templateName;
       return this;
+    }
+
+    /**
+     * Sets the local for this builder. Will decide which template to read. The
+     * local .toLanguageTag() will be appended to the templateName
+     *
+     * @param locale
+     *          The locale to use.
+     */
+    public void setLocale(Locale locale)
+    {
+      if (locale == null)
+        throw new NullPointerException();
+
+      this.locale = locale;
     }
 
     /**
@@ -223,8 +239,10 @@ public class Mailer
         MimeBodyPart textPart = new MimeBodyPart();
         // TODO: check if value is present
 
-        File txtFile = new File(
-            Settings.rootPath + "/" + Settings.emailTemplatePath + "/" + templateName + ".txt");
+        File txtFile = getFileForLocale(Settings.rootPath
+            + "/" + Settings.emailTemplatePath
+            + "/" + templateName, ".txt", locale);
+
         if (!txtFile.exists())
         {
           throw new SnapException("Missing template file: " + txtFile);
@@ -234,8 +252,9 @@ public class Mailer
 
         // Set html Part
         MimeBodyPart htmlPart = new MimeBodyPart();
-        File htmlFile = new File(
-            Settings.rootPath + "/" + Settings.emailTemplatePath + "/" + templateName + ".html");
+        File htmlFile = getFileForLocale(Settings.rootPath
+            + "/" + Settings.emailTemplatePath
+            + "/" + templateName, ".html", locale);
         if (!htmlFile.exists())
         {
           throw new SnapException("Missing template file: " + htmlFile);
@@ -265,6 +284,51 @@ public class Mailer
       }
     }
 
+    /**
+     * Check if the file exists starting with specific locale and decrease to
+     * more general locale. Eg: start with "en-US", if not found try "en", if
+     * not found just return the file name. Currently only support language &
+     * country.
+     *
+     * @param path
+     *          The base path
+     * @param extension
+     *          the extension to append after the filename (starting "." is
+     *          optional)
+     * @param locale
+     *          the locale to use, if null, returns the default file
+     *          (path+extension)
+     * @return
+     */
+    private File getFileForLocale(String path, String extension, Locale locale)
+    {
+      if (path == null || extension == null)
+        throw new NullPointerException();
+
+      if (extension.charAt(0) != '.')
+        extension = "." + extension;
+
+      if (locale == null)
+        return new File(path + extension);
+
+      String lang = locale.getLanguage();
+      String country = locale.getCountry();
+
+      // TODO: could write some smart recursion here.
+      // but this works just as well.
+      String path1 = path + "_" + lang;
+      String path2 = path1 + "-" + country;
+      File file = new File(path2 + extension);
+      if (file.exists())
+        return file;
+      file = new File(path1 + extension);
+      if (file.exists())
+        return file;
+
+      return new File(path + extension);
+
+    }
+
     private List<InternetAddress> recipients;
 
     private String subject;
@@ -272,6 +336,8 @@ public class Mailer
     private String templateName;
 
     private InternetAddress from;
+
+    private Locale locale;
   }
 
   public Mailer()

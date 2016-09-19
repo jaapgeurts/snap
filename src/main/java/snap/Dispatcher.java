@@ -182,7 +182,10 @@ public class Dispatcher extends HttpServlet
         String hostname = ub1.hostName;
         if (lang != null && !lang.isEmpty())
           hostname = lang + "." + ub1.hostName;
-        ub1 = ub1.withHost(hostname).withPath(uri.getPath()).withQuery(uri.getQuery());
+        String uriPath = uri.getPath();
+        if (uriPath.charAt(0) != '/')
+          uriPath = "/" + uriPath;
+        ub1 = ub1.withHost(hostname).withPath(uriPath).withQuery(uri.getQuery());
         requestResult = new HttpRedirect(ub1.toUrl(), redirect.getRedirectType());
       }
 
