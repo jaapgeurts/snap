@@ -132,6 +132,9 @@ public class Dispatcher extends HttpServlet
 
     WebApplication.getInstance().setRequestContext(context);
 
+    RequestResult requestResult = null;
+    RequestResult errorResult = null;
+
     // match the path here and find a route
     String path = context.getPath();
     if (path == null || "".equals(path))
@@ -141,13 +144,18 @@ public class Dispatcher extends HttpServlet
       throw new ServletException(message);
     }
 
-    HttpMethod method = context.getMethod();
-
-    RequestResult requestResult = null;
-    RequestResult errorResult = null;
-
     try
     {
+
+      String fullPath = context.getRequest().getRequestURL().toString();
+      if (fullPath.toLowerCase().startsWith("http"))
+      {
+        throw new UnsupportedRequestException(
+            "Possible hacking attempt. HTTP forward requests are not allowed");
+      }
+
+      HttpMethod method = context.getMethod();
+
       String oldLanguage = context.getLanguage();
 
       if (mRequestListener != null)

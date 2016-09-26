@@ -6,6 +6,7 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -13,6 +14,7 @@ import java.util.Map.Entry;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import javax.servlet.ServletException;
@@ -108,7 +110,27 @@ public abstract class Form
 
     mIsAssigned = true;
 
+    Map<String, Part> allParts = new HashMap<>();
+    String contentType = mContext.getRequest().getContentType();
+    if (contentType != null && "multipart/form-data".equals(contentType.toLowerCase()))
+    {
+      // get all the parts and store them in a hashmap if any
+      try
+      {
+        Collection<Part> parts = mContext.getRequest().getParts();
+        allParts = parts.stream().collect(Collectors.toMap(Part::getName, Function.identity()));
+      }
+      catch (IOException | ServletException e)
+      {
+        log.debug("Can't get multipart parts", e);
+      }
+    }
     Map<String, String[]> params = mContext.getParamsPostGet();
+
+    // Add all the names that were submitted so we can check if all has been
+    // consumed;
+    Set<String> remaining = new HashSet<>(params.keySet());
+    remaining.addAll(allParts.keySet());
 
     // for all fields find parameters in the request and assign
 
@@ -120,34 +142,40 @@ public abstract class Form
       // Fields don't have context.
       // the filefield is special ass setfield(part) will add it to the set
       // if the field is a Set<Part>
+      String varName = entry.getKey();
 
       if (entry.getValue() instanceof FileField)
       {
-        String contentType = mContext.getRequest().getContentType();
-        if (contentType == null || "multipart/form-data".equals(contentType.toLowerCase()))
-          continue;
-
         FileField ff = (FileField)entry.getValue();
-        try
+        if (allParts.containsKey(varName))
         {
-          Collection<Part> parts = mContext.getRequest().getParts();
-          for (Part p : parts)
-          {
-            if (p.getName().equals(entry.getKey()))
-              ff.setFieldValue(p);
-          }
+          Part p = allParts.get(varName);
+          ff.setFieldValue(p);
+          remaining.remove(varName);
         }
-        catch (IOException | ServletException e)
+        else
         {
-          log.debug("Can't get multipart class", e);
+          log.info("No variable value submitted for field: " + varName);
         }
-
       }
       else
       {
-        if (params.containsKey(entry.getKey()))
-          ((FormFieldBase)entry.getValue()).setFieldValue(params.get(entry.getKey()));
+        if (params.containsKey(varName))
+        {
+          ((FormFieldBase)entry.getValue()).setFieldValue(params.get(varName));
+          remaining.remove(varName);
+        }
+        else
+        {
+          log.info("No variable value submitted for field: " + varName);
+        }
       }
+    }
+    if (!remaining.isEmpty())
+    {
+      String fieldsRemaining = remaining.stream().collect(Collectors.joining(","));
+      log.warn("More variables submitted than expected\n  These variables were submitted but not found in the form: "
+          + fieldsRemaining);
     }
   }
 
@@ -313,7 +341,7 @@ public abstract class Form
       required = " <span class='required'>*</span>";
 
     return String.format("<label for='%1$s' %3$s>%2$s%4$s</label>\n", htmlId, label,
-                         Helpers.attrToString(attribs),required);
+                         Helpers.attrToString(attribs), required);
   }
 
   /**
