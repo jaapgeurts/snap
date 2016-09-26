@@ -228,6 +228,10 @@ public class Dispatcher extends HttpServlet
     {
       errorResult = new HttpError(HttpServletResponse.SC_FORBIDDEN, "User not authorized", ae);
     }
+    catch (UnsupportedRequestException ure)
+    {
+      errorResult = new HttpError(HttpServletResponse.SC_BAD_REQUEST, "This request is not supported", ure);
+    }
     catch (AuthenticationException uae)
     {
       // check if user wants redirects
