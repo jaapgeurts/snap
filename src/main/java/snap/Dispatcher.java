@@ -150,8 +150,7 @@ public class Dispatcher extends HttpServlet
       String fullPath = context.getRequest().getRequestURL().toString();
       if (fullPath.toLowerCase().startsWith("http"))
       {
-        throw new UnsupportedRequestException(
-            "Possible hacking attempt. HTTP forward requests are not allowed");
+        throw new UnsupportedRequestException("HTTP forward requests are not allowed");
       }
 
       HttpMethod method = context.getMethod();
