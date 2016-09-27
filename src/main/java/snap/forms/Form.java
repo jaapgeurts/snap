@@ -112,17 +112,21 @@ public abstract class Form
 
     Map<String, Part> allParts = new HashMap<>();
     String contentType = mContext.getRequest().getContentType();
-    if (contentType != null && "multipart/form-data".equals(contentType.toLowerCase()))
+    if (contentType != null)
     {
-      // get all the parts and store them in a hashmap if any
-      try
+      contentType = contentType.split(";")[0];
+      if ("multipart/form-data".equals(contentType.toLowerCase()))
       {
-        Collection<Part> parts = mContext.getRequest().getParts();
-        allParts = parts.stream().collect(Collectors.toMap(Part::getName, Function.identity()));
-      }
-      catch (IOException | ServletException e)
-      {
-        log.debug("Can't get multipart parts", e);
+        // get all the parts and store them in a hashmap if any
+        try
+        {
+          Collection<Part> parts = mContext.getRequest().getParts();
+          allParts = parts.stream().collect(Collectors.toMap(Part::getName, Function.identity()));
+        }
+        catch (IOException | ServletException e)
+        {
+          log.debug("Can't get multipart parts", e);
+        }
       }
     }
     Map<String, String[]> params = mContext.getParamsPostGet();

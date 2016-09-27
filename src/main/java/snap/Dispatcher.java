@@ -3,6 +3,7 @@ package snap;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URLEncoder;
 import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.Arrays;
@@ -34,8 +35,18 @@ public class Dispatcher extends HttpServlet
 
   final Logger log = LoggerFactory.getLogger(Dispatcher.class);
 
+  // private static final String IPV4_REGEX =
+  // "((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])";
+  // private static final String IPV6_REGEX =
+  // "(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))";
+
+//  private Pattern ipv4Pattern;
+//  private Pattern ipv6Pattern;
+
   public Dispatcher()
   {
+    // ipv4Pattern = Pattern.compile(IPV4_REGEX);
+    // ipv6Pattern = Pattern.compile(IPV6_REGEX);
   }
 
   @Override
@@ -146,13 +157,23 @@ public class Dispatcher extends HttpServlet
 
     try
     {
-
+      /*
+       * Validate the request URL. This part makes sure that the
+       * request url matches the site name.
+       * NOTE: this is disabled for now and the host part is just ignored.
+       */
+      /*
       String fullPath = context.getRequest().getRequestURL().toString();
-      if (fullPath.toLowerCase().startsWith("http"))
+      URI uri = new URI(fullPath);
+      String host = uri.getHost();
+      Matcher ipv4Matcher = ipv4Pattern.matcher(host);
+      Matcher ipv6Matcher = ipv6Pattern.matcher(host);
+      if (host != null && !host.endsWith(Settings.siteRootUri.getHost()) &&
+          !ipv4Matcher.matches() && !ipv6Matcher.matches())
       {
         throw new UnsupportedRequestException("HTTP forward requests are not allowed");
       }
-
+      */
       HttpMethod method = context.getMethod();
 
       String oldLanguage = context.getLanguage();
@@ -183,16 +204,16 @@ public class Dispatcher extends HttpServlet
               + requestResult.getClass().getSimpleName() + ". Expected HttpRedirect");
         }
         HttpRedirect redirect = (HttpRedirect)requestResult;
-        URI uri = redirect.getURI();
+        URI redirectUri = redirect.getURI();
         UrlBuilder ub1 = UrlBuilder.fromUri(Settings.siteRootUri);
         String lang = context.getLanguage();
         String hostname = ub1.hostName;
         if (lang != null && !lang.isEmpty())
           hostname = lang + "." + ub1.hostName;
-        String uriPath = uri.getPath();
+        String uriPath = redirectUri.getPath();
         if (uriPath.charAt(0) != '/')
           uriPath = "/" + uriPath;
-        ub1 = ub1.withHost(hostname).withPath(uriPath).withQuery(uri.getQuery());
+        ub1 = ub1.withHost(hostname).withPath(uriPath).withQuery(redirectUri.getQuery());
         requestResult = new HttpRedirect(ub1.toUrl(), redirect.getRedirectType());
       }
 
@@ -226,6 +247,10 @@ public class Dispatcher extends HttpServlet
     catch (AuthorizationException ae)
     {
       errorResult = new HttpError(HttpServletResponse.SC_FORBIDDEN, "User not authorized", ae);
+    }
+    catch (URISyntaxException use)
+    {
+      errorResult = new HttpError(HttpServletResponse.SC_BAD_REQUEST, "This request URI is invalid", use);
     }
     catch (UnsupportedRequestException ure)
     {
