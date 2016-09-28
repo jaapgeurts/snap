@@ -106,7 +106,7 @@ public class ActionRoute implements Route
 
       // check CSRF
       // TODO: this should probably include HttpMethod.DELETE
-      if (context.getMethod() == HttpMethod.POST || context.getMethod() == HttpMethod.PUT )
+      if (context.getMethod() == HttpMethod.POST || context.getMethod() == HttpMethod.PUT)
       {
         validateCsrfToken(context);
       }
@@ -220,7 +220,10 @@ public class ActionRoute implements Route
       }
       catch (ClassCastException e)
       {
-        String message = "Instance of RequestResult expected. Found: " + result.getClass().getCanonicalName();
+        String className = "<null>";
+        if (result != null)
+          className = result.getClass().getCanonicalName();
+        String message = "Instance of RequestResult expected. Found: " + className;
         throw new SnapException(message, e);
       }
 

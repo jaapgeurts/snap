@@ -28,17 +28,19 @@ public class LinebreaksToParagraph extends JavaTagBase
         throw new SnapException("@nl2p() missing 'text' argument");
       // get the text value out and remove the key text.
       Object o = paramMap.get("text");
-      s = (String)o.toString();
+      s = o.toString();
 
       paramMap.remove("text");
       // key text removed, now add any other parameters as html attribs
 
       if (paramMap.size() > 0)
       {
+        StringBuilder sbuilder = new StringBuilder();
         for (Map.Entry<String, Object> e : paramMap.entrySet())
         {
-          attribs += " " + e.getKey() + "='" + e.getValue().toString() + "'";
+          sbuilder.append(" " + e.getKey() + "='" + e.getValue().toString() + "'");
         }
+        attribs += sbuilder.toString();
       }
     }
     else
@@ -46,7 +48,7 @@ public class LinebreaksToParagraph extends JavaTagBase
       // check if any were passed by position
       Object o = params.getDefault();
       if (o != null)
-        s = (String)o.toString();
+        s = o.toString();
     }
     p("<p" + attribs + ">" + s.trim().replaceAll("[\\r|\\n]+", "</p><p" + attribs + ">") + "</p>");
   }

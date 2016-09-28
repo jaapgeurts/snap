@@ -335,10 +335,10 @@ public class StaticRoute implements Route
       {
         String end = beginend[1];
         if (end.length() > 0)
-          last = Integer.valueOf(end);
+          last = Long.parseLong(end);
       }
       if (begin.length() > 0)
-        first = Integer.valueOf(begin);
+        first = Long.parseLong(begin);
       if (first == -1)
       {
         first = filesize - last;
@@ -393,7 +393,7 @@ public class StaticRoute implements Route
     if (path != null)
     {
       file = new File(path);
-      if (file != null && file.isFile())
+      if (file.isFile())
         // the static route is a link to a direct file
         return file;
     }

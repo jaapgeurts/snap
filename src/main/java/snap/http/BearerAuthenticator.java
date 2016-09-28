@@ -23,7 +23,7 @@ public abstract class BearerAuthenticator implements Authenticator
    * Authenticate the user with the credentials. Return a userid when successful
    * or null when failed authentication failed. The system will ask your app for
    * the user by calling WebApplication.getUser(Long userid) when needed
-   * 
+   *
    * @param context
    *          The request context
    * @param token
@@ -39,7 +39,7 @@ public abstract class BearerAuthenticator implements Authenticator
       return false;
 
     String[] parts = header.trim().split(" ");
-    if (parts == null || parts.length != 2)
+    if (parts.length != 2)
     {
       log.error("Malformed authentication header. Expected \"Bearer <value>\"");
       return false;

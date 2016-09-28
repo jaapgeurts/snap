@@ -70,7 +70,7 @@ public class GenericListOption<T> implements ListOption
   @Override
   public String toString()
   {
-    return "GenericListOption: { text: " + mText + ", value: " + mValue.toString() + " }";
+    return "GenericListOption: { text: " + mText + ", value: " + mValue + " }";
   }
 
 }

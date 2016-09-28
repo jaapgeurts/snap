@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -55,7 +56,8 @@ public class Router
   {
     mContextPath = contextPath;
     BufferedReader in = new BufferedReader(
-        new InputStreamReader(getClass().getClassLoader().getResourceAsStream((Settings.routesFile))));
+        new InputStreamReader(getClass().getClassLoader().getResourceAsStream(Settings.routesFile),
+            StandardCharsets.UTF_8));
     int i = 1;
     try
     {
@@ -64,7 +66,7 @@ public class Router
       {
         String line = in.readLine();
         // comment line: skip it.
-        if (line.isEmpty() || line.charAt(0) == '#')
+        if (line == null || line.isEmpty() || line.charAt(0) == '#')
           continue;
 
         String[] parts = line.split("\\s+");
@@ -101,14 +103,21 @@ public class Router
 
         i++;
       }
-      in.close();
-      // res.close();
     }
-    catch (
-
-    IOException e)
+    catch (IOException e)
     {
       log.error("An error happened during parsing route.conf at line: " + i, e);
+    }
+    finally
+    {
+      if (in != null)
+        try
+        {
+          in.close();
+        }
+        catch (IOException ioe)
+        {
+        }
     }
 
   }
@@ -232,7 +241,7 @@ public class Router
    *         the controller method
    */
   public HttpRedirect redirectForRoute(String alias, RedirectType type, Map<String, Object> getParams,
-      Object... params)
+                                       Object... params)
   {
     return new HttpRedirect(linkForRoute(alias, getParams, params), type);
   }

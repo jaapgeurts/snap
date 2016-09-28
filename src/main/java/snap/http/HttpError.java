@@ -47,7 +47,7 @@ public class HttpError implements RequestResult
     if (Settings.debug)
     {
       InputStream in = getClass().getClassLoader().getResourceAsStream(ERROR_PAGE_NAME);
-      String template = StreamToString(in);
+      String template = streamToString(in);
 
       Map<String, Object> map = new HashMap<>();
       map.put("exception", mException);
@@ -85,7 +85,7 @@ public class HttpError implements RequestResult
     }
   }
 
-  protected String StreamToString(InputStream in) throws IOException
+  protected String streamToString(InputStream in) throws IOException
   {
     if (in == null)
     {

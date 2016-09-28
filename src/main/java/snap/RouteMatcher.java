@@ -2,6 +2,7 @@ package snap;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -33,7 +34,7 @@ public class RouteMatcher
     mUrlRegEx = url;
     mAlias = alias;
 
-    byte[] re = mUrlRegEx.getBytes();
+    byte[] re = mUrlRegEx.getBytes(StandardCharsets.UTF_8);
     mRegex = new Regex(re, 0, re.length, Option.NONE, UTF8Encoding.INSTANCE);
 
     mRoute = route;
@@ -64,7 +65,7 @@ public class RouteMatcher
       return false;
 
     boolean success = false;
-    byte[] p = urlPath.getBytes();
+    byte[] p = urlPath.getBytes(StandardCharsets.UTF_8);
     Matcher m = mRegex.matcher(p);
     success = m.search(0, p.length, Option.DEFAULT) != -1;
 
@@ -81,7 +82,7 @@ public class RouteMatcher
   public boolean match(String urlPath)
   {
     boolean success = false;
-    byte[] p = urlPath.getBytes();
+    byte[] p = urlPath.getBytes(StandardCharsets.UTF_8);
     Matcher m = mRegex.matcher(p);
     success = m.search(0, p.length, Option.DEFAULT) != -1;
 
@@ -220,7 +221,7 @@ public class RouteMatcher
       return null;
 
     HashMap<String, String> map = new HashMap<>();
-    byte[] p = path.getBytes();
+    byte[] p = path.getBytes(StandardCharsets.UTF_8);
     Matcher m = mRegex.matcher(p);
     int result = m.search(0, p.length, Option.CAPTURE_GROUP);
     if (result == -1)
@@ -235,7 +236,7 @@ public class RouteMatcher
       while (entries.hasNext())
       {
         NameEntry entry = entries.next();
-        String name = new String(entry.name, entry.nameP, entry.nameEnd - entry.nameP);
+        String name = new String(entry.name, entry.nameP, entry.nameEnd - entry.nameP,StandardCharsets.UTF_8);
         int number = entry.getBackRefs()[0];
         int start = region.beg[number];
         int end = region.end[number];
